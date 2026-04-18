@@ -21,7 +21,7 @@ export type Category =
 export interface Product {
   id: number;
   cat: Category;
-  catKey: CatKey;
+  catKey?: CatKey;
   sub: string;
   name: string;
   brand: string;
@@ -31,8 +31,8 @@ export interface Product {
   free: boolean;
   desc: string;
   tags: string[];
-  editors: boolean;
-  volume: string;
+  editors?: boolean;
+  volume?: string;
   video: { title: string; views: string; url: string };
 }
 
