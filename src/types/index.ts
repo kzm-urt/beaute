@@ -30,7 +30,9 @@ export interface Product {
   free: boolean;
   desc: string;
   tags: string[];
+  image: string;
   video: { title: string; views: string; url: string };
+  note?: string;
 }
 
 export interface UserProfile {
