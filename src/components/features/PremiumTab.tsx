@@ -1,106 +1,89 @@
 "use client";
-import { GoldButton } from "@/components/ui";
+import { useState } from "react";
+import { BEAUTE_TOKENS } from "@/lib/constants";
+import { Icon } from "@/components/ui";
 
-interface Props {
-  isPro: boolean;
-  onUpgrade: () => void;
-}
-
-const FREE_FEATURES = [
-  [true,  "基本おすすめ（一部製品）"],
-  [true,  "バズ動画リンク付き"],
-  [true,  "成分解析 月3回"],
-  [true,  "使用ログ 最大5件"],
-  [false, "全製品データベース（30件以上）"],
-  [false, "成分解析 無制限"],
-  [false, "AIパーソナルアドバイス"],
-  [false, "新着製品の優先通知"],
-] as [boolean, string][];
-
-const PRO_FEATURES = [
-  "✅ 全製品データベース（随時更新）",
-  "✅ 成分解析 無制限",
-  "✅ 詳細成分比較レポート",
-  "✅ 使用ログ 無制限",
-  "✅ AIパーソナルアドバイス",
-  "✅ 新着製品の優先通知",
-  "✅ 広告なし",
-];
-
-const FAQ = [
-  ["いつでも解約できますか？", "はい。次回更新日まで利用可能で、設定からいつでも解約できます。"],
-  ["成分解析はどの製品でも使えますか？", "成分表が写真に写っていれば、国内外ほぼ全製品に対応しています。"],
-  ["新製品の追加頻度は？", "週1回ペースで話題の新製品・季節アイテムを追加しています。"],
-] as [string, string][];
-
-export default function PremiumTab({ isPro, onUpgrade }: Props) {
-  const handleCheckout = async () => {
-    try {
-      const res = await fetch("/api/stripe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: "guest", email: "" }),
-      });
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-    } catch {
-      alert("決済ページへの遷移に失敗しました。");
-    }
-  };
+export default function PremiumTab() {
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
 
   return (
-    <div className="px-4 py-5">
-      <h2 className="text-[28px] italic mb-1" style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", color: "#150B00" }}>
-        プランを選ぶ
-      </h2>
-      <p className="text-[13px] mb-5" style={{ color: "#8A7A6E" }}>あなたの美容をさらに深く</p>
-
-      {/* ── FREE PLAN ── */}
-      <div className="bg-white border-[1.5px] border-[#EDE5DC] rounded-[20px] p-5 mb-3.5">
-        <div className="flex justify-between items-center mb-3.5">
-          <p className="text-[18px] font-bold" style={{ color: "#150B00" }}>FREE</p>
-          <p className="text-[24px] font-bold" style={{ color: "#150B00" }}>¥0</p>
+    <div>
+      <div style={{ background: BEAUTE_TOKENS.navBg, color: BEAUTE_TOKENS.cream, padding: "56px 48px 80px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -200, right: -200, width: 600, height: 600, borderRadius: "50%", background: `radial-gradient(circle, ${BEAUTE_TOKENS.goldLight}22 0%, transparent 60%)` }}/>
+        <div style={{ fontSize: 10, letterSpacing: "0.3em", color: BEAUTE_TOKENS.goldLight, fontFamily: "ui-monospace, Menlo, monospace" }}>━━ アトリエ会員</div>
+        <h1 style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 72, margin: "14px 0 0", fontWeight: 400, lineHeight: 1.15, letterSpacing: "0.02em" }}>
+          あなたの肌に、<br/>
+          <span style={{ background: `linear-gradient(135deg, ${BEAUTE_TOKENS.goldLight} 0%, ${BEAUTE_TOKENS.gold} 60%, #F5E8D0 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>私信のように。</span>
+        </h1>
+        <div style={{ marginTop: 32, display: "flex", gap: 4 }}>
+          <button onClick={() => setBilling("monthly")} style={{ padding: "10px 22px", background: billing === "monthly" ? BEAUTE_TOKENS.cream : "transparent", color: billing === "monthly" ? BEAUTE_TOKENS.navBg : BEAUTE_TOKENS.cream, border: `1px solid ${BEAUTE_TOKENS.cream}`, fontSize: 12, letterSpacing: "0.1em", fontWeight: 500, cursor: "pointer" }}>月額プラン</button>
+          <button onClick={() => setBilling("annual")} style={{ padding: "10px 22px", background: billing === "annual" ? BEAUTE_TOKENS.cream : "transparent", color: billing === "annual" ? BEAUTE_TOKENS.navBg : BEAUTE_TOKENS.cream, border: `1px solid ${BEAUTE_TOKENS.cream}`, borderLeft: "none", fontSize: 12, letterSpacing: "0.1em", fontWeight: 500, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            年額プラン
+            <span style={{ padding: "2px 6px", background: BEAUTE_TOKENS.goldLight, color: BEAUTE_TOKENS.navBg, fontSize: 8, letterSpacing: "0.18em" }}>-20%</span>
+          </button>
         </div>
-        {FREE_FEATURES.map(([ok, text], i) => (
-          <p key={i} className="text-[13px] py-1" style={{ color: ok ? "#150B00" : "#C4B4A8" }}>
-            {ok ? "✅" : "——"} {text}
-          </p>
-        ))}
       </div>
 
-      {/* ── PRO PLAN ── */}
-      <div className="rounded-[20px] p-5 mb-4" style={{ background: "linear-gradient(145deg,#1A0E08,#3D2010)" }}>
-        <div className="flex justify-between items-start mb-1">
-          <p className="text-[18px] font-bold" style={{ color: "#D4A853" }}>👑 PRO</p>
-          <div>
-            <span className="text-[28px] font-bold" style={{ color: "#F5EEE4" }}>¥680</span>
-            <span className="text-[12px] ml-0.5" style={{ color: "rgba(245,238,228,.45)" }}>/月</span>
+      <div style={{ padding: "0 48px", marginTop: -48, display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 24 }}>
+        <div style={{ background: BEAUTE_TOKENS.cream, border: `1px solid ${BEAUTE_TOKENS.border}`, padding: "40px 36px", display: "flex", flexDirection: "column" }}>
+          <div style={{ fontSize: 10, letterSpacing: "0.3em", color: BEAUTE_TOKENS.textMuted, fontFamily: "ui-monospace, Menlo, monospace" }}>━━ ベーシック</div>
+          <h2 style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 34, margin: "8px 0 4px", fontWeight: 500, letterSpacing: "0.02em" }}>beauté 無料プラン</h2>
+          <p style={{ fontSize: 12, color: BEAUTE_TOKENS.textMuted, lineHeight: 1.6 }}>はじめての方へ。基本機能を無料でご利用いただけます。</p>
+          <div style={{ marginTop: 28, paddingTop: 28, borderTop: `1px solid ${BEAUTE_TOKENS.border}`, display: "flex", alignItems: "baseline", gap: 8 }}>
+            <span style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 44, lineHeight: 1.1, color: BEAUTE_TOKENS.text, fontWeight: 500 }}>¥0</span>
+            <span style={{ fontSize: 11, letterSpacing: "0.1em", color: BEAUTE_TOKENS.textMuted, fontFamily: "ui-monospace, Menlo, monospace" }}>/ ずっと無料</span>
           </div>
+          <ul style={{ listStyle: "none", padding: 0, margin: "28px 0 0", display: "flex", flexDirection: "column", gap: 10, fontSize: 13, color: BEAUTE_TOKENS.text, flex: 1 }}>
+            {["月5回の成分解析", "基本的な製品レコメンド", "使用ログ記録", "カテゴリ検索", "ウィッシュリスト"].map(f => (
+              <li key={f} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Icon name="check" size={14} stroke={BEAUTE_TOKENS.text} sw={1.6}/><span>{f}</span>
+              </li>
+            ))}
+          </ul>
+          <button style={{ marginTop: 32, padding: "14px", background: "transparent", color: BEAUTE_TOKENS.text, border: `1px solid ${BEAUTE_TOKENS.text}`, fontSize: 12, letterSpacing: "0.08em", fontWeight: 500, cursor: "pointer" }}>現在のプラン</button>
         </div>
-        <p className="text-[11px] mb-3.5" style={{ color: "rgba(212,168,83,.6)" }}>
-          7日間無料トライアル · いつでもキャンセル可能
-        </p>
-        {PRO_FEATURES.map((f, i) => (
-          <p key={i} className="text-[13px] py-1" style={{ color: "#F5EEE4" }}>{f}</p>
-        ))}
-        <button
-          onClick={isPro ? undefined : handleCheckout}
-          className="w-full mt-4 rounded-[14px] py-3.5 text-[14px] font-bold border-none cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
-          style={{ background: "linear-gradient(135deg,#D4A853,#F0C870)", color: "#1A0E08" }}>
-          {isPro ? "✅ PRO加入済み" : "PROプランを始める（7日間無料）"}
-        </button>
+
+        <div style={{ background: "linear-gradient(160deg, #241710 0%, #1A0E08 50%, #0F0703 100%)", color: BEAUTE_TOKENS.cream, padding: "40px 40px", position: "relative", overflow: "hidden", border: `1px solid ${BEAUTE_TOKENS.gold}55`, display: "flex", flexDirection: "column" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${BEAUTE_TOKENS.goldLight}, transparent)` }}/>
+          <div style={{ position: "absolute", top: -150, right: -100, width: 400, height: 400, background: `radial-gradient(circle, ${BEAUTE_TOKENS.goldLight}22 0%, transparent 65%)`, borderRadius: "50%", pointerEvents: "none" }}/>
+          <div style={{ position: "absolute", top: 20, right: 20, padding: "6px 12px", background: `linear-gradient(135deg, ${BEAUTE_TOKENS.goldLight}, ${BEAUTE_TOKENS.gold})`, color: BEAUTE_TOKENS.navBg, fontSize: 9, letterSpacing: "0.25em", textTransform: "uppercase", fontFamily: "ui-monospace, Menlo, monospace", fontWeight: 700 }}>★ RECOMMENDED</div>
+          <div style={{ fontSize: 10, letterSpacing: "0.3em", color: BEAUTE_TOKENS.goldLight, fontFamily: "ui-monospace, Menlo, monospace" }}>━━ アトリエ</div>
+          <h2 style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 44, margin: "8px 0 4px", fontWeight: 500, lineHeight: 1.15, letterSpacing: "0.02em", background: `linear-gradient(135deg, #F5E8D0 0%, ${BEAUTE_TOKENS.goldLight} 70%, ${BEAUTE_TOKENS.gold} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>beauté プロプラン</h2>
+          <p style={{ fontSize: 12, color: "rgba(251,248,243,0.7)", lineHeight: 1.6 }}>編集部と AI の二重監修。無制限のアクセスと、プライベートなルーティン設計。</p>
+          <div style={{ marginTop: 28, paddingTop: 28, borderTop: "1px solid rgba(212, 168, 83, 0.25)", display: "flex", alignItems: "baseline", gap: 8 }}>
+            <span style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 58, lineHeight: 1.1, fontWeight: 500, background: `linear-gradient(135deg, #F5E8D0 0%, ${BEAUTE_TOKENS.goldLight} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>¥{billing === "monthly" ? "1,800" : "17,280"}</span>
+            <span style={{ fontSize: 11, letterSpacing: "0.2em", color: "rgba(251,248,243,0.55)", fontFamily: "ui-monospace, Menlo, monospace" }}>/ {billing === "monthly" ? "月" : "年"}</span>
+          </div>
+          {billing === "annual" && <div style={{ fontSize: 10, letterSpacing: "0.2em", color: BEAUTE_TOKENS.goldLight, fontFamily: "ui-monospace, Menlo, monospace", marginTop: 6 }}>= ¥1,440 / 月 · 年間 ¥4,320 お得</div>}
+          <ul style={{ listStyle: "none", padding: 0, margin: "28px 0 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 13, color: "rgba(251,248,243,0.92)", flex: 1 }}>
+            {["無制限の成分解析", "AI プライベート調合", "編集部限定エディット", "シェードマッチング AI", "気象連動ルーティン", "優先カスタマーケア", "アフィリエイト還元 3%", "先行アクセス"].map(f => (
+              <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <span style={{ width: 16, height: 16, borderRadius: "50%", background: `linear-gradient(135deg, ${BEAUTE_TOKENS.goldLight}, ${BEAUTE_TOKENS.gold})`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={BEAUTE_TOKENS.navBg} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+                </span>
+                <span>{f}</span>
+              </li>
+            ))}
+          </ul>
+          <button style={{ marginTop: 32, padding: "16px", background: `linear-gradient(135deg, #F5E8D0 0%, ${BEAUTE_TOKENS.goldLight} 45%, ${BEAUTE_TOKENS.gold} 100%)`, color: BEAUTE_TOKENS.navBg, border: "none", fontSize: 13, letterSpacing: "0.08em", fontWeight: 700, cursor: "pointer", boxShadow: `0 10px 30px ${BEAUTE_TOKENS.gold}44` }}>7日間の無料トライアルを始める →</button>
+          <div style={{ marginTop: 12, textAlign: "center", fontSize: 11, letterSpacing: "0.05em", color: "rgba(251,248,243,0.55)" }}>いつでもキャンセル可能 · 請求は8日目から</div>
+        </div>
       </div>
 
-      {/* ── FAQ ── */}
-      <p className="text-[14px] font-bold mb-3" style={{ color: "#150B00" }}>よくある質問</p>
-      {FAQ.map(([q, a]) => (
-        <details key={q} className="mb-3 pb-3 border-b border-[#EDE5DC]">
-          <summary className="text-[13px] font-semibold cursor-pointer" style={{ color: "#150B00", listStyle: "none" }}>
-            Q. {q}
-          </summary>
-          <p className="text-[12px] mt-2 leading-[1.7]" style={{ color: "#8A7A6E" }}>{a}</p>
-        </details>
-      ))}
+      <div style={{ padding: "80px 48px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
+          {[
+            { q: "毎朝、自分専用の編集部がいるような感覚。", n: "— 田中 A. · 2025年からPRO会員" },
+            { q: "成分表が「読める」ようになった。", n: "— 中島 M. · 2024年からPRO会員" },
+            { q: "無駄買いが本当に減った。", n: "— 近藤 Y. · 2025年からPRO会員" },
+          ].map((t, i) => (
+            <div key={i} style={{ borderLeft: `1px solid ${BEAUTE_TOKENS.borderDark}`, paddingLeft: 20 }}>
+              <div style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 22, lineHeight: 1.5, color: BEAUTE_TOKENS.text, fontWeight: 500, letterSpacing: "0.02em" }}>「{t.q}」</div>
+              <div style={{ fontSize: 10, letterSpacing: "0.22em", marginTop: 14, color: BEAUTE_TOKENS.textMuted, fontFamily: "ui-monospace, Menlo, monospace" }}>{t.n}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

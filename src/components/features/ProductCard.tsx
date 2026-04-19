@@ -1,99 +1,69 @@
 "use client";
-import { CAT_META } from "@/lib/constants";
-import { formatPrice } from "@/lib/utils";
+import { BEAUTE_TOKENS, CAT_META } from "@/lib/constants";
+import { ProductPhoto, Stars } from "@/components/ui";
 import type { Product } from "@/types";
-import { Stars, FreeBadge, ProBadge, GoldButton } from "@/components/ui";
 
-interface Props {
-  product: Product;
-  isPro: boolean;
-  onUpgrade: () => void;
-}
+export function ProductCard({ p, variant = "editorial", onOpen }: { p: Product; variant?: "editorial" | "minimal"; onOpen?: (p: Product) => void }) {
+  const meta = CAT_META[p.cat];
 
-export default function ProductCard({ product: p, isPro, onUpgrade }: Props) {
-  const locked = !p.free && !isPro;
-  const m = CAT_META[p.cat];
-
-  return (
-    <div className="relative rounded-[16px] overflow-hidden border border-[#EDE5DC] mb-[10px] fade-up"
-      style={{ background: "#fff", boxShadow: "0 4px 24px rgba(21,11,0,0.07)" }}>
-
-      {/* ── LOCK OVERLAY ── */}
-      {locked && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2"
-          style={{ background: "rgba(248,244,239,0.9)", backdropFilter: "blur(4px)" }}>
-          <span className="text-[28px]">🔒</span>
-          <p className="text-[14px] font-bold" style={{ color: "#150B00" }}>PROプランで見る</p>
-          <p className="text-[11px]" style={{ color: "#8A7A6E" }}>月680円でフル解禁</p>
-          <GoldButton small onClick={onUpgrade} className="mt-1">アップグレード</GoldButton>
-        </div>
-      )}
-
-      {/* ── HEADER ── */}
-      <div style={{ background: m.color, padding: "16px 16px 12px" }}>
-        {/* アイコン */}
-        <div className="h-[62px] rounded-[12px] flex items-center justify-center text-[34px] mb-[10px]"
-          style={{ background: `linear-gradient(135deg,${m.color},${m.accent}33)` }}>
-          {m.icon}
-        </div>
-        {/* タイトル行 */}
-        <div className="flex justify-between items-start">
-          <div className="flex-1 mr-2">
-            <p className="text-[11px] font-semibold mb-0.5" style={{ color: m.dark }}>
-              {p.brand} · {p.sub}
-            </p>
-            <h3 className="text-[15px] font-bold leading-[1.25]" style={{ color: "#150B00" }}>
-              {p.name}
-            </h3>
+  if (variant === "minimal") {
+    return (
+      <div onClick={() => onOpen?.(p)} style={{ background: BEAUTE_TOKENS.cream, border: `1px solid ${BEAUTE_TOKENS.border}`, cursor: "pointer", transition: "all 0.25s ease", display: "flex", flexDirection: "column" }}
+        onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
+        onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0)")}>
+        <ProductPhoto cat={p.cat} label={p.name} ratio={1} pad={24}/>
+        <div style={{ padding: "14px 14px 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: meta.accent }}/>
+            <span style={{ fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: BEAUTE_TOKENS.textMuted, fontFamily: "ui-monospace, Menlo, monospace" }}>{p.brand}</span>
           </div>
-          <div className="text-right shrink-0">
-            {p.free ? <FreeBadge /> : <ProBadge />}
-            <p className="text-[15px] font-bold mt-1" style={{ color: "#A8722A" }}>
-              {formatPrice(p.price)}
-            </p>
+          <div style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 16, lineHeight: 1.3, color: BEAUTE_TOKENS.text, fontWeight: 500, letterSpacing: "0.02em" }}>{p.name}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 10 }}>
+            <span style={{ fontSize: 13, color: BEAUTE_TOKENS.text, fontWeight: 500 }}>{p.price}</span>
+            <span style={{ fontSize: 11, color: BEAUTE_TOKENS.textMuted }}>{p.volume}</span>
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* ── BODY ── */}
-      <div style={{ padding: "12px 16px 14px" }}>
-        {/* 評価 */}
-        <div className="mb-2">
-          <Stars rating={p.rating} />
-          <span className="text-[11px] ml-1.5" style={{ color: "#8A7A6E" }}>
-            {p.rev.toLocaleString()}件
-          </span>
+  return (
+    <div onClick={() => onOpen?.(p)} style={{ background: BEAUTE_TOKENS.cream, border: `1px solid ${BEAUTE_TOKENS.border}`, cursor: "pointer", transition: "all 0.25s ease", display: "flex", flexDirection: "column", position: "relative" }}
+      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 16px 40px rgba(21,11,0,0.08)"; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: meta.color, borderBottom: `1px solid ${meta.accent}33` }}>
+        <span style={{ fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: meta.dark, fontFamily: "ui-monospace, Menlo, monospace", fontWeight: 600 }}>{meta.en}</span>
+        {p.editors && <span style={{ fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: meta.dark, fontFamily: "ui-monospace, Menlo, monospace", padding: "2px 6px", border: `1px solid ${meta.dark}`, borderRadius: 2 }}>Editor&apos;s</span>}
+      </div>
+      <ProductPhoto cat={p.cat} label={p.name} ratio={1.1} pad={22}/>
+      <div style={{ padding: "14px 14px 16px", display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: BEAUTE_TOKENS.textMuted, fontFamily: "ui-monospace, Menlo, monospace" }}>{p.brand} · N° {p.id.replace("p", "")}</div>
+        <div style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 17, lineHeight: 1.35, color: BEAUTE_TOKENS.text, fontWeight: 500, letterSpacing: "0.02em" }}>{p.name}</div>
+        <div style={{ fontSize: 11, color: BEAUTE_TOKENS.textMuted, lineHeight: 1.4 }}>{p.note}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+          <Stars value={p.rating} size={11}/>
+          <span style={{ fontSize: 10, color: BEAUTE_TOKENS.textMuted, fontFamily: "ui-monospace, Menlo, monospace" }}>{p.rating} · {p.reviews.toLocaleString()}</span>
         </div>
-
-        {/* タグ */}
-        <div className="flex flex-wrap gap-1 mb-3">
-          {p.tags.map((t) => (
-            <span key={t} className="text-[10px] px-2 py-0.5 rounded-[10px]"
-              style={{ background: `${m.accent}18`, color: m.dark }}>
-              {t}
-            </span>
-          ))}
+        <div style={{ marginTop: 8, paddingTop: 10, borderTop: `1px solid ${BEAUTE_TOKENS.border}`, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <span style={{ fontSize: 15, color: BEAUTE_TOKENS.text, fontWeight: 600, fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif' }}>{p.price}</span>
+          <span style={{ fontSize: 10, color: BEAUTE_TOKENS.textMuted, fontFamily: "ui-monospace, Menlo, monospace", letterSpacing: "0.1em" }}>{p.volume}</span>
         </div>
+      </div>
+    </div>
+  );
+}
 
-        {/* バズ動画リンク */}
-        <a href={p.video.url} target="_blank" rel="noreferrer" className="block no-underline">
-          <div className="flex items-center gap-[10px] rounded-[12px] px-3 py-2 border border-[#EDE5DC]"
-            style={{ background: "#F8F4EF" }}>
-            <div className="w-[34px] h-[34px] rounded-[8px] flex items-center justify-center text-[13px] shrink-0"
-              style={{ background: `linear-gradient(135deg,${m.accent},${m.color})` }}>
-              ▶
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-[11px] font-semibold overflow-hidden text-ellipsis whitespace-nowrap"
-                style={{ color: "#150B00" }}>
-                {p.video.title}
-              </p>
-              <p className="text-[10px]" style={{ color: "#8A7A6E" }}>
-                🔥 再生 {p.video.views}回
-              </p>
-            </div>
-          </div>
-        </a>
+export function RailCard({ p, onOpen }: { p: Product; onOpen?: (p: Product) => void }) {
+  const meta = CAT_META[p.cat];
+  return (
+    <div onClick={() => onOpen?.(p)} style={{ minWidth: 168, maxWidth: 168, cursor: "pointer", transition: "all 0.2s ease" }}
+      onMouseEnter={e => (e.currentTarget.style.opacity = "0.92")}
+      onMouseLeave={e => (e.currentTarget.style.opacity = "1")}>
+      <ProductPhoto cat={p.cat} label={p.name} ratio={1} pad={16}/>
+      <div style={{ paddingTop: 8 }}>
+        <div style={{ fontSize: 9, letterSpacing: "0.15em", textTransform: "uppercase", color: meta.accent, fontFamily: "ui-monospace, Menlo, monospace" }}>{p.brand}</div>
+        <div style={{ fontFamily: '"Hiragino Mincho ProN", "Noto Serif JP", serif', fontSize: 14, lineHeight: 1.35, color: BEAUTE_TOKENS.text, fontWeight: 500, letterSpacing: "0.02em", marginTop: 3, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>{p.name}</div>
+        <div style={{ fontSize: 10, color: BEAUTE_TOKENS.textMuted, marginTop: 4, fontFamily: "ui-monospace, Menlo, monospace" }}>{p.price}</div>
       </div>
     </div>
   );
