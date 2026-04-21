@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PRODUCTS, CAT_META, ALL_TAGS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 import { Chip, Input, Stars, Icon, FreeBadge, ProBadge } from "@/components/ui";
 import type { Category, Product } from "@/types";
+import type { RakutenProduct } from "@/app/api/rakuten/route";
 
 interface Props {
   isPro: boolean;
@@ -19,6 +20,25 @@ export default function SearchTab({ isPro, onUpgrade, onOpenProduct }: Props) {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortKey>("rating");
   const [showTags, setShowTags] = useState(false);
+  const [rakutenItems, setRakutenItems] = useState<RakutenProduct[]>([]);
+  const [rakutenLoading, setRakutenLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const keyword = query.trim() || (activeCat !== "すべて" ? activeCat : "");
+    if (!keyword) { setRakutenItems([]); return; }
+    debounceRef.current = setTimeout(() => {
+      setRakutenLoading(true);
+      const params = query.trim()
+        ? `name=${encodeURIComponent(query.trim())}`
+        : `category=${encodeURIComponent(activeCat)}`;
+      fetch(`/api/rakuten?${params}`)
+        .then(r => r.json())
+        .then(d => setRakutenItems(d.items ?? []))
+        .finally(() => setRakutenLoading(false));
+    }, 500);
+  }, [query, activeCat]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("beaute_initCat");
@@ -107,6 +127,61 @@ export default function SearchTab({ isPro, onUpgrade, onOpenProduct }: Props) {
             {filtered.map(p => (
               <SearchCard key={p.id} product={p} isPro={isPro} onUpgrade={onUpgrade} onOpen={onOpenProduct}/>
             ))}
+          </div>
+        )}
+
+        {/* ── 楽天リアルタイム検索 ── */}
+        {(rakutenLoading || rakutenItems.length > 0) && (
+          <div style={{ marginTop: 40, borderTop: "1px solid #EDE5DC", paddingTop: 32 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+              <div>
+                <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>━━ 楽天市場</div>
+                <h3 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, margin: 0, fontWeight: 400, color: "#150B00" }}>
+                  リアルタイム商品
+                </h3>
+              </div>
+              <span style={{ fontSize: 10, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", marginLeft: "auto" }}>
+                実際の価格・レビュー数
+              </span>
+            </div>
+
+            {rakutenLoading ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 14 }}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} style={{ borderRadius: 12, overflow: "hidden", background: "#F1EADE" }}>
+                    <div style={{ height: 140, background: "#EDE5DC" }}/>
+                    <div style={{ padding: 12 }}>
+                      <div style={{ height: 10, background: "#EDE5DC", borderRadius: 4, marginBottom: 8 }}/>
+                      <div style={{ height: 10, background: "#EDE5DC", borderRadius: 4, width: "70%" }}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 14 }}>
+                {rakutenItems.map((item, i) => (
+                  <a key={i} href={item.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", display: "block", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 8px rgba(21,11,0,.05)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 20px rgba(21,11,0,.1)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 2px 8px rgba(21,11,0,.05)"; }}>
+                    <div style={{ height: 140, overflow: "hidden", background: "#F8F4EF" }}>
+                      {item.image && <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} loading="lazy"/>}
+                    </div>
+                    <div style={{ padding: "10px 12px 12px" }}>
+                      <div style={{ fontSize: 9, color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>{item.brand}</div>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: "#150B00", lineHeight: 1.4, margin: "0 0 6px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{item.name}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 6 }}>
+                        <Stars rating={item.reviewAverage} size={10}/>
+                        <span style={{ fontSize: 10, color: "#8A7A6E" }}>{item.reviewCount.toLocaleString()}件</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 16, fontWeight: 500, color: "#A8722A" }}>¥{item.price.toLocaleString()}</span>
+                        <span style={{ fontSize: 9, color: "#fff", background: "#BF0000", padding: "2px 7px", borderRadius: 10, fontWeight: 700 }}>楽天で買う</span>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

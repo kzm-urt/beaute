@@ -1,6 +1,7 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { CAT_META, PRODUCTS } from "@/lib/constants";
+import type { YoutubeVideo } from "@/app/api/youtube/route";
 import { formatPrice } from "@/lib/utils";
 import { Icon, Stars, FreeBadge, ProBadge } from "@/components/ui";
 import type { UserProfile, Product, Category } from "@/types";
@@ -14,6 +15,18 @@ interface Props {
 }
 
 export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenProduct }: Props) {
+  const [videos, setVideos] = useState<YoutubeVideo[]>([]);
+  const [videosLoading, setVideosLoading] = useState(true);
+  const [activeVideoCategory, setActiveVideoCategory] = useState("全体");
+
+  useEffect(() => {
+    setVideosLoading(true);
+    fetch(`/api/youtube?category=${encodeURIComponent(activeVideoCategory)}&max=8`)
+      .then(r => r.json())
+      .then(d => setVideos(d.videos ?? []))
+      .finally(() => setVideosLoading(false));
+  }, [activeVideoCategory]);
+
   const recs = PRODUCTS.filter((p) => {
     if (profile.hairType && p.tags.includes(profile.hairType)) return true;
     if (profile.skinType && p.tags.some((t) => t.includes(profile.skinType.replace("肌", "")))) return true;
@@ -123,30 +136,62 @@ export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenP
 
       {/* ── TRENDING VIDEOS ── */}
       <section style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
-        <div style={{ marginBottom: 22 }}>
-          <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 04</div>
-          <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, margin: 0, fontWeight: 400, color: "#150B00" }}>🔥 今週バズってる動画</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 18 }}>
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 04</div>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, margin: 0, fontWeight: 400, color: "#150B00" }}>🔥 今バズってる動画</h2>
+          </div>
+          <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(activeVideoCategory === "全体" ? "美容 おすすめ コスメ" : activeVideoCategory)}`} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", textDecoration: "none" }}>
+            YouTubeで見る →
+          </a>
         </div>
+
+        {/* カテゴリタブ */}
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 12, marginBottom: 16 }} className="hide-scrollbar">
+          {["全体", ...Object.keys(CAT_META)].map(cat => (
+            <button key={cat} onClick={() => setActiveVideoCategory(cat)} style={{
+              flexShrink: 0, padding: "6px 14px", borderRadius: 20, border: "1px solid",
+              borderColor: activeVideoCategory === cat ? "#D4A853" : "#EDE5DC",
+              background: activeVideoCategory === cat ? "#D4A853" : "transparent",
+              color: activeVideoCategory === cat ? "#1A0E08" : "#8A7A6E",
+              fontSize: 11, fontFamily: "ui-monospace,monospace", letterSpacing: "0.1em",
+              cursor: "pointer", fontWeight: activeVideoCategory === cat ? 700 : 400,
+            }}>
+              {cat === "全体" ? "すべて" : cat}
+            </button>
+          ))}
+        </div>
+
+        {/* 動画一覧 */}
         <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8 }} className="hide-scrollbar">
-          {PRODUCTS.slice(0, 7).map(p => {
-            const m = CAT_META[p.cat];
-            return (
-              <a key={p.id} href={p.video.url} target="_blank" rel="noreferrer" style={{ flexShrink: 0, width: 180, textDecoration: "none" }}>
-                <div style={{ height: 100, borderRadius: 10, overflow: "hidden", position: "relative", marginBottom: 8 }}>
-                  <img src={p.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy"/>
-                  <div style={{ position: "absolute", inset: 0, background: `linear-gradient(145deg, ${m.dark}88, ${m.accent}66)` }}/>
-                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{ width: 34, height: 34, borderRadius: "50%", background: "rgba(251,248,243,.9)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <Icon name="play" size={14} stroke={m.dark}/>
-                    </div>
-                  </div>
-                  <span style={{ position: "absolute", bottom: 6, right: 8, fontSize: 9, color: "#FBF8F3", fontFamily: "ui-monospace,monospace", background: "rgba(0,0,0,.6)", padding: "2px 6px", borderRadius: 10 }}>{p.video.views}回</span>
+          {videosLoading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} style={{ flexShrink: 0, width: 200 }}>
+                  <div style={{ height: 112, borderRadius: 10, background: "#F1EADE", marginBottom: 8, animation: "pulse 1.5s ease-in-out infinite" }}/>
+                  <div style={{ height: 12, borderRadius: 4, background: "#F1EADE", marginBottom: 4 }}/>
+                  <div style={{ height: 10, borderRadius: 4, background: "#F1EADE", width: "60%" }}/>
                 </div>
-                <p style={{ fontSize: 11, fontWeight: 600, color: "#150B00", lineHeight: 1.35, margin: 0 }}>{p.video.title.slice(0, 28)}…</p>
-                <p style={{ fontSize: 10, color: m.accent, fontWeight: 600, margin: "3px 0 0", fontFamily: "ui-monospace,monospace" }}>{p.cat}</p>
-              </a>
-            );
-          })}
+              ))
+            : videos.map(v => (
+                <a key={v.id} href={v.url} target="_blank" rel="noreferrer" style={{ flexShrink: 0, width: 200, textDecoration: "none" }}>
+                  <div style={{ height: 112, borderRadius: 10, overflow: "hidden", position: "relative", marginBottom: 8, background: "#1A0E08" }}>
+                    <img src={v.thumbnail} alt={v.title} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.9 }} loading="lazy"/>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(21,11,0,.6) 0%, transparent 50%)" }}/>
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(251,248,243,.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,.3)" }}>
+                        <Icon name="play" size={14} stroke="#1A0E08"/>
+                      </div>
+                    </div>
+                    <span style={{ position: "absolute", bottom: 6, right: 8, fontSize: 9, color: "#FBF8F3", fontFamily: "ui-monospace,monospace", background: "rgba(0,0,0,.65)", padding: "2px 6px", borderRadius: 10 }}>
+                      👁 {v.views}回
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: "#150B00", lineHeight: 1.4, margin: 0, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {v.title}
+                  </p>
+                </a>
+              ))
+          }
         </div>
       </section>
 
