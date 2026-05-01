@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:3001": "next dev -p 3001",
+    "typecheck": "tsc --noEmit --pretty false",
+    "preflight": "node scripts/preflight.mjs",
+    "verify": "npm run typecheck && npm run build",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

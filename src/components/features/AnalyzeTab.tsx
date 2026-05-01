@@ -1,6 +1,8 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { GoldButton, ScoreBar } from "@/components/ui";
+import { supabase } from "@/lib/supabase";
+import { PLAN_RULES, getRemaining } from "@/lib/plan";
 import type { AnalyzeResult } from "@/types";
 
 interface Props {
@@ -12,8 +14,28 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
   const [img, setImg] = useState<string | null>(null);
   const [result, setResult] = useState<AnalyzeResult | null>(null);
   const [error, setError] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [usageCount, setUsageCount] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // フリープランの場合、今月の使用回数を取得
+  useEffect(() => {
+    if (isPro) return;
+    const fetchUsage = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const yearMonth = new Date().toISOString().slice(0, 7);
+      const { data } = await supabase
+        .from("analyze_usage")
+        .select("count")
+        .eq("user_id", session.user.id)
+        .eq("year_month", yearMonth)
+        .single();
+      setUsageCount(data?.count ?? 0);
+    };
+    fetchUsage();
+  }, [isPro]);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -23,6 +45,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
       setImg(ev.target?.result as string);
       setResult(null);
       setError(false);
+      setLimitReached(false);
     };
     reader.readAsDataURL(file);
   };
@@ -32,21 +55,45 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
     setLoading(true);
     setResult(null);
     setError(false);
+    setLimitReached(false);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const base64 = img.split(",")[1];
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: base64 }),
+        body: JSON.stringify({ imageBase64: base64, accessToken: session?.access_token }),
       });
+      if (res.status === 429) {
+        setLimitReached(true);
+        return;
+      }
       if (!res.ok) throw new Error();
       const data: AnalyzeResult = await res.json();
       setResult(data);
+      if (session?.access_token) {
+        await fetch("/api/analysis-entries", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accessToken: session.access_token, result: data }),
+        }).catch(() => undefined);
+      }
+
+      // DB保存に失敗した場合でもカルテで見返せるようにローカルにも控える
+      const savedLimit = isPro ? PLAN_RULES.pro.savedAnalysisLimit : PLAN_RULES.free.savedAnalysisLimit;
+      const saved = JSON.parse(localStorage.getItem("beaute_analyses") ?? "[]");
+      saved.unshift({ id: Date.now().toString(), date: new Date().toISOString(), result: data });
+      localStorage.setItem("beaute_analyses", JSON.stringify(saved.slice(0, savedLimit)));
+      // 使用回数を更新
+      if (!isPro) setUsageCount((c) => (c ?? 0) + 1);
     } catch {
       setError(true);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
+  const remainingCount = isPro ? null : getRemaining(usageCount ?? 0, PLAN_RULES.free.monthlyAnalyzeLimit);
 
   return (
     <div className="px-4 py-5">
@@ -63,8 +110,10 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
         <div className="flex justify-between items-center rounded-[14px] px-4 py-3 mb-4 border-[1.5px]"
           style={{ background: "linear-gradient(135deg,#FEF9F0,#FDF3E3)", borderColor: "#D4A853" }}>
           <div>
-            <p className="text-[13px] font-bold" style={{ color: "#150B00" }}>無料プラン: 月3回まで</p>
-            <p className="text-[11px]" style={{ color: "#8A7A6E" }}>PROで無制限解析</p>
+            <p className="text-[13px] font-bold" style={{ color: "#150B00" }}>
+              無料プラン: 今月あと{remainingCount ?? "…"}回
+            </p>
+            <p className="text-[11px]" style={{ color: "#8A7A6E" }}>PROで無制限解析・履歴50件保存</p>
           </div>
           <GoldButton small onClick={onUpgrade}>PRO へ</GoldButton>
         </div>
@@ -92,12 +141,23 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
             {loading ? "🔬 AIが解析中..." : "🧪 成分を解析する"}
           </GoldButton>
           <button
-            onClick={() => { setImg(null); setResult(null); setError(false); }}
+            onClick={() => { setImg(null); setResult(null); setError(false); setLimitReached(false); }}
             className="w-full py-3 rounded-[14px] text-[13px] border-[1.5px] border-[#EDE5DC] bg-transparent cursor-pointer"
             style={{ color: "#8A7A6E" }}>
             別の画像を選ぶ
           </button>
         </>
+      )}
+
+      {/* ── LIMIT REACHED ── */}
+      {limitReached && (
+        <div className="mt-5 rounded-[14px] p-5 border-[1.5px] text-center"
+          style={{ background: "linear-gradient(135deg,#FEF9F0,#FDF3E3)", borderColor: "#D4A853" }}>
+          <p className="text-[18px] mb-2">👑</p>
+          <p className="text-[14px] font-bold mb-1" style={{ color: "#150B00" }}>今月の無料回数（{PLAN_RULES.free.monthlyAnalyzeLimit}回）を使い切りました</p>
+          <p className="text-[12px] mb-3" style={{ color: "#8A7A6E" }}>PROで無制限に解析できます</p>
+          <GoldButton onClick={onUpgrade}>PROにアップグレード</GoldButton>
+        </div>
       )}
 
       {/* ── ERROR ── */}

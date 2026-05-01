@@ -1,6 +1,7 @@
 "use client";
 import { CAT_META } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
+import { PLAN_RULES } from "@/lib/plan";
 import type { Product } from "@/types";
 import { Stars, FreeBadge, ProBadge, GoldButton } from "@/components/ui";
 
@@ -24,7 +25,7 @@ export default function ProductCard({ product: p, isPro, onUpgrade }: Props) {
           style={{ background: "rgba(248,244,239,0.92)", backdropFilter: "blur(4px)" }}>
           <span className="text-[28px]">🔒</span>
           <p className="text-[14px] font-bold" style={{ color: "#150B00" }}>PROプランで見る</p>
-          <p className="text-[11px]" style={{ color: "#8A7A6E" }}>月680円でフル解禁</p>
+          <p className="text-[11px]" style={{ color: "#8A7A6E" }}>月{PLAN_RULES.pro.priceLabel}でフル解禁</p>
           <GoldButton small onClick={onUpgrade} className="mt-1">アップグレード</GoldButton>
         </div>
       )}

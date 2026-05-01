@@ -1,23 +1,30 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
-import { CAT_META, PRODUCTS } from "@/lib/constants";
+import { CAT_META } from "@/lib/constants";
 import type { YoutubeVideo } from "@/app/api/youtube/route";
 import { formatPrice } from "@/lib/utils";
-import { Icon, Stars, FreeBadge, ProBadge } from "@/components/ui";
-import type { UserProfile, Product, Category } from "@/types";
+import { PLAN_RULES } from "@/lib/plan";
+import { getPersonalMatch, getProfileSignals } from "@/lib/personalization";
+import { trackProductEvent } from "@/lib/productEvents";
+import { Icon, Stars, FreeBadge, ProBadge, ProductImage } from "@/components/ui";
+import type { PersonalPreferences, UserProfile, Product, Category } from "@/types";
 
 interface Props {
   profile: UserProfile;
   isPro: boolean;
-  onUpgrade: () => void;
+  preferences?: PersonalPreferences | null;
+  onUpgrade: (sourceArea?: string, product?: Product) => void;
   onGoSearch: (cat?: string) => void;
   onOpenProduct: (p: Product) => void;
 }
 
-export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenProduct }: Props) {
+export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct }: Props) {
   const [videos, setVideos] = useState<YoutubeVideo[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
   const [activeVideoCategory, setActiveVideoCategory] = useState("全体");
+  const [aiPicks, setAiPicks] = useState<Product[]>([]);
+  const [editorsPicks, setEditorsPicks] = useState<Product[]>([]);
+  const profileSignals = getProfileSignals(profile, isPro ? preferences : null);
 
   useEffect(() => {
     setVideosLoading(true);
@@ -27,21 +34,100 @@ export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenP
       .finally(() => setVideosLoading(false));
   }, [activeVideoCategory]);
 
-  const recs = PRODUCTS.filter((p) => {
-    if (profile.hairType && p.tags.includes(profile.hairType)) return true;
-    if (profile.skinType && p.tags.some((t) => t.includes(profile.skinType.replace("肌", "")))) return true;
-    if (profile.concerns.some((c) => p.tags.some((t) => t.includes(c.slice(0, 2))))) return true;
-    return false;
-  });
-  const aiPicks = recs.length >= 3 ? recs.slice(0, 6) : PRODUCTS.filter((p) => p.free).slice(0, 6);
-  const editorsPicks = PRODUCTS.filter((p, i) => i % 4 === 0).slice(0, 4);
+  // プロフィールに基づくAIレコメンド
+  useEffect(() => {
+    const learnedTags = isPro ? preferences?.positiveSignals ?? [] : [];
+    const tags = [
+      ...learnedTags.slice(0, 4),
+      profile.skinType,
+      profile.hairType,
+      ...profile.concerns,
+    ].filter(Boolean);
+
+    const params = new URLSearchParams({ limit: "6" });
+    if (tags.length > 0) params.set("tags", tags.join(","));
+    else params.set("free", "true");
+
+    fetch(`/api/products?${params}`)
+      .then(r => r.json())
+      .then(d => {
+        const picks: Product[] = d.products ?? [];
+        const sorted = isPro
+          ? [...picks].sort((a, b) =>
+              (getPersonalMatch(b, profile, preferences)?.score ?? 0) -
+              (getPersonalMatch(a, profile, preferences)?.score ?? 0)
+            )
+          : picks;
+        setAiPicks(sorted.length >= 3 ? sorted : []);
+      });
+  }, [profile, isPro, preferences]);
+
+  // エディターズピック（IDが4の倍数 or 評価順上位4件）
+  useEffect(() => {
+    fetch("/api/products?limit=20")
+      .then(r => r.json())
+      .then(d => {
+        const all: Product[] = d.products ?? [];
+        setEditorsPicks(all.filter((_, i) => i % 4 === 0).slice(0, 4));
+      });
+  }, []);
+
+  const heroProduct = aiPicks[0] ?? editorsPicks[0] ?? null;
+  const heroMeta = heroProduct ? CAT_META[heroProduct.cat] : null;
+  const heroMatch = heroProduct ? getPersonalMatch(heroProduct, profile, isPro ? preferences : null) : null;
 
   return (
     <div>
       {/* ── HERO ── */}
-      <section style={{ position: "relative", minHeight: 460, overflow: "hidden", background: "#1A0E08" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 20%, rgba(212,168,83,.22) 0%, transparent 60%)" }}/>
+      <section className="home-hero" style={{ position: "relative", minHeight: 520, overflow: "hidden", background: "#1A0E08" }}>
+        {heroProduct && heroMeta && (
+          <button
+            type="button"
+            onClick={() => onOpenProduct(heroProduct)}
+            className="home-hero-product"
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "54%",
+              border: "none",
+              padding: 0,
+              background: heroMeta.color,
+              overflow: "hidden",
+              cursor: "pointer",
+            }}
+            aria-label={`${heroProduct.name} を見る`}
+          >
+            <ProductImage
+              id={heroProduct.id}
+              name={heroProduct.name}
+              brand={heroProduct.brand}
+              sub={heroProduct.sub}
+              src={heroProduct.image}
+              alt={heroProduct.name}
+              catColor={heroMeta.color}
+              catIcon={heroMeta.icon}
+              style={{ transform: "scale(1.06)", opacity: 0.96 }}
+            />
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(26,14,8,.96) 0%, rgba(26,14,8,.6) 36%, rgba(26,14,8,.04) 100%)" }} />
+            <div className="home-hero-product-note" style={{ position: "absolute", right: 30, bottom: 28, maxWidth: 310, textAlign: "right", color: "#FBF8F3" }}>
+              <div style={{ fontSize: 10, letterSpacing: "0.2em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 8 }}>
+                {"TODAY'S PICK"}
+              </div>
+              <div style={{ fontSize: 18, lineHeight: 1.45, fontWeight: 700, textShadow: "0 2px 18px rgba(0,0,0,.45)" }}>
+                {heroProduct.name}
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, alignItems: "center", marginTop: 10, fontSize: 11, color: "rgba(251,248,243,.75)" }}>
+                <span>{heroProduct.brand}</span>
+                <span>{formatPrice(heroProduct.price)}</span>
+                {heroMatch && <span>{heroMatch.score}% fit</span>}
+              </div>
+            </div>
+          </button>
+        )}
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px)", backgroundSize: "16.666% 100%", pointerEvents: "none" }}/>
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(26,14,8,.98) 0%, rgba(26,14,8,.86) 38%, rgba(26,14,8,.2) 76%, rgba(26,14,8,.08) 100%)", pointerEvents: "none" }}/>
 
         <div style={{ position: "absolute", top: 22, left: 32, right: 32, display: "flex", justifyContent: "space-between", fontSize: 10, letterSpacing: "0.3em", color: "rgba(251,248,243,.45)", fontFamily: "ui-monospace,monospace" }}>
           <span>カバーストーリー · ISSUE 04</span>
@@ -49,18 +135,27 @@ export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenP
           <span>{new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long" })}</span>
         </div>
 
-        <div style={{ position: "absolute", bottom: 36, left: 32, right: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 24 }}>
-          <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: "clamp(44px,7vw,72px)", lineHeight: 1.15, margin: 0, fontWeight: 400, color: "#FBF8F3", letterSpacing: "0.02em" }}>
-            やわらかな<br/>
-            <span style={{ color: "#D4A853", fontStyle: "italic" }}>つや</span>を、<br/>もう一度。
+        <div className="home-hero-content" style={{ position: "absolute", bottom: 34, left: 32, right: 32, maxWidth: 660 }}>
+          <div style={{ fontSize: 11, letterSpacing: "0.2em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 14 }}>
+            PERSONAL EDITION · {isPro && preferences?.confidence ? `CONFIDENCE ${preferences.confidence}` : "PROFILE BASED"}
+          </div>
+          <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: "clamp(42px,7vw,76px)", lineHeight: 1.08, margin: 0, fontWeight: 400, color: "#FBF8F3", letterSpacing: "0.02em" }}>
+            {profile.skinType || "今日の肌"}に、<br/>
+            <span style={{ color: "#D4A853", fontStyle: "italic" }}>似合う一品</span>から。
           </h1>
-          <div className="hidden md:block" style={{ maxWidth: 240, textAlign: "right" }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.2em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>本日の特集 · AI EDIT</div>
-            <p style={{ fontSize: 13, lineHeight: 1.8, color: "rgba(251,248,243,.7)", margin: "0 0 16px" }}>
-              {profile.skinType} × {profile.age || "—"} の<br/>あなたへの {aiPicks.length} 選
-            </p>
-            <button onClick={() => onGoSearch()} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #D4A853", color: "#D4A853", fontSize: 11, letterSpacing: "0.15em", fontWeight: 500, cursor: "pointer", borderRadius: 4 }}>
-              全製品を見る →
+          <p style={{ fontSize: 13, lineHeight: 1.85, color: "rgba(251,248,243,.72)", margin: "18px 0 22px", maxWidth: 440 }}>
+            {heroProduct
+              ? `${heroProduct.sub}・${heroProduct.cat}を起点に、楽天商品とログ学習から今日の候補を並べています。`
+              : `${profile.skinType || "肌質"}と気になる悩みに合わせて、今日の候補を準備しています。`}
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {heroProduct && (
+              <button onClick={() => onOpenProduct(heroProduct)} style={{ padding: "12px 20px", background: "#D4A853", border: "1px solid #D4A853", color: "#1A0E08", fontSize: 12, letterSpacing: "0.1em", fontWeight: 800, cursor: "pointer", borderRadius: 6 }}>
+                今日の一品を見る
+              </button>
+            )}
+            <button onClick={() => onGoSearch()} style={{ padding: "12px 20px", background: "transparent", border: "1px solid rgba(212,168,83,.72)", color: "#D4A853", fontSize: 12, letterSpacing: "0.1em", fontWeight: 800, cursor: "pointer", borderRadius: 6 }}>
+              全製品を見る
             </button>
           </div>
         </div>
@@ -68,12 +163,41 @@ export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenP
 
       {/* ── AI STRIP ── */}
       <div style={{ background: "#F1EADE", padding: "14px 32px", borderBottom: "1px solid #EDE5DC", display: "flex", gap: 20, alignItems: "center", overflowX: "auto", fontSize: 11, letterSpacing: "0.12em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace", whiteSpace: "nowrap" }}>
-        <span style={{ color: "#D4A853", fontWeight: 600, flexShrink: 0 }}>AI 解析済み</span>
+        <span style={{ color: "#D4A853", fontWeight: 600, flexShrink: 0 }}>{isPro && preferences?.confidence ? "LOG 学習済み" : "AI 解析済み"}</span>
         <span>━━ {profile.skinType || "肌質未設定"}</span>
+        {isPro && preferences?.positiveSignals.slice(0, 2).map(signal => <span key={signal}>/ {signal}</span>)}
         {profile.hairType && <span>{profile.hairType}</span>}
         {profile.concerns.slice(0, 3).map(c => <span key={c}>/ {c}</span>)}
         <span style={{ marginLeft: "auto", color: "#150B00", flexShrink: 0 }}>更新 {new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</span>
       </div>
+
+      {!isPro && profileSignals.length > 0 && (
+        <section style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff", display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRO PERSONAL FIT</div>
+            <p style={{ fontSize: 13, lineHeight: 1.7, color: "#4A3728", margin: 0 }}>
+              {profileSignals.slice(0, 3).join("・")}に合わせたスコア表示と全楽天商品の詳細はPROで使えます。
+            </p>
+          </div>
+          <button onClick={() => onUpgrade("home_personal_fit_teaser")} style={{ padding: "10px 16px", border: "none", borderRadius: 999, background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 12, fontWeight: 800, cursor: "pointer", flexShrink: 0 }}>
+            精度を上げる
+          </button>
+        </section>
+      )}
+
+      {isPro && preferences && preferences.confidence > 0 && (
+        <section style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff", display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>LEARNING FROM YOUR LOG</div>
+            <p style={{ fontSize: 13, lineHeight: 1.7, color: "#4A3728", margin: 0 }}>
+              {preferences.summary}。ログ{preferences.logCount}件・保存{preferences.savedCount}件からおすすめを調整しています。
+            </p>
+          </div>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#1A0E08", color: "#D4A853", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 20, fontWeight: 700 }}>
+            {preferences.confidence}
+          </div>
+        </section>
+      )}
 
       {/* ── CATEGORY GRID ── */}
       <section style={{ padding: "44px 32px 36px", borderBottom: "1px solid #EDE5DC" }}>
@@ -111,11 +235,13 @@ export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenP
       <ProductRail
         number="02"
         title={`今週の ${profile.skinType || "あなた"} へ — ${aiPicks.length} 選`}
-        eyebrow="AI × 編集部によるパーソナル提案"
+        eyebrow={isPro && preferences?.confidence ? "ログ評価・保存商品・プロフィールによる提案" : "AI × 編集部によるパーソナル提案"}
         products={aiPicks}
         onOpen={onOpenProduct}
         isPro={isPro}
         onUpgrade={onUpgrade}
+        profile={profile}
+        preferences={isPro ? preferences : null}
       />
 
       {/* ── EDITOR'S PICKS GRID ── */}
@@ -204,9 +330,9 @@ export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenP
               アトリエの扉を、<br/>そっと開ける。
             </h2>
             <p style={{ fontSize: 13, lineHeight: 1.9, color: "rgba(251,248,243,.65)", margin: "0 0 24px", maxWidth: 380 }}>
-              月額¥680で、無制限の成分解析・全製品フルアクセス・AIパーソナル診断。
+              月額{PLAN_RULES.pro.priceLabel}で、無制限の成分解析・全製品フルアクセス・AIパーソナル診断。
             </p>
-            <button onClick={onUpgrade} style={{ padding: "13px 28px", background: "linear-gradient(135deg,#D4A853,#A8722A)", border: "none", color: "#1A0E08", fontSize: 13, letterSpacing: "0.1em", fontWeight: 700, cursor: "pointer", borderRadius: 6 }}>
+            <button onClick={() => onUpgrade("home_pro_teaser")} style={{ padding: "13px 28px", background: "linear-gradient(135deg,#D4A853,#A8722A)", border: "none", color: "#1A0E08", fontSize: 13, letterSpacing: "0.1em", fontWeight: 700, cursor: "pointer", borderRadius: 6 }}>
               PRO へアップグレード →
             </button>
           </div>
@@ -222,9 +348,9 @@ export default function HomeTab({ profile, isPro, onUpgrade, onGoSearch, onOpenP
 }
 
 // ── Horizontal product rail ──────────────────────────────────────────
-function ProductRail({ number, title, eyebrow, products, onOpen, isPro, onUpgrade }: {
+function ProductRail({ number, title, eyebrow, products, onOpen, isPro, onUpgrade, profile, preferences }: {
   number: string; title: string; eyebrow: string; products: Product[];
-  onOpen: (p: Product) => void; isPro: boolean; onUpgrade: () => void;
+  onOpen: (p: Product) => void; isPro: boolean; onUpgrade: (sourceArea?: string, product?: Product) => void; profile: UserProfile; preferences?: PersonalPreferences | null;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const scroll = (d: number) => ref.current?.scrollBy({ left: d * 340, behavior: "smooth" });
@@ -244,26 +370,45 @@ function ProductRail({ number, title, eyebrow, products, onOpen, isPro, onUpgrad
         </div>
       </div>
       <div ref={ref} style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8 }} className="hide-scrollbar">
-        {products.map(p => <RailCard key={p.id} product={p} onOpen={onOpen} isPro={isPro}/>)}
+        {products.map(p => <RailCard key={p.id} product={p} onOpen={onOpen} isPro={isPro} onUpgrade={onUpgrade} profile={profile} preferences={preferences}/>)}
       </div>
     </section>
   );
 }
 
-function RailCard({ product: p, onOpen, isPro }: { product: Product; onOpen: (p: Product) => void; isPro: boolean }) {
+function RailCard({ product: p, onOpen, isPro, onUpgrade, profile, preferences }: {
+  product: Product; onOpen: (p: Product) => void; isPro: boolean; onUpgrade: (sourceArea?: string, product?: Product) => void; profile: UserProfile; preferences?: PersonalPreferences | null;
+}) {
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
+  const match = getPersonalMatch(p, profile, preferences);
+  const handleOpen = () => {
+    if (locked) {
+      void trackProductEvent({
+        eventType: "locked_product_click",
+        sourceArea: "home_recommendation_rail",
+        product: p,
+        isPro,
+        metadata: { matchScore: match?.score ?? null },
+      });
+      onUpgrade("home_recommendation_rail", p);
+      return;
+    }
+    onOpen(p);
+  };
   return (
-    <div onClick={() => onOpen(p)} style={{ flexShrink: 0, width: 220, cursor: "pointer", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.06)" }}
+    <div onClick={handleOpen} style={{ flexShrink: 0, width: 220, cursor: "pointer", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.06)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(21,11,0,.12)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(21,11,0,.06)"; }}>
       <div style={{ position: "relative", height: 140, overflow: "hidden", background: m.color }}>
-        {locked
-          ? <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: 48, opacity: 0.3 }}>{m.icon}</span></div>
-          : <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy"/>
-        }
-        {locked && <div style={{ position: "absolute", inset: 0, background: "rgba(248,244,239,.6)", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: 28 }}>🔒</span></div>}
+        <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon}/>
+        {locked && <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top,rgba(21,11,0,.55),rgba(248,244,239,.15))", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 10 }}><span style={{ fontSize: 10, color: "#F5EEE4", background: "rgba(26,14,8,.9)", borderRadius: 999, padding: "5px 9px", fontWeight: 800 }}>PROで詳細</span></div>}
         <div style={{ position: "absolute", top: 8, left: 8 }}>{p.free ? <FreeBadge/> : <ProBadge/>}</div>
+        {isPro && match && (
+          <div style={{ position: "absolute", top: 8, right: 8, background: "#1A0E08", color: "#D4A853", borderRadius: 999, padding: "3px 7px", fontSize: 9, fontWeight: 800 }}>
+            {match.score}%
+          </div>
+        )}
       </div>
       <div style={{ padding: "12px 14px 14px" }}>
         <div style={{ fontSize: 9, color: m.accent, fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", marginBottom: 3 }}>{p.brand}</div>
@@ -286,14 +431,17 @@ function EditorCard({ product: p, onOpen, isPro }: { product: Product; onOpen: (
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
       <div style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", background: m.color }}>
-        {locked
-          ? <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: 56, opacity: 0.25 }}>{m.icon}</span></div>
-          : <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy"/>
-        }
+        <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon}/>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(21,11,0,.55) 0%, transparent 50%)" }}/>
+        {locked && <div style={{ position: "absolute", inset: 0, background: "rgba(21,11,0,.2)" }}/>}
         <div style={{ position: "absolute", top: 8, left: 8 }}>
-          <span style={{ fontSize: 9, background: "rgba(212,168,83,.9)", color: "#1A0E08", padding: "3px 8px", borderRadius: 10, fontWeight: 700, letterSpacing: "0.1em" }}>EDIT'S PICK</span>
+          <span style={{ fontSize: 9, background: "rgba(212,168,83,.9)", color: "#1A0E08", padding: "3px 8px", borderRadius: 10, fontWeight: 700, letterSpacing: "0.1em" }}>EDITOR PICK</span>
         </div>
+        {locked && (
+          <div style={{ position: "absolute", right: 8, bottom: 8, fontSize: 9, background: "rgba(26,14,8,.9)", color: "#D4A853", padding: "4px 8px", borderRadius: 999, fontWeight: 800 }}>
+            PRO DETAIL
+          </div>
+        )}
       </div>
       <div style={{ padding: "12px 14px" }}>
         <div style={{ fontSize: 9, color: m.accent, fontFamily: "ui-monospace,monospace", letterSpacing: "0.12em", marginBottom: 2 }}>{p.brand}</div>

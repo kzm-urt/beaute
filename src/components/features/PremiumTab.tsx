@@ -1,36 +1,131 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import { GoldButton } from "@/components/ui";
+import { PLAN_FEATURE_MATRIX, PLAN_RULES } from "@/lib/plan";
+import { trackProductEvent } from "@/lib/productEvents";
+import { supabase } from "@/lib/supabase";
 
 interface Props {
   isPro: boolean;
   onUpgrade: () => void;
+  user: User | null;
 }
-
-const FREE_FEATURES = ["月3回の成分解析", "基本的な製品レコメンド", "使用ログ記録（無制限）", "カテゴリ検索"];
-const PRO_FEATURES  = ["成分解析 無制限", "全製品フルアクセス", "AIパーソナル診断", "優先サポート", "新機能の先行アクセス"];
 
 const FAQ = [
   { q: "いつでもキャンセルできますか？", a: "はい。設定画面からいつでも解約できます。解約後も期間終了まではPRO機能をご利用いただけます。" },
-  { q: "支払い方法は？", a: "クレジットカード・デビットカードに対応しています（Stripe決済）。" },
-  { q: "無料トライアルはありますか？", a: "現在は月額¥680からのご利用となります。まずは無料プランでお試しください。" },
+  { q: "支払い方法は？", a: "クレジットカード・デビットカードに対応しています。PRO加入後は契約管理ページから支払い方法を変更できます。" },
+  { q: "無料トライアルはありますか？", a: `はい。PROは${PLAN_RULES.pro.trialDays}日間の無料トライアルから始められます。` },
 ];
 
-export default function PremiumTab({ isPro, onUpgrade }: Props) {
+interface SubscriptionStatus {
+  isPro: boolean;
+  hasStripeCustomer: boolean;
+  subscriptionId: string | null;
+  status: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+
+export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
   const [loading, setLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let ignore = false;
+
+    const fetchStatus = async () => {
+      setStatusLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setStatusLoading(false);
+        return;
+      }
+
+      const res = await fetch("/api/stripe/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: session.access_token }),
+      });
+      const data = await res.json();
+      if (!ignore && res.ok) setSubscriptionStatus(data);
+      if (!ignore) setStatusLoading(false);
+    };
+
+    fetchStatus();
+    return () => { ignore = true; };
+  }, [user, isPro]);
 
   const handleCheckout = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/stripe", { method: "POST" });
-      const { url } = await res.json();
+      void trackProductEvent({
+        eventType: "upgrade_click",
+        sourceArea: "premium_checkout",
+        isPro,
+      });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("ログインが必要です");
+
+      const res = await fetch("/api/stripe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: session.access_token }),
+      });
+      const { url, error } = await res.json();
+      if (!res.ok || error) throw new Error(error ?? "決済セッションの作成に失敗");
       if (url) window.location.href = url;
     } catch {
       alert("エラーが発生しました。もう一度お試しください。");
     }
     setLoading(false);
   };
+
+  const handlePortal = async () => {
+    setPortalLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("ログインが必要です");
+
+      const res = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessToken: session.access_token }),
+      });
+      const { url, error } = await res.json();
+      if (!res.ok || error) throw new Error(error ?? "契約管理ページを開けませんでした");
+      if (url) window.location.href = url;
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "契約管理ページを開けませんでした。");
+    }
+    setPortalLoading(false);
+  };
+
+  const statusLabel = subscriptionStatus?.status
+    ? ({
+        trialing: "無料トライアル中",
+        active: "有効",
+        past_due: "支払い確認中",
+        canceled: "キャンセル済み",
+        unpaid: "未払い",
+        incomplete: "登録未完了",
+        incomplete_expired: "登録期限切れ",
+        paused: "停止中",
+        deleted: "解約済み",
+      } as Record<string, string>)[subscriptionStatus.status] ?? subscriptionStatus.status
+    : null;
+
+  const periodEndLabel = subscriptionStatus?.currentPeriodEnd
+    ? new Date(subscriptionStatus.currentPeriodEnd).toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : null;
 
   return (
     <div className="px-4 py-5 pb-10">
@@ -52,7 +147,7 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
             <span style={{ color: "#D4A853", fontStyle: "italic" }}>もっと賢く。</span>
           </h2>
           <p className="text-[12px]" style={{ color: "rgba(245,238,228,.55)" }}>
-            月額¥680で全機能アンロック
+            {PLAN_RULES.pro.trialDays}日無料トライアル、その後月額{PLAN_RULES.pro.priceLabel}（税込）
           </p>
         </div>
       </div>
@@ -63,7 +158,49 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
           style={{ background: "linear-gradient(135deg,#FEF9F0,#FDF3E3)", borderColor: "#D4A853" }}>
           <p className="text-[22px] mb-1">👑</p>
           <p className="text-[15px] font-bold" style={{ color: "#150B00" }}>PROプラン加入中</p>
-          <p className="text-[12px] mt-1" style={{ color: "#8A7A6E" }}>すべての機能をご利用いただけます</p>
+          <p className="text-[12px] mt-1" style={{ color: "#8A7A6E" }}>
+            {statusLoading
+              ? "契約状態を確認中..."
+              : statusLabel
+                ? `${statusLabel}${periodEndLabel ? ` · 次回更新 ${periodEndLabel}` : ""}`
+                : "すべての機能をご利用いただけます"}
+          </p>
+          {subscriptionStatus?.cancelAtPeriodEnd && periodEndLabel && (
+            <p className="text-[11px] mt-1" style={{ color: "#A8722A" }}>
+              {periodEndLabel}まではPRO機能を利用できます
+            </p>
+          )}
+        </div>
+      )}
+
+      {isPro && (
+        <div className="rounded-[16px] p-4 mb-5 border bg-white"
+          style={{ borderColor: "#EDE5DC" }}>
+          <div className="flex justify-between items-start gap-3 mb-3">
+            <div>
+              <p className="text-[12px] font-bold" style={{ color: "#150B00" }}>契約管理</p>
+              <p className="text-[11px] mt-1 leading-[1.6]" style={{ color: "#8A7A6E" }}>
+                支払い方法の変更、請求書の確認、解約はStripeの管理ページで行えます。
+              </p>
+            </div>
+            <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold"
+              style={{ background: "#F8F4EF", color: "#8A7A6E" }}>
+              {subscriptionStatus?.hasStripeCustomer ? "Stripe" : "Manual"}
+            </span>
+          </div>
+          {subscriptionStatus?.hasStripeCustomer ? (
+            <button
+              onClick={handlePortal}
+              disabled={portalLoading}
+              className="w-full py-3 rounded-[12px] text-[13px] font-bold border-none cursor-pointer"
+              style={{ background: "#150B00", color: "#FBF8F3", opacity: portalLoading ? 0.7 : 1 }}>
+              {portalLoading ? "開いています..." : "契約・支払いを管理する →"}
+            </button>
+          ) : (
+            <p className="text-[11px] leading-[1.6]" style={{ color: "#8A7A6E" }}>
+              管理者/手動PROのためStripe契約ページはありません。
+            </p>
+          )}
         </div>
       )}
 
@@ -74,7 +211,7 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
           <div className="flex justify-between items-start mb-3">
             <div>
               <p className="text-[11px] font-semibold tracking-wide mb-0.5" style={{ color: "#8A7A6E" }}>FREE</p>
-              <p className="text-[20px] font-bold" style={{ color: "#150B00" }}>¥0<span className="text-[12px] font-normal ml-1" style={{ color: "#8A7A6E" }}>/ 月</span></p>
+              <p className="text-[20px] font-bold" style={{ color: "#150B00" }}>{PLAN_RULES.free.priceLabel}<span className="text-[12px] font-normal ml-1" style={{ color: "#8A7A6E" }}>/ 月</span></p>
             </div>
             <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold border"
               style={{ background: "#F8F4EF", color: "#8A7A6E", borderColor: "#EDE5DC" }}>
@@ -82,9 +219,10 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
             </span>
           </div>
           <ul className="space-y-1.5">
-            {FREE_FEATURES.map((f) => (
-              <li key={f} className="flex items-center gap-2 text-[12px]" style={{ color: "#555" }}>
-                <span style={{ color: "#A8722A" }}>✓</span>{f}
+            {PLAN_FEATURE_MATRIX.map((f) => (
+              <li key={f.label} className="flex items-center justify-between gap-3 text-[12px]" style={{ color: "#555" }}>
+                <span className="flex items-center gap-2"><span style={{ color: "#A8722A" }}>✓</span>{f.label}</span>
+                <span style={{ color: "#8A7A6E" }}>{f.free}</span>
               </li>
             ))}
           </ul>
@@ -102,7 +240,7 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
           <div className="flex justify-between items-start mb-3">
             <div>
               <p className="text-[11px] font-semibold tracking-wide mb-0.5" style={{ color: "rgba(212,168,83,.7)" }}>PRO</p>
-              <p className="text-[20px] font-bold" style={{ color: "#F5EEE4" }}>¥680<span className="text-[12px] font-normal ml-1" style={{ color: "rgba(245,238,228,.5)" }}>/ 月</span></p>
+              <p className="text-[20px] font-bold" style={{ color: "#F5EEE4" }}>{PLAN_RULES.pro.priceLabel}<span className="text-[12px] font-normal ml-1" style={{ color: "rgba(245,238,228,.5)" }}>/ 月</span></p>
             </div>
             {isPro && (
               <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold"
@@ -112,9 +250,10 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
             )}
           </div>
           <ul className="space-y-1.5 mb-4">
-            {PRO_FEATURES.map((f) => (
-              <li key={f} className="flex items-center gap-2 text-[12px]" style={{ color: "rgba(245,238,228,.85)" }}>
-                <span style={{ color: "#D4A853" }}>★</span>{f}
+            {PLAN_FEATURE_MATRIX.map((f) => (
+              <li key={f.label} className="flex items-center justify-between gap-3 text-[12px]" style={{ color: "rgba(245,238,228,.85)" }}>
+                <span className="flex items-center gap-2"><span style={{ color: "#D4A853" }}>★</span>{f.label}</span>
+                <span style={{ color: "#D4A853", fontWeight: 700 }}>{f.pro}</span>
               </li>
             ))}
           </ul>
@@ -125,11 +264,30 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
               className="w-full py-3.5 rounded-[12px] text-[13px] font-bold border-none cursor-pointer"
               style={{ background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08",
                 boxShadow: "0 6px 20px rgba(212,168,83,.35)", opacity: loading ? 0.7 : 1 }}>
-              {loading ? "処理中..." : "PROにアップグレード →"}
+              {loading ? "処理中..." : `${PLAN_RULES.pro.trialDays}日無料でPROを試す →`}
             </button>
           )}
         </div>
       </div>
+
+      {!isPro && (
+        <div className="rounded-[16px] p-4 mb-5 border"
+          style={{ background: "#fff", borderColor: "#D4A85366" }}>
+          <p className="text-[12px] font-bold mb-2" style={{ color: "#150B00" }}>PROで変わること</p>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { value: "∞", label: "解析" },
+              { value: "50", label: "履歴" },
+              { value: "ALL", label: "楽天詳細" },
+            ].map((item) => (
+              <div key={item.label} className="rounded-[12px] py-3 text-center" style={{ background: "#F8F4EF" }}>
+                <p className="text-[19px] font-bold" style={{ color: "#A8722A" }}>{item.value}</p>
+                <p className="text-[10px]" style={{ color: "#8A7A6E" }}>{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* TESTIMONIALS */}
       <div className="mb-5">
@@ -138,10 +296,10 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
           {[
             { text: "成分解析が無制限になって、新製品を買う前に必ずチェックするようになった！", user: "田中 A." },
             { text: "全製品のレビューが見られて、比較がめちゃくちゃ楽になりました。", user: "中島 M." },
-            { text: "月680円でこのクオリティは普通に安い。美容費が逆に減った気がする。", user: "近藤 Y." },
+            { text: "ランキングから気になる商品を全部見られるので、買う前の迷いがかなり減りました。", user: "近藤 Y." },
           ].map((t, i) => (
             <div key={i} className="bg-white rounded-[14px] border border-[#EDE5DC] p-3.5">
-              <p className="text-[12px] leading-[1.6] italic mb-2" style={{ color: "#444" }}>"{t.text}"</p>
+              <p className="text-[12px] leading-[1.6] italic mb-2" style={{ color: "#444" }}>「{t.text}」</p>
               <p className="text-[10px] font-semibold" style={{ color: "#A8722A" }}>— {t.user}</p>
             </div>
           ))}
@@ -174,7 +332,7 @@ export default function PremiumTab({ isPro, onUpgrade }: Props) {
       {!isPro && (
         <div className="mt-6">
           <GoldButton onClick={handleCheckout} disabled={loading}>
-            {loading ? "処理中..." : "今すぐPROにアップグレード"}
+            {loading ? "処理中..." : `${PLAN_RULES.pro.trialDays}日無料でPROを始める`}
           </GoldButton>
           <p className="text-center text-[11px] mt-2" style={{ color: "#8A7A6E" }}>
             いつでもキャンセル可能 · Stripe安全決済

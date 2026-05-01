@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logApiUsage } from "@/lib/apiUsage";
 
 export interface YoutubeVideo {
   id: string;
@@ -77,6 +78,21 @@ export async function GET(req: NextRequest) {
     url: `https://www.youtube.com/watch?v=${item.id.videoId}`,
     category,
   }));
+
+  await logApiUsage({
+    provider: "youtube",
+    endpoint: "/api/youtube",
+    operation: "video_search_with_statistics",
+    requestCount: 2,
+    costUsd: 0,
+    costJpy: 0,
+    metadata: {
+      category,
+      maxResults,
+      returnedVideos: videos.length,
+      quotaUnitsEstimate: 101,
+    },
+  });
 
   return NextResponse.json({ videos }, {
     headers: { "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400" },

@@ -1,54 +1,87 @@
 "use client";
 import { useEffect, useState } from "react";
 import { CAT_META } from "@/lib/constants";
+import { supabase } from "@/lib/supabase";
+import { PLAN_RULES, getRemaining, isWithinLimit } from "@/lib/plan";
 import { GoldButton, Input, Select } from "@/components/ui";
 import type { Category, LogEntry } from "@/types";
 
 const CATS = Object.keys(CAT_META) as Category[];
-const STORAGE_KEY = "beaute_log";
 
-export default function LogTab() {
+interface Props {
+  userId: string;
+  isPro: boolean;
+  onUpgrade: () => void;
+}
+
+export default function LogTab({ userId, isPro, onUpgrade }: Props) {
   const [log, setLog] = useState<LogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const [form, setForm] = useState({ prod: "", cat: "スキンケア" as Category, rating: 5, memo: "" });
 
-  // LocalStorageから読み込み
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) setLog(JSON.parse(saved));
-    else {
-      const defaults: LogEntry[] = [
-        { id: "1", user_id: "local", product_name: "エルジューダ MO",  category: "ヘアケア",   rating: 5, memo: "アイロン後のダメージが明らかに減った！続ける",  started_at: "2025-01-10", created_at: "2025-01-10" },
-        { id: "2", user_id: "local", product_name: "肌ラボ 極潤",       category: "スキンケア", rating: 4, memo: "とろとろ感がクセになる。乾燥がかなり改善。",   started_at: "2025-02-01", created_at: "2025-02-01" },
-      ];
-      setLog(defaults);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
-    }
-  }, []);
-
-  const saveEntry = () => {
-    if (!form.prod.trim()) return;
-    const entry: LogEntry = {
-      id: Date.now().toString(),
-      user_id: "local",
-      product_name: form.prod,
-      category: form.cat,
-      rating: form.rating,
-      memo: form.memo,
-      started_at: new Date().toISOString().slice(0, 10),
-      created_at: new Date().toISOString().slice(0, 10),
+    const fetchLog = async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("log_entries")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      setLog(data ?? []);
+      setLoading(false);
     };
-    const next = [entry, ...log];
-    setLog(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    fetchLog();
+  }, [userId]);
+
+  const saveEntry = async () => {
+    if (!form.prod.trim()) return;
+    if (!isWithinLimit(log.length, isPro ? null : PLAN_RULES.free.logLimit)) {
+      setLimitReached(true);
+      return;
+    }
+    setSaving(true);
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch("/api/log-entries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        accessToken: session?.access_token,
+        productName: form.prod,
+        category: form.cat,
+        rating: form.rating,
+        memo: form.memo,
+        startedAt: today,
+      }),
+    });
+
+    if (res.status === 429) {
+      setLimitReached(true);
+      setSaving(false);
+      return;
+    }
+
+    const data = await res.json();
+    if (!res.ok || !data.entry) {
+      setSaving(false);
+      return;
+    }
+    setLog((prev) => [data.entry as LogEntry, ...prev]);
     setForm({ prod: "", cat: "スキンケア", rating: 5, memo: "" });
     setShowForm(false);
+    setSaving(false);
   };
 
   const avgRating = log.length
     ? (log.reduce((s, e) => s + e.rating, 0) / log.length).toFixed(1)
     : "—";
   const catCount = new Set(log.map((e) => e.category)).size;
+  const logLimit = isPro ? null : PLAN_RULES.free.logLimit;
+  const remainingLogCount = getRemaining(log.length, logLimit);
+  const canAddLog = isWithinLimit(log.length, logLimit);
 
   return (
     <div className="px-4 py-5">
@@ -58,7 +91,14 @@ export default function LogTab() {
           My Beauty Log
         </h2>
         <button
-          onClick={() => setShowForm((s) => !s)}
+          onClick={() => {
+            if (!canAddLog) {
+              setLimitReached(true);
+              return;
+            }
+            setLimitReached(false);
+            setShowForm((s) => !s);
+          }}
           className="rounded-[10px] px-3.5 py-1.5 text-[12px] font-bold text-white border-none cursor-pointer"
           style={{ background: "#150B00" }}>
           + 記録
@@ -66,12 +106,30 @@ export default function LogTab() {
       </div>
       <p className="text-[13px] mb-5" style={{ color: "#8A7A6E" }}>使用中アイテムの記録と振り返り</p>
 
+      {!isPro && (
+        <div className="rounded-[14px] border px-4 py-3 mb-4 flex items-center gap-3"
+          style={{ background: "#fff", borderColor: limitReached ? "#D4A853" : "#EDE5DC" }}>
+          <div style={{ flex: 1 }}>
+            <p className="text-[12px] font-bold" style={{ color: "#150B00" }}>
+              無料プラン: ログあと{remainingLogCount ?? 0}件
+            </p>
+            <p className="text-[11px] mt-0.5" style={{ color: "#8A7A6E" }}>
+              PROなら美容ログを無制限で残せます。
+            </p>
+          </div>
+          <button onClick={onUpgrade} className="rounded-full px-3 py-1.5 text-[11px] font-bold border-none cursor-pointer"
+            style={{ background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08" }}>
+            PROへ
+          </button>
+        </div>
+      )}
+
       {/* ── STATS ── */}
       <div className="grid grid-cols-3 gap-2 mb-5">
         {[
-          { label: "記録数",   value: log.length, icon: "📝" },
-          { label: "平均評価", value: avgRating,   icon: "⭐" },
-          { label: "カテゴリ", value: catCount,    icon: "📂" },
+          { label: "記録数",   value: loading ? "…" : log.length, icon: "📝" },
+          { label: "平均評価", value: loading ? "…" : avgRating,   icon: "⭐" },
+          { label: "カテゴリ", value: loading ? "…" : catCount,    icon: "📂" },
         ].map((s) => (
           <div key={s.label} className="bg-white border border-[#EDE5DC] rounded-[14px] py-3 text-center">
             <p className="text-[20px] mb-1">{s.icon}</p>
@@ -104,12 +162,28 @@ export default function LogTab() {
             className="w-full border-[1.5px] border-[#EDE5DC] rounded-[12px] px-4 py-3 text-[14px] resize-none mb-3 outline-none focus:border-[#D4A853]"
             style={{ height: 80, fontFamily: "inherit" }}
           />
-          <GoldButton onClick={saveEntry}>保存する</GoldButton>
+          <GoldButton onClick={saveEntry} disabled={saving}>
+            {saving ? "保存中..." : "保存する"}
+          </GoldButton>
+        </div>
+      )}
+
+      {/* ── LOADING ── */}
+      {loading && (
+        <div className="text-center py-10" style={{ color: "#8A7A6E", fontSize: 13 }}>読み込み中...</div>
+      )}
+
+      {/* ── EMPTY STATE ── */}
+      {!loading && log.length === 0 && (
+        <div className="text-center py-10">
+          <p className="text-[36px] mb-2">📝</p>
+          <p className="text-[14px] font-semibold" style={{ color: "#150B00" }}>まだ記録がありません</p>
+          <p className="text-[12px] mt-1" style={{ color: "#8A7A6E" }}>右上の「+ 記録」から追加しましょう</p>
         </div>
       )}
 
       {/* ── LOG ENTRIES (timeline) ── */}
-      {log.map((item, idx) => {
+      {!loading && log.map((item, idx) => {
         const m = CAT_META[item.category] ?? { icon: "✨", color: "#F5E8D5", accent: "#A8722A" };
         const isLast = idx === log.length - 1;
         return (
@@ -143,7 +217,7 @@ export default function LogTab() {
               {item.memo && (
                 <p className="text-[12px] mt-2 px-3 py-2 rounded-[10px] italic leading-[1.6]"
                   style={{ background: "#F8F4EF", color: "#555" }}>
-                  "{item.memo}"
+                  「{item.memo}」
                 </p>
               )}
             </div>

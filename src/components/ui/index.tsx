@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 // ── Icon (SVG stroke-based) ──────────────────────────────────────────
 type IconName =
-  | "home" | "search" | "sparkle" | "note" | "crown" | "user"
+  | "home" | "search" | "sparkle" | "note" | "karte" | "ranking" | "crown" | "user"
   | "upload" | "camera" | "filter" | "chev" | "chevDown" | "play"
   | "plus" | "check" | "bell" | "heart" | "bookmark" | "arrow"
   | "dot" | "close" | "calendar" | "droplet";
@@ -17,6 +17,8 @@ export function Icon({ name, size = 18, stroke = "currentColor", sw = 1.4 }: {
     search:   <><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></>,
     sparkle:  <><path d="M12 3v5M12 16v5M3 12h5M16 12h5M6 6l3 3M15 15l3 3M6 18l3-3M15 9l3-3"/></>,
     note:     <><path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8M8 18h5"/></>,
+    karte:    <><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></>,
+    ranking:  <><path d="M5 20V9M12 20V4M19 20v-7"/><path d="M3 20h18"/></>,
     crown:    <><path d="M3 8l4 4 5-7 5 7 4-4v10H3z"/></>,
     user:     <><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></>,
     upload:   <><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></>,
@@ -157,6 +159,52 @@ export function Card({ children, className }: { children: React.ReactNode; class
     </div>
   );
 }
+
+// ── ProductImage ─────────────────────────────────────────────────────
+// 楽天市場から実際の商品画像を取得・キャッシュして表示
+import { useProductImage } from "@/hooks/useProductImage";
+
+export function ProductImage({
+  id, name, brand, sub, src, alt, catColor, catIcon, style, className,
+}: {
+  id: number; name: string; brand: string; sub?: string;
+  src: string; alt: string; catColor: string; catIcon: string;
+  style?: React.CSSProperties; className?: string;
+}) {
+  const resolvedSrc = useProductImage(id, name, brand, sub ?? "", src);
+  const [failed, setFailed] = React.useState(false);
+
+  if (failed || !resolvedSrc) {
+    return (
+      <div style={{ width: "100%", height: "100%", background: catColor, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, ...style }} className={className}>
+        <span style={{ fontSize: 40, opacity: 0.6 }}>{catIcon}</span>
+        <span style={{ fontSize: 11, color: "#8A7A6E", textAlign: "center", padding: "0 8px", lineHeight: 1.4 }}>{alt}</span>
+      </div>
+    );
+  }
+
+  const isRakutenImage = /rakuten\.co\.jp|r10s\.jp/i.test(resolvedSrc);
+
+  return (
+    <img
+      src={resolvedSrc}
+      alt={alt}
+      onError={() => setFailed(true)}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: isRakutenImage ? "contain" : "cover",
+        background: isRakutenImage ? "#fff" : undefined,
+        ...style,
+      }}
+      className={className}
+      loading="lazy"
+    />
+  );
+}
+
+// 必要なReactインポート
+import React from "react";
 
 // ── ScoreBar ─────────────────────────────────────────────────────────
 export function ScoreBar({ score }: { score: number }) {

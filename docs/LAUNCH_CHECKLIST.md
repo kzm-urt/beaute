@@ -1,0 +1,57 @@
+# Launch Checklist
+
+Target: complete the first release within this week.
+
+## 2026-04-30 Thu
+
+- Add release status tooling.
+- Confirm `.env.local` points to `http://localhost:3001` while developing on port 3001.
+- Apply the latest `supabase/schema.sql` to the active Supabase project.
+- Open `/admin/status` and clear all `未対応` items.
+- Open `/admin/analytics` after test events and confirm product/PRO event aggregation, API cost, and Rakuten reward estimates.
+
+## 2026-05-01 Fri
+
+- Run logged-in QA on the main app flow.
+- Confirm profile creation, product search, ranking, product drawer, favorite, compare, log, analysis history, and PRO gating.
+- Confirm product drawer views, locked product clicks, Rakuten purchase clicks, and PRO CTA clicks appear in `/admin/analytics`.
+- Run one ingredient analysis and confirm Anthropic API usage/cost appears in `/admin/analytics`.
+- Run Stripe test checkout and confirm webhook updates `profiles.is_pro`.
+- Confirm Billing Customer Portal opens from the PRO screen.
+
+## 2026-05-02 Sat
+
+- Polish conversion copy after QA.
+- Check mobile layout on search, ranking, product drawer, saved, karte, log, and premium screens.
+- Confirm FREE limits:
+  - Analysis: 3/month
+  - Log: 10 entries
+  - Favorites: 10
+  - Compare: 3
+  - Rakuten detail: search first 12, ranking top 10
+- Confirm PRO unlock:
+  - Analysis unlimited
+  - History up to 50
+  - Favorite unlimited
+  - Compare up to 10
+  - All Rakuten product details and purchase links
+
+## 2026-05-03 Sun
+
+- Set production env vars on the hosting service.
+- Set `NEXT_PUBLIC_APP_URL` and `RAKUTEN_REQUEST_ORIGIN` to the production domain.
+- Replace `/commercial` placeholders with real operator/contact information.
+- Add production Stripe webhook endpoint.
+- Run `npm run build`.
+- Smoke test the deployed URL.
+
+## Release Gates
+
+- `npx tsc --noEmit --pretty false` passes.
+- `npm run build` passes.
+- `/admin/status` has no `未対応`.
+- `/admin/analytics` shows test product events, API cost, and estimated Rakuten reward after logged-in QA.
+- Logged-in FREE flow works.
+- Logged-in PRO flow works.
+- Stripe test checkout and portal work.
+- Rakuten search and ranking return real images.

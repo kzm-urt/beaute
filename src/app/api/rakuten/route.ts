@@ -1,72 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
+import { searchRakutenItems, type RakutenSearchItem } from "@/lib/rakuten";
 
-export interface RakutenProduct {
-  name: string;
-  brand: string;
-  price: number;
-  image: string;
-  url: string;
-  reviewCount: number;
-  reviewAverage: number;
-}
+export interface RakutenProduct extends RakutenSearchItem {}
 
-const CATEGORY_KEYWORDS: Record<string, string> = {
-  スキンケア: "スキンケア 化粧水 美容液",
-  ヘアケア: "ヘアケア シャンプー ヘアオイル",
-  メイク: "コスメ ファンデーション リップ",
-  ボディ: "ボディクリーム ボディケア 保湿",
-  UVケア: "日焼け止め UVケア SPF50",
-  フレグランス: "香水 フレグランス レディース",
-  ネイル: "ネイル マニキュア ジェルネイル",
-  サプリ: "美容サプリ コラーゲン ビタミン",
-};
+export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-  const productName = req.nextUrl.searchParams.get("name");
-  const category = req.nextUrl.searchParams.get("category");
-  const appId = process.env.RAKUTEN_APP_ID;
-  const accessKey = process.env.RAKUTEN_ACCESS_KEY;
+  const productName = req.nextUrl.searchParams.get("name")?.trim() ?? "";
+  const category = req.nextUrl.searchParams.get("category")?.trim() ?? "";
+  const limit = parseInt(req.nextUrl.searchParams.get("limit") ?? "8", 10);
 
-  if (!appId) return NextResponse.json({ error: "RAKUTEN_APP_ID not set" }, { status: 500 });
+  try {
+    const items = await searchRakutenItems({
+      keyword: productName,
+      category,
+      hits: Number.isFinite(limit) ? limit : 8,
+    });
 
-  const keyword = productName ?? (category ? CATEGORY_KEYWORDS[category] : "スキンケア おすすめ");
-  // ブラウザのRefererを転送、なければVercelのURLを使用
-  const referer = req.headers.get("referer") ?? "https://beaute-xi.vercel.app/";
-
-  const url = new URL("https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260401");
-  url.searchParams.set("applicationId", appId);
-  url.searchParams.set("accessKey", accessKey ?? "");
-  url.searchParams.set("keyword", keyword ?? "スキンケア");
-  url.searchParams.set("hits", "6");
-  url.searchParams.set("sort", "-reviewCount");
-  url.searchParams.set("imageFlag", "1");
-  url.searchParams.set("formatVersion", "2");
-
-  const res = await fetch(url.toString(), {
-    headers: { "Referer": referer },
-  });
-  if (!res.ok) return NextResponse.json({ error: await res.text() }, { status: res.status });
-
-  const data = await res.json();
-  const items: RakutenProduct[] = (data.Items ?? []).map((item: {
-    itemName: string;
-    shopName: string;
-    itemPrice: number;
-    mediumImageUrls: { imageUrl: string }[];
-    itemUrl: string;
-    reviewCount: number;
-    reviewAverage: number;
-  }) => ({
-    name: item.itemName.slice(0, 40),
-    brand: item.shopName,
-    price: item.itemPrice,
-    image: item.mediumImageUrls?.[0]?.imageUrl ?? "",
-    url: item.itemUrl,
-    reviewCount: item.reviewCount,
-    reviewAverage: item.reviewAverage,
-  }));
-
-  return NextResponse.json({ items }, {
-    headers: { "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400" },
-  });
+    return NextResponse.json(
+      { items },
+      { headers: { "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400" } }
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Rakuten API request failed.";
+    return NextResponse.json({ items: [], error: message }, { status: 502 });
+  }
 }
