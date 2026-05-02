@@ -38,12 +38,21 @@ Target: complete the first release within this week.
 
 ## 2026-05-03 Sun
 
-- Set production env vars on the hosting service.
-- Set `NEXT_PUBLIC_APP_URL` and `RAKUTEN_REQUEST_ORIGIN` to the production domain.
+- Set production env vars on the hosting service. Done on 2026-05-02.
+- Set `NEXT_PUBLIC_APP_URL` to the production domain. Done on 2026-05-02.
+- Keep `RAKUTEN_REQUEST_ORIGIN` on the Rakuten-allowed origin until `https://beaute-xi.vercel.app` is added to Rakuten Web Service allowed referrers.
 - Replace `/commercial` placeholders with real operator/contact information.
-- Add production Stripe webhook endpoint.
-- Run `npm run build`.
-- Smoke test the deployed URL.
+- Add production Stripe webhook endpoint. Done on 2026-05-02.
+- Run `npm run build`. Done in Vercel production build on 2026-05-02.
+- Smoke test the deployed URL. Done on 2026-05-02.
+
+## Production Deployment Completed
+
+- Production URL: `https://beaute-xi.vercel.app`
+- Vercel deployment: `dpl_FHDbE9dsi9ybKHvustQWAmo4e4LF`
+- Stripe webhook endpoint: `we_1TSb6cDpBMQgTuocdM4dV7mD`
+- Verified public pages, legal pages, robots, sitemap, Rakuten search, and Rakuten ranking.
+- Remaining launch blockers are manual business/auth QA items: Supabase Auth URLs, `/commercial` real operator details, Billing Portal confirmation, and logged-in FREE/PRO checkout testing.
 
 ## Release Gates
 

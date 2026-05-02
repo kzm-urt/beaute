@@ -40,12 +40,23 @@ These require dashboard access or real user interaction:
 
 - Apply `supabase/schema.sql` in Supabase SQL Editor.
 - Confirm `api_usage_events` exists after applying the schema so API cost logs can be saved.
-- Confirm `NEXT_PUBLIC_ADMIN_EMAILS` includes the admin login email.
 - Confirm Stripe Billing Customer Portal is enabled.
-- Confirm Stripe webhook endpoint points to `/api/stripe/webhook`.
-- Confirm production `NEXT_PUBLIC_APP_URL` and `RAKUTEN_REQUEST_ORIGIN` match the deployed URL.
+- Configure Supabase Auth Site URL as `https://beaute-xi.vercel.app`.
+- Add Supabase Auth Redirect URLs for `https://beaute-xi.vercel.app` and `https://beaute-xi.vercel.app/reset-password`.
 - Replace `/commercial` placeholders with the real operator name, address, responsible person, and support contact before public paid launch.
 - Run one real logged-in FREE flow and one PRO/Stripe test flow.
+
+## Production Status
+
+- Production URL: https://beaute-xi.vercel.app
+- Vercel project: `kzm-urts-projects/beaute`
+- Latest verified deployment: `dpl_FHDbE9dsi9ybKHvustQWAmo4e4LF`
+- Stripe webhook endpoint: `we_1TSb6cDpBMQgTuocdM4dV7mD`
+- Stripe webhook URL: `https://beaute-xi.vercel.app/api/stripe/webhook`
+- Production env vars are set in Vercel, including Supabase, Stripe, Rakuten, YouTube, Anthropic, admin emails, API cost, and affiliate reward settings.
+- `NEXT_PUBLIC_APP_URL` is set to `https://beaute-xi.vercel.app`.
+- `RAKUTEN_REQUEST_ORIGIN` is set to `https://beaute.vercel.app` because that origin is currently accepted by Rakuten. Update it to the production URL only after adding `https://beaute-xi.vercel.app` to Rakuten allowed referrers.
+- Production smoke test passed for public pages, legal pages, robots, sitemap, Rakuten search, and Rakuten ranking.
 
 ## Manual QA Script
 

@@ -1,6 +1,6 @@
 # beaute Development Log
 
-Last updated: 2026-04-30
+Last updated: 2026-05-02
 
 ## Current Direction
 
@@ -273,6 +273,35 @@ Admin status page:
 - Warns when `NEXT_PUBLIC_APP_URL` does not match the current origin.
 - Links to `/admin/analytics` for conversion follow-up.
 
+## Production Deployment
+
+Production app:
+
+- Primary URL: `https://beaute-xi.vercel.app`
+- Vercel project: `kzm-urts-projects/beaute`
+- GitHub repo: `https://github.com/kzm-urt/beaute.git`
+- Latest verified production deployment: `dpl_FHDbE9dsi9ybKHvustQWAmo4e4LF`
+- Vercel inspect URL: `https://vercel.com/kzm-urts-projects/beaute/FHDbE9dsi9ybKHvustQWAmo4e4LF`
+
+Production setup completed on 2026-05-02:
+
+- Production env vars were added to Vercel from `.env.local` without exposing secret values.
+- `NEXT_PUBLIC_APP_URL` is set to `https://beaute-xi.vercel.app`.
+- `NEXT_PUBLIC_ADMIN_EMAILS` includes the admin login email.
+- Stripe webhook endpoint was created: `we_1TSb6cDpBMQgTuocdM4dV7mD`.
+- Stripe webhook URL: `https://beaute-xi.vercel.app/api/stripe/webhook`.
+- Webhook events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`.
+- Vercel `STRIPE_WEBHOOK_SECRET` was updated from the created Stripe endpoint and production was redeployed.
+- `RAKUTEN_REQUEST_ORIGIN` is currently `https://beaute.vercel.app`, because that origin is accepted by the Rakuten Web Service settings. If `https://beaute-xi.vercel.app` is added to Rakuten allowed referrers later, update the env var and redeploy.
+
+Production smoke test completed:
+
+- `/` returns 200.
+- `/terms`, `/privacy`, `/commercial`, `/robots.txt`, and `/sitemap.xml` return 200.
+- `/api/debug-rakuten` returns 200 with Rakuten items.
+- `/api/products?limit=30` returns 30 Rakuten products.
+- `/api/products?mode=ranking&page=1` returns 30 Rakuten ranking items and starts at rank 1.
+
 Local port:
 
 - The current preferred local command is `npm run dev:3001`.
@@ -301,7 +330,8 @@ $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 ## Next Good Ideas
 
 - Run `/admin/status` as the production readiness gate.
-- Apply `supabase/schema.sql` to the active Supabase project before final QA.
+- Apply `supabase/schema.sql` to the active Supabase project before final QA if any status row still reports a missing table or column.
+- Configure Supabase Auth Site URL and Redirect URLs in the Supabase dashboard for `https://beaute-xi.vercel.app`.
 - Run a logged-in FREE and PRO QA pass on `http://localhost:3001`.
 - Run Stripe test checkout and customer portal QA.
-- Add product detail analytics so conversion CTAs can be tuned by category.
+- Replace `/commercial` placeholders with the real operator/contact details before paid public launch.
