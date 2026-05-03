@@ -284,8 +284,8 @@ Production app:
 - Primary URL: `https://beaute-xi.vercel.app`
 - Vercel project: `kzm-urts-projects/beaute`
 - GitHub repo: `https://github.com/kzm-urt/beaute.git`
-- Latest verified production deployment: `dpl_FHDbE9dsi9ybKHvustQWAmo4e4LF`
-- Vercel inspect URL: `https://vercel.com/kzm-urts-projects/beaute/FHDbE9dsi9ybKHvustQWAmo4e4LF`
+- Latest verified production deployment: `dpl_CY2NxUyNg7zoH5KBVfHFF7niZmQs`
+- Vercel inspect URL: `https://vercel.com/kzm-urts-projects/beaute/CY2NxUyNg7zoH5KBVfHFF7niZmQs`
 
 Production setup completed on 2026-05-02:
 
@@ -296,6 +296,7 @@ Production setup completed on 2026-05-02:
 - Stripe webhook URL: `https://beaute-xi.vercel.app/api/stripe/webhook`.
 - Webhook events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`.
 - Vercel `STRIPE_WEBHOOK_SECRET` was updated from the created Stripe endpoint and production was redeployed.
+- Admin Basic auth was added to production with `ADMIN_BASIC_USER` and `ADMIN_BASIC_PASSWORD`.
 - `RAKUTEN_REQUEST_ORIGIN` is currently `https://beaute.vercel.app`, because that origin is accepted by the Rakuten Web Service settings. If `https://beaute-xi.vercel.app` is added to Rakuten allowed referrers later, update the env var and redeploy.
 
 Production smoke test completed:

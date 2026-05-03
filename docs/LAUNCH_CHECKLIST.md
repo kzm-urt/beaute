@@ -50,7 +50,7 @@ Target: complete the first release within this week.
 ## Production Deployment Completed
 
 - Production URL: `https://beaute-xi.vercel.app`
-- Vercel deployment: `dpl_FHDbE9dsi9ybKHvustQWAmo4e4LF`
+- Vercel deployment: `dpl_CY2NxUyNg7zoH5KBVfHFF7niZmQs`
 - Stripe webhook endpoint: `we_1TSb6cDpBMQgTuocdM4dV7mD`
 - Admin pages are protected with Basic auth plus Supabase admin email checks.
 - Verified public pages, legal pages, robots, sitemap, Rakuten search, and Rakuten ranking.
