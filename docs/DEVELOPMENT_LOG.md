@@ -256,6 +256,7 @@ Analysis/product save tables:
 
 Key files:
 
+- `src/middleware.ts`
 - `src/app/api/system-status/route.ts`
 - `src/app/admin/status/page.tsx`
 - `src/app/admin/analytics/page.tsx`
@@ -265,6 +266,9 @@ Key files:
 Admin status page:
 
 - URL: `/admin/status`
+- `/admin/*`, `/api/system-status`, and admin analytics reads on `/api/product-events` are protected by Basic auth before the app-level admin check.
+- Basic auth credentials are configured with `ADMIN_BASIC_USER` and `ADMIN_BASIC_PASSWORD`.
+- Basic auth locks a client/user combination for 15 minutes after 10 failed attempts.
 - Requires a logged-in user whose email is in `NEXT_PUBLIC_ADMIN_EMAILS`.
 - Checks required environment variables without exposing secret values.
 - Checks Supabase tables and required columns with the service role key.

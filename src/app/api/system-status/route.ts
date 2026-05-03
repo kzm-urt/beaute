@@ -170,6 +170,8 @@ function buildEnvironmentGroup(req: NextRequest, adminEmail: string | null): Sta
     envCheck("RAKUTEN_APPLICATION_ID", "楽天 application ID"),
     envCheck("RAKUTEN_ACCESS_KEY", "楽天 access key"),
     envCheck("NEXT_PUBLIC_RAKUTEN_AFFILIATE_ID", "楽天 affiliate ID"),
+    envCheck("ADMIN_BASIC_USER", "管理画面 Basic 認証ユーザー"),
+    envCheck("ADMIN_BASIC_PASSWORD", "管理画面 Basic 認証パスワード"),
   ];
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;

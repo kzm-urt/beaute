@@ -15,6 +15,9 @@ Open:
 - Conversion / cost / reward analytics: http://localhost:3001/admin/analytics
 - Deployment guide: `docs/DEPLOYMENT.md`
 
+Admin pages now require browser Basic auth before the normal Supabase admin login check.
+Credentials are stored in `.env.local` as `ADMIN_BASIC_USER` and `ADMIN_BASIC_PASSWORD`, and the same values are configured in Vercel Production.
+
 ## Automated Checks
 
 Run these from the project root:
@@ -54,6 +57,7 @@ These require dashboard access or real user interaction:
 - Stripe webhook endpoint: `we_1TSb6cDpBMQgTuocdM4dV7mD`
 - Stripe webhook URL: `https://beaute-xi.vercel.app/api/stripe/webhook`
 - Production env vars are set in Vercel, including Supabase, Stripe, Rakuten, YouTube, Anthropic, admin emails, API cost, and affiliate reward settings.
+- Admin Basic auth env vars are set in Vercel Production.
 - `NEXT_PUBLIC_APP_URL` is set to `https://beaute-xi.vercel.app`.
 - `RAKUTEN_REQUEST_ORIGIN` is set to `https://beaute.vercel.app` because that origin is currently accepted by Rakuten. Update it to the production URL only after adding `https://beaute-xi.vercel.app` to Rakuten allowed referrers.
 - Production smoke test passed for public pages, legal pages, robots, sitemap, Rakuten search, and Rakuten ranking.
