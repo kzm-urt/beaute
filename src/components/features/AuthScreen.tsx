@@ -55,53 +55,49 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset }: 
   };
 
   return (
-    <div style={{
-      minHeight: "100vh", background: "#F8F4EF", display: "flex",
-      flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: "24px 16px",
-    }}>
-      {/* ロゴ */}
-      <div style={{ textAlign: "center", marginBottom: 40 }}>
-        <div style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontSize: 48, fontWeight: 500, color: "#150B00", letterSpacing: "0.04em",
-        }}>
-          beauté
+    <main className="auth-page">
+      <section className="auth-hero" aria-label="beauté">
+        <div className="auth-brand-block">
+          <div className="auth-logo">beauté</div>
+          <div className="auth-kicker">PERSONAL BEAUTY SEARCH</div>
         </div>
-        <div style={{
-          fontSize: 9, letterSpacing: "0.4em", color: "#A8722A",
-          fontFamily: "ui-monospace, monospace", marginTop: 6,
-        }}>
-          — EST. MMXXV —
-        </div>
-      </div>
 
-      {/* カード */}
-      <div style={{
-        width: "100%", maxWidth: 400,
-        background: "#FBF8F3", borderRadius: 20,
-        border: "1px solid #EDE5DC",
-        boxShadow: "0 8px 40px rgba(21,11,0,.08)",
-        padding: "36px 32px",
-      }}>
+        <div className="auth-copy">
+          <p className="auth-eyebrow">楽天市場の商品情報をもとに</p>
+          <h1>肌・髪・悩みに合う美容アイテムを、選ぶ理由まで。</h1>
+          <p>
+            商品検索、ランキング、成分分析、保存リストをひとつにまとめて、
+            毎日の美容選びを迷いにくくします。
+          </p>
+        </div>
+
+        <div className="auth-signal-list" aria-label="beautéでできること">
+          <div>
+            <span>01</span>
+            楽天商品を検索・比較
+          </div>
+          <div>
+            <span>02</span>
+            成分と悩みを照らし合わせ
+          </div>
+          <div>
+            <span>03</span>
+            気になる商品を保存
+          </div>
+        </div>
+      </section>
+
+      <section className="auth-panel" aria-label="ログインまたは新規登録">
         {/* タブ切り替え（リセットモード時は非表示） */}
         {mode !== "reset" && (
-          <div style={{
-            display: "flex", background: "#F0EAE2", borderRadius: 10,
-            padding: 3, marginBottom: 28,
-          }}>
+          <div className="auth-tabs" role="tablist" aria-label="認証メニュー">
             {(["signin", "signup"] as const).map(m => (
               <button
                 key={m}
+                type="button"
                 onClick={() => switchMode(m)}
-                style={{
-                  flex: 1, padding: "9px 0",
-                  background: mode === m ? "#1A0E08" : "transparent",
-                  color: mode === m ? "#FBF8F3" : "#8A7A6E",
-                  border: "none", borderRadius: 8, cursor: "pointer",
-                  fontSize: 13, fontWeight: 600, letterSpacing: "0.06em",
-                  transition: "all 0.2s",
-                }}
+                className="auth-tab"
+                aria-pressed={mode === m}
               >
                 {m === "signin" ? "ログイン" : "新規登録"}
               </button>
@@ -111,71 +107,64 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset }: 
 
         {/* パスワードリセットヘッダー */}
         {mode === "reset" && (
-          <div style={{ marginBottom: 20 }}>
+          <div className="auth-reset-head">
             <button
+              type="button"
               onClick={() => switchMode("signin")}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#A8722A", fontSize: 12, padding: 0, marginBottom: 12 }}
+              className="auth-text-button"
             >
               ← ログインに戻る
             </button>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#150B00" }}>パスワードをリセット</div>
-            <div style={{ fontSize: 12, color: "#8A7A6E", marginTop: 4 }}>
+            <h2>パスワードをリセット</h2>
+            <p>
               登録済みのメールアドレスにリセット用のリンクを送信します
-            </div>
+            </p>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           {/* メール */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ display: "block", fontSize: 11, color: "#6B5B4A", marginBottom: 6, letterSpacing: "0.08em" }}>
+          <div className="auth-field">
+            <label htmlFor="auth-email">
               メールアドレス
             </label>
             <input
+              id="auth-email"
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
               placeholder="example@mail.com"
-              style={{
-                width: "100%", padding: "12px 14px",
-                border: "1px solid #DDD5C8", borderRadius: 10,
-                fontSize: 14, background: "#F8F4EF", color: "#150B00",
-                outline: "none", boxSizing: "border-box",
-              }}
+              className="auth-input"
             />
           </div>
 
           {/* パスワード（リセットモード時は非表示） */}
           {mode !== "reset" && (
-            <div style={{ marginBottom: 8 }}>
-              <label style={{ display: "block", fontSize: 11, color: "#6B5B4A", marginBottom: 6, letterSpacing: "0.08em" }}>
-                パスワード {mode === "signup" && <span style={{ color: "#A8722A" }}>（8文字以上）</span>}
+            <div className="auth-field">
+              <label htmlFor="auth-password">
+                パスワード {mode === "signup" && <span>（8文字以上）</span>}
               </label>
               <input
+                id="auth-password"
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
                 minLength={mode === "signup" ? 8 : 1}
                 placeholder="••••••••"
-                style={{
-                  width: "100%", padding: "12px 14px",
-                  border: "1px solid #DDD5C8", borderRadius: 10,
-                  fontSize: 14, background: "#F8F4EF", color: "#150B00",
-                  outline: "none", boxSizing: "border-box",
-                }}
+                className="auth-input"
               />
             </div>
           )}
 
           {/* パスワードを忘れた場合（ログインモードのみ） */}
           {mode === "signin" && (
-            <div style={{ textAlign: "right", marginBottom: 16 }}>
+            <div className="auth-forgot">
               <button
                 type="button"
                 onClick={() => switchMode("reset")}
-                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#A8722A", padding: 0 }}
+                className="auth-text-button"
               >
                 パスワードをお忘れですか？
               </button>
@@ -186,18 +175,12 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset }: 
 
           {/* エラー・インフォ */}
           {error && (
-            <div style={{
-              padding: "10px 14px", background: "#FEF0F0", border: "1px solid #F5C6C6",
-              borderRadius: 8, fontSize: 13, color: "#C0392B", marginBottom: 14,
-            }}>
+            <div className="auth-alert auth-alert-error" role="alert">
               {error}
             </div>
           )}
           {info && (
-            <div style={{
-              padding: "10px 14px", background: "#F0F8EF", border: "1px solid #C6E6C3",
-              borderRadius: 8, fontSize: 13, color: "#27AE60", marginBottom: 14,
-            }}>
+            <div className="auth-alert auth-alert-info" role="status">
               {info}
             </div>
           )}
@@ -206,13 +189,7 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset }: 
           <button
             type="submit"
             disabled={loading}
-            style={{
-              width: "100%", padding: "14px",
-              background: loading ? "#C89E6A" : "linear-gradient(135deg, #D4A853, #A8722A)",
-              color: "#1A0E08", border: "none", borderRadius: 12,
-              fontSize: 14, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
-              letterSpacing: "0.06em", transition: "opacity 0.2s",
-            }}
+            className="auth-submit"
           >
             {loading
               ? "処理中..."
@@ -224,21 +201,27 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset }: 
           </button>
         </form>
 
+        <div className="auth-plan-note">
+          <strong>{mode === "signup" ? "無料ではじめられます" : "PROは7日間トライアル"}</strong>
+          <span>
+            {mode === "signup"
+              ? "商品購入は楽天市場などの外部ECで行われます。"
+              : "ログイン後にプラン管理・保存リスト・分析履歴を確認できます。"}
+          </span>
+        </div>
+
         {/* フッター */}
-        <p style={{
-          textAlign: "center", fontSize: 11, color: "#B0A090",
-          marginTop: 24, lineHeight: 1.8,
-        }}>
+        <p className="auth-footer">
           beauté はあなたの美容データを安全に保護します。
           <br />
-          <a href="/terms" style={{ color: "#A8722A", textDecoration: "none" }}>利用規約</a>
+          <a href="/terms">利用規約</a>
           <span> / </span>
-          <a href="/privacy" style={{ color: "#A8722A", textDecoration: "none" }}>プライバシー</a>
+          <a href="/privacy">プライバシー</a>
           <span> / </span>
-          <a href="/commercial" style={{ color: "#A8722A", textDecoration: "none" }}>特商法表記</a>
+          <a href="/commercial">特商法表記</a>
         </p>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
 
