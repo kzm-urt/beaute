@@ -8,6 +8,7 @@ import { ProductImage, Stars } from "@/components/ui";
 import type { Product, ProductSave } from "@/types";
 
 type SavedMode = "favorite" | "compare";
+const FALLBACK_CATEGORY = "スキンケア";
 
 interface Props {
   isPro: boolean;
@@ -169,14 +170,15 @@ function SavedCard({ save, onOpen, onRemove, loading }: {
   save: ProductSave; onOpen: () => void; onRemove: () => void; loading: boolean;
 }) {
   const p = save.product;
-  const m = CAT_META[p.cat];
+  const m = CAT_META[p.cat] ?? CAT_META[FALLBACK_CATEGORY];
+  const categoryLabel = CAT_META[p.cat] ? p.cat : FALLBACK_CATEGORY;
   return (
     <div style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}>
       <button onClick={onOpen} style={{ display: "block", width: "100%", border: "none", padding: 0, background: "transparent", cursor: "pointer", textAlign: "left" }}>
         <div style={{ height: 150, background: m.color, position: "relative" }}>
           <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} />
           <div style={{ position: "absolute", top: 8, left: 8, fontSize: 10, background: "#fff", color: m.dark, borderRadius: 999, padding: "3px 8px", fontWeight: 800 }}>
-            {m.icon} {p.cat}
+            {m.icon} {categoryLabel}
           </div>
         </div>
         <div style={{ padding: "12px 14px" }}>
@@ -200,7 +202,8 @@ function CompareCard({ save, onOpen, onRemove, loading }: {
   save: ProductSave; onOpen: () => void; onRemove: () => void; loading: boolean;
 }) {
   const p = save.product;
-  const m = CAT_META[p.cat];
+  const m = CAT_META[p.cat] ?? CAT_META[FALLBACK_CATEGORY];
+  const categoryLabel = CAT_META[p.cat] ? p.cat : FALLBACK_CATEGORY;
   return (
     <div style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 14, overflow: "hidden" }}>
       <button onClick={onOpen} style={{ width: "100%", border: "none", background: "transparent", padding: "14px", textAlign: "left", cursor: "pointer" }}>
@@ -214,7 +217,7 @@ function CompareCard({ save, onOpen, onRemove, loading }: {
           </div>
         </div>
         {[
-          ["カテゴリ", `${p.cat} / ${p.sub}`],
+          ["カテゴリ", `${categoryLabel} / ${p.sub}`],
           ["価格", formatPrice(p.price)],
           ["評価", `${p.rating} / ${p.rev.toLocaleString()}件`],
         ].map(([label, value]) => (

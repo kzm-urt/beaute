@@ -210,7 +210,7 @@ export default function BeauteApp() {
           </div>
         </header>
 
-        <main style={{ flex: 1, overflowY: "auto", paddingBottom: 0 }} className="pb-20 md:pb-0">
+        <main style={{ flex: 1, overflowY: "auto" }} className="app-main">
           {tab === "home"    && <HomeTab    profile={profile} isPro={isPro} preferences={preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer}/>}
           {tab === "search"  && <SearchTab  isPro={isPro} preferences={preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="search" profile={profile}/>}
           {tab === "ranking" && <SearchTab  isPro={isPro} preferences={preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="ranking" profile={profile}/>}

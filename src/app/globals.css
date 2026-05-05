@@ -42,6 +42,10 @@ body {
 
 .score-bar { transition: width 0.8s cubic-bezier(.4,0,.2,1); }
 
+.app-main {
+  padding-bottom: 0;
+}
+
 .auth-page {
   min-height: 100vh;
   display: grid;
@@ -474,6 +478,10 @@ body {
 
 /* Responsive grid helpers */
 @media (max-width: 640px) {
+  .app-main {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+
   .auth-page {
     min-height: 100svh;
     display: block;
