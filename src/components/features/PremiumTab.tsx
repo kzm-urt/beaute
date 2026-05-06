@@ -57,7 +57,17 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
     };
 
     fetchStatus();
-    return () => { ignore = true; };
+    const refetchStatus = () => { void fetchStatus(); };
+    const refetchWhenVisible = () => {
+      if (document.visibilityState === "visible") void fetchStatus();
+    };
+    window.addEventListener("focus", refetchStatus);
+    document.addEventListener("visibilitychange", refetchWhenVisible);
+    return () => {
+      ignore = true;
+      window.removeEventListener("focus", refetchStatus);
+      document.removeEventListener("visibilitychange", refetchWhenVisible);
+    };
   }, [user, isPro]);
 
   const handleCheckout = async () => {
@@ -126,6 +136,18 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
         day: "numeric",
       })
     : null;
+  const isCancelScheduled = Boolean(subscriptionStatus?.cancelAtPeriodEnd && periodEndLabel);
+  const proStatusTitle = isCancelScheduled ? "\u89e3\u7d04\u4e88\u7d04\u6e08\u307f" : "PRO\u30d7\u30e9\u30f3\u52a0\u5165\u4e2d";
+  const proStatusBody = statusLoading
+    ? "\u5951\u7d04\u72b6\u614b\u3092\u78ba\u8a8d\u4e2d..."
+    : isCancelScheduled
+      ? `PRO\u306f${periodEndLabel}\u307e\u3067\u5229\u7528\u3067\u304d\u307e\u3059`
+      : statusLabel
+        ? `${statusLabel}${periodEndLabel ? ` \u30fb \u6b21\u56de\u66f4\u65b0 ${periodEndLabel}` : ""}`
+        : "\u3059\u3079\u3066\u306ePRO\u6a5f\u80fd\u3092\u3054\u5229\u7528\u3044\u305f\u3060\u3051\u307e\u3059";
+  const contractManagementCopy = isCancelScheduled
+    ? "\u89e3\u7d04\u4e88\u7d04\u306fStripe\u3067\u53d7\u4ed8\u6e08\u307f\u3067\u3059\u3002\u671f\u9593\u7d42\u4e86\u307e\u3067\u306fPRO\u6a5f\u80fd\u3092\u305d\u306e\u307e\u307e\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
+    : "\u652f\u6255\u3044\u65b9\u6cd5\u306e\u5909\u66f4\u3001\u8acb\u6c42\u66f8\u306e\u78ba\u8a8d\u3001\u89e3\u7d04\u306fStripe\u306e\u7ba1\u7406\u30da\u30fc\u30b8\u3067\u884c\u3048\u307e\u3059\u3002";
 
   return (
     <div className="px-4 py-5 pb-10">
@@ -157,18 +179,18 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
         <div className="rounded-[16px] p-4 mb-5 text-center border"
           style={{ background: "linear-gradient(135deg,#FEF9F0,#FDF3E3)", borderColor: "#D4A853" }}>
           <p className="text-[22px] mb-1">👑</p>
-          <p className="text-[15px] font-bold" style={{ color: "#150B00" }}>PROプラン加入中</p>
+          <p className="text-[15px] font-bold" style={{ color: "#150B00" }}>{proStatusTitle}</p>
           <p className="text-[12px] mt-1" style={{ color: "#8A7A6E" }}>
-            {statusLoading
-              ? "契約状態を確認中..."
-              : statusLabel
-                ? `${statusLabel}${periodEndLabel ? ` · 次回更新 ${periodEndLabel}` : ""}`
-                : "すべての機能をご利用いただけます"}
+            {proStatusBody}
           </p>
-          {subscriptionStatus?.cancelAtPeriodEnd && periodEndLabel && (
-            <p className="text-[11px] mt-1" style={{ color: "#A8722A" }}>
-              {periodEndLabel}まではPRO機能を利用できます
-            </p>
+          {isCancelScheduled && (
+            <div className="mt-3 mx-auto max-w-[520px] rounded-[12px] px-4 py-3 text-left"
+              style={{ background: "#fff", border: "1px solid rgba(212,168,83,.38)", color: "#6B4A1E" }}>
+              <p className="text-[12px] font-bold">{"\u6b21\u56de\u8acb\u6c42\u306f\u767a\u751f\u3057\u307e\u305b\u3093"}</p>
+              <p className="text-[11px] mt-1 leading-[1.7]">
+                {"\u89e3\u7d04\u4e88\u7d04\u6e08\u307f\u3067\u3059\u3002"}{periodEndLabel}{"\u307e\u3067\u306f\u691c\u7d22\u30fb\u4fdd\u5b58\u30fb\u5206\u6790\u306a\u3069\u306ePRO\u6a5f\u80fd\u3092\u305d\u306e\u307e\u307e\u4f7f\u3048\u307e\u3059\u3002"}
+              </p>
+            </div>
           )}
         </div>
       )}
@@ -180,7 +202,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             <div>
               <p className="text-[12px] font-bold" style={{ color: "#150B00" }}>契約管理</p>
               <p className="text-[11px] mt-1 leading-[1.6]" style={{ color: "#8A7A6E" }}>
-                支払い方法の変更、請求書の確認、解約はStripeの管理ページで行えます。
+                {contractManagementCopy}
               </p>
             </div>
             <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold"

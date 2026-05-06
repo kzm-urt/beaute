@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase";
 import { resolveIsPro } from "@/lib/plan";
+import { stripe } from "@/lib/stripe";
 
 interface ProfileBillingRow {
   is_pro?: boolean | null;
@@ -9,6 +10,19 @@ interface ProfileBillingRow {
   stripe_subscription_status?: string | null;
   stripe_current_period_end?: string | null;
   stripe_cancel_at_period_end?: boolean | null;
+}
+
+function subscriptionToProfileFields(sub: Awaited<ReturnType<typeof stripe.subscriptions.retrieve>>) {
+  return {
+    is_pro: ["active", "trialing"].includes(sub.status),
+    stripe_subscription_id: sub.id,
+    stripe_subscription_status: sub.status,
+    stripe_current_period_end: sub.current_period_end
+      ? new Date(sub.current_period_end * 1000).toISOString()
+      : null,
+    stripe_cancel_at_period_end: sub.cancel_at_period_end,
+    updated_at: new Date().toISOString(),
+  };
 }
 
 export async function POST(req: NextRequest) {
@@ -30,7 +44,18 @@ export async function POST(req: NextRequest) {
       .select("is_pro, stripe_customer_id, stripe_subscription_id, stripe_subscription_status, stripe_current_period_end, stripe_cancel_at_period_end")
       .eq("id", user.id)
       .single();
-    const profile = data as ProfileBillingRow | null;
+    let profile = data as ProfileBillingRow | null;
+
+    if (profile?.stripe_subscription_id) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(profile.stripe_subscription_id);
+        const fields = subscriptionToProfileFields(subscription);
+        await supabase.from("profiles").update(fields).eq("id", user.id);
+        profile = { ...profile, ...fields };
+      } catch (error) {
+        console.error("Stripe subscription sync error:", error);
+      }
+    }
 
     return NextResponse.json({
       isPro: resolveIsPro(profile?.is_pro, user.email),
