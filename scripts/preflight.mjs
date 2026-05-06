@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http://localhost:3001";
+let baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http://localhost:3001";
 
 const checks = [];
 
@@ -36,8 +36,16 @@ async function fetchJson(path, options = {}) {
   return { res, data };
 }
 
-async function fetchText(path) {
-  const res = await fetch(new URL(path, baseUrl));
+function getBasicAuthHeaders() {
+  const user = process.env.ADMIN_BASIC_USER;
+  const password = process.env.ADMIN_BASIC_PASSWORD;
+  if (!user || !password) return {};
+  const token = Buffer.from(`${user}:${password}`).toString("base64");
+  return { Authorization: `Basic ${token}` };
+}
+
+async function fetchText(path, options = {}) {
+  const res = await fetch(new URL(path, baseUrl), options);
   const text = await res.text();
   return { res, text };
 }
@@ -66,7 +74,9 @@ async function checkSupabaseTable(table, select) {
 
 async function run() {
   loadLocalEnv();
+  baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || baseUrl;
   console.log(`beaute preflight: ${baseUrl}`);
+  const adminRequestOptions = { headers: getBasicAuthHeaders() };
 
   try {
     const { res, data } = await fetchJson("/api/products?limit=30");
@@ -114,14 +124,14 @@ async function run() {
   );
 
   try {
-    const { res, text } = await fetchText("/admin/status");
+    const { res, text } = await fetchText("/admin/status", adminRequestOptions);
     addCheck("Admin status page", res.ok && text.includes("Launch Status"), `status=${res.status} / bytes=${text.length}`);
   } catch (error) {
     addCheck("Admin status page", false, error.message);
   }
 
   try {
-    const { res, text } = await fetchText("/admin/analytics");
+    const { res, text } = await fetchText("/admin/analytics", adminRequestOptions);
     addCheck("Admin analytics page", res.ok && text.includes("Product Analytics"), `status=${res.status} / bytes=${text.length}`);
   } catch (error) {
     addCheck("Admin analytics page", false, error.message);

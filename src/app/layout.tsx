@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://beaute.vercel.app";
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     default: "beauté | あなただけの美容提案",
     template: "%s | beauté",
   },
-  description: "肌・髪・悩みに合わせたAI美容提案。成分解析、バズ動画リンク、使用ログまで。",
+  description: "肌・髪・悩みに合わせたAI美容提案。成分解析、楽天商品検索、保存リスト、使用ログまで。",
   manifest: "/manifest.json",
   applicationName: "beauté",
   keywords: ["美容", "コスメ", "スキンケア", "成分解析", "楽天", "AI"],
@@ -45,22 +45,25 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#1A0E08",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#1A0E08" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500;1,600&family=Noto+Sans+JP:wght@400;500;600&family=Noto+Serif+JP:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500;1,600&family=Noto+Sans+JP:wght@400;500;600;700;800;900&family=Noto+Serif+JP:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body style={{ margin: 0, padding: 0, background: "#F8F4EF" }}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

@@ -1,8 +1,9 @@
 {
   "name": "beauté — AI美容提案",
   "short_name": "beauté",
-  "description": "肌・髪・悩みに合わせたAI美容提案。成分解析、バズ動画、使用ログ。",
+  "description": "肌・髪・悩みに合わせたAI美容提案。成分解析、楽天商品検索、保存リスト、使用ログまで。",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#F8F4EF",
   "theme_color": "#1A0E08",
@@ -23,5 +24,5 @@
     }
   ],
   "screenshots": [],
-  "categories": ["lifestyle", "beauty", "health"]
+  "categories": ["lifestyle", "beauty", "health", "shopping"]
 }

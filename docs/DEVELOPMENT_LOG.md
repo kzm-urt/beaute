@@ -8,6 +8,38 @@ beaute is a beauty product discovery app with auth, profile-based recommendation
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
 
+## 2026-05-07 Design System Lift
+
+Scope:
+
+- Raised the visual baseline across the logged-out and logged-in shell.
+- Tightened wide desktop layouts so key pages do not stretch awkwardly on full-size screens.
+- Re-centered the app around beaute after a temporary experimental entry point had changed the root app metadata.
+
+Changes:
+
+- `src/app/page.tsx`
+  - Restored the root route to `BeauteApp`.
+- `src/app/layout.tsx` and `public/manifest.json`
+  - Restored beaute metadata, PWA naming, theme color, and public description.
+- `src/app/globals.css`
+  - Added shared beaute design tokens, section width helpers, elevated card states, focus states, and mobile spacing helpers.
+  - Restored the beaute auth and app shell styling while preserving responsive helpers used by admin analytics and product drawers.
+- `src/components/features/BeauteApp.tsx`
+  - Constrained the guest preview banner on wide screens.
+- `src/components/features/HomeTab.tsx`
+  - Constrained editorial sections to a consistent shell width.
+  - Polished the tutorial, category discovery, product rails, editor picks, and PRO teaser with stronger card elevation and spacing.
+- `src/components/features/KarteTab.tsx`
+  - Expanded Karte into a wider dashboard layout with an engine status summary.
+- `src/components/features/PremiumTab.tsx`
+  - Constrained the PRO page so the pricing/value ladder reads better on large screens.
+
+Verification:
+
+- `npm run verify` passes.
+- Local production build on port `3006` verified the public home, tutorial/category sections, guest Karte gate, and PRO page in the in-app browser.
+
 ## 2026-05-07 Guest Funnel Pass
 
 Scope:

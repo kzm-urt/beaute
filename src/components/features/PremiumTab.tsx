@@ -155,7 +155,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
     : "\u652f\u6255\u3044\u65b9\u6cd5\u306e\u5909\u66f4\u3001\u8acb\u6c42\u66f8\u306e\u78ba\u8a8d\u3001\u89e3\u7d04\u306fStripe\u306e\u7ba1\u7406\u30da\u30fc\u30b8\u3067\u884c\u3048\u307e\u3059\u3002";
 
   return (
-    <div className="px-4 py-5 pb-10">
+    <div className="px-4 py-5 pb-10 mobile-tight" style={{ maxWidth: 1180, margin: "0 auto" }}>
       {/* HEADER */}
       <div className="rounded-[22px] overflow-hidden mb-5 relative"
         style={{ background: "linear-gradient(145deg,#1A0E08 0%,#2A1208 50%,#4A1E0A 100%)", padding: "32px 24px 28px" }}>

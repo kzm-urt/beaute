@@ -146,18 +146,41 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
   ];
 
   return (
-    <div style={{ padding: "24px 24px 60px", maxWidth: 860, margin: "0 auto" }}>
+    <div className="mobile-tight" style={{ padding: "28px 24px 64px", maxWidth: 1120, margin: "0 auto" }}>
 
       {/* ── ヘッダー ── */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ MY BEAUTY CHART</div>
-        <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 32, fontWeight: 400, color: "#150B00", margin: 0 }}>
-          あなた専用の美容OS
-        </h1>
-        <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6 }}>カルテはプロフィールではなく、検索・成分分析・保存・ログをつなぐ判断エンジンです。</p>
+      <div style={{ marginBottom: 26, display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(260px,360px)", gap: 18, alignItems: "end" }} className="grid-cols-1-mobile">
+        <div>
+          <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ MY BEAUTY CHART</div>
+          <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 36, fontWeight: 400, color: "#150B00", margin: 0 }}>
+            あなた専用の美容OS
+          </h1>
+          <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6, lineHeight: 1.8 }}>カルテはプロフィールではなく、検索・成分分析・保存・ログをつなぐ判断エンジンです。</p>
+        </div>
+        <div className="soft-card" style={{ padding: "14px 16px", display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
+            <span className="micro-label">ENGINE STATUS</span>
+            <strong style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, color: "#A8722A", lineHeight: 1 }}>{precisionScore}</strong>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+            {[
+              ["SIGNAL", signalCount],
+              ["ANALYZE", analysisTotal],
+              ["PICKS", products.length],
+            ].map(([label, value]) => (
+              <div key={label} style={{ borderRadius: 12, background: "#F8F4EF", padding: "9px 8px", textAlign: "center" }}>
+                <div style={{ fontSize: 16, fontWeight: 900, color: "#150B00" }}>{value}</div>
+                <div style={{ fontSize: 9, color: "#8A7A6E", letterSpacing: ".12em", fontFamily: "ui-monospace,monospace" }}>{label}</div>
+              </div>
+            ))}
+          </div>
+          <p style={{ margin: 0, fontSize: 11, lineHeight: 1.65, color: "#6B5B4A" }}>
+            入力と行動ログが増えるほど、買う理由・避ける理由が具体化します。
+          </p>
+        </div>
       </div>
 
-      <section style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
+      <section className="lift-card" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.86fr) minmax(0,1.14fr)", gap: 0 }} className="grid-cols-1-mobile">
           <div style={{ padding: "22px 22px 20px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3" }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>PERSONAL ENGINE</div>
@@ -194,6 +217,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
             {nextActions.map((item, index) => (
               <button
                 key={item.label}
+                className="lift-card"
                 onClick={item.onClick}
                 style={{
                   border: index === 2 ? "1px solid #D4A85377" : "1px solid #EDE5DC",

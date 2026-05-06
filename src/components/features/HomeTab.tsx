@@ -93,7 +93,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
   const recommendationProducts = aiPicks.length > 0 ? aiPicks : editorsPicks.slice(0, 6);
 
   return (
-    <div>
+    <div style={{ background: "linear-gradient(180deg,#FBF8F3 0%,#F8F4EF 42%,#F5EFE7 100%)" }}>
       {/* ── HERO ── */}
       <section className="home-hero" style={{ position: "relative", minHeight: 520, overflow: "hidden", background: "#1A0E08" }}>
         {heroProduct && heroMeta && (
@@ -178,13 +178,15 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       </section>
 
       {/* ── AI STRIP ── */}
-      <div style={{ background: "#F1EADE", padding: "14px 32px", borderBottom: "1px solid #EDE5DC", display: "flex", gap: 20, alignItems: "center", overflowX: "auto", fontSize: 11, letterSpacing: "0.12em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace", whiteSpace: "nowrap" }}>
-        <span style={{ color: "#D4A853", fontWeight: 600, flexShrink: 0 }}>{isPro && preferences?.confidence ? "LOG 学習済み" : "AI 解析済み"}</span>
-        <span>━━ {profile.skinType || "肌質未設定"}</span>
-        {isPro && preferences?.positiveSignals.slice(0, 2).map(signal => <span key={signal}>/ {signal}</span>)}
-        {profile.hairType && <span>{profile.hairType}</span>}
-        {profile.concerns.slice(0, 3).map(c => <span key={c}>/ {c}</span>)}
-        <span style={{ marginLeft: "auto", color: "#150B00", flexShrink: 0 }}>更新 {new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</span>
+      <div style={{ background: "#F1EADE", borderBottom: "1px solid #EDE5DC" }}>
+        <div className="section-shell mobile-tight" style={{ padding: "14px 32px", display: "flex", gap: 20, alignItems: "center", overflowX: "auto", fontSize: 11, letterSpacing: "0.12em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace", whiteSpace: "nowrap" }}>
+          <span style={{ color: "#D4A853", fontWeight: 600, flexShrink: 0 }}>{isPro && preferences?.confidence ? "LOG 学習済み" : "AI 解析済み"}</span>
+          <span>━━ {profile.skinType || "肌質未設定"}</span>
+          {isPro && preferences?.positiveSignals.slice(0, 2).map(signal => <span key={signal}>/ {signal}</span>)}
+          {profile.hairType && <span>{profile.hairType}</span>}
+          {profile.concerns.slice(0, 3).map(c => <span key={c}>/ {c}</span>)}
+          <span style={{ marginLeft: "auto", color: "#150B00", flexShrink: 0 }}>更新 {new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</span>
+        </div>
       </div>
 
       <TutorialGuide
@@ -198,7 +200,8 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       />
 
       {!isPro && profileSignals.length > 0 && (
-        <section style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff", display: "flex", alignItems: "center", gap: 16 }}>
+        <section className="mobile-tight" style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff" }}>
+          <div className="section-shell" style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRO PERSONAL FIT</div>
             <p style={{ fontSize: 13, lineHeight: 1.7, color: "#4A3728", margin: 0 }}>
@@ -208,11 +211,13 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
           <button onClick={() => onUpgrade("home_personal_fit_teaser")} style={{ padding: "10px 16px", border: "none", borderRadius: 999, background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 12, fontWeight: 800, cursor: "pointer", flexShrink: 0 }}>
             精度を上げる
           </button>
+          </div>
         </section>
       )}
 
       {isPro && preferences && preferences.confidence > 0 && (
-        <section style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff", display: "flex", alignItems: "center", gap: 16 }}>
+        <section className="mobile-tight" style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff" }}>
+          <div className="section-shell" style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>LEARNING FROM YOUR LOG</div>
             <p style={{ fontSize: 13, lineHeight: 1.7, color: "#4A3728", margin: 0 }}>
@@ -222,11 +227,13 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
           <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#1A0E08", color: "#D4A853", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 20, fontWeight: 700 }}>
             {preferences.confidence}
           </div>
+          </div>
         </section>
       )}
 
       {/* ── CATEGORY GRID ── */}
-      <section style={{ padding: "40px 32px 34px", borderBottom: "1px solid #EDE5DC", background: "#FBF8F3" }}>
+      <section className="editorial-section mobile-tight" style={{ padding: "44px 32px 38px", borderBottom: "1px solid #EDE5DC" }}>
+        <div className="section-shell">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 18, marginBottom: 22 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 01</div>
@@ -243,7 +250,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
           {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m], i) => {
             const guide = CATEGORY_GUIDES[name];
             return (
-            <button key={name} onClick={() => onGoSearch(name)} style={{
+            <button key={name} className="lift-card" onClick={() => onGoSearch(name)} style={{
               padding: 0, background: "#fff", border: `1px solid ${m.accent}30`,
               textAlign: "left", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
               display: "flex", flexDirection: "column", minHeight: 178,
@@ -292,6 +299,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
             </button>
           </div>
         )}
+        </div>
       </section>
 
       {/* ── AI PICKS RAIL ── */}
@@ -308,7 +316,8 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       />
 
       {/* ── EDITOR'S PICKS GRID ── */}
-      <section style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
+      <section className="mobile-tight" style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
+        <div className="section-shell">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 03</div>
@@ -321,10 +330,12 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
             <EditorCard key={p.id} product={p} onOpen={onOpenProduct} isPro={isPro}/>
           ))}
         </div>
+        </div>
       </section>
 
       {/* ── TRENDING VIDEOS ── */}
-      <section style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
+      <section className="mobile-tight" style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
+        <div className="section-shell">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 18 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 04</div>
@@ -382,11 +393,13 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
               ))
           }
         </div>
+        </div>
       </section>
 
       {/* ── PRO TEASER ── */}
       {!isPro && (
-        <section style={{ background: "#1A0E08", color: "#FBF8F3", padding: "56px 32px", display: "grid", gridTemplateColumns: "1fr auto", gap: 40, alignItems: "center" }}>
+        <section className="mobile-tight" style={{ background: "#1A0E08", color: "#FBF8F3", padding: "56px 32px" }}>
+          <div className="section-shell" style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 40, alignItems: "center" }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 14 }}>━━ BEAUTÉ PRO</div>
             <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: "clamp(28px,5vw,44px)", margin: "0 0 16px", fontWeight: 400, lineHeight: 1.2 }}>
@@ -403,6 +416,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
             {["✦ 成分解析 無制限", "✦ 全30製品 フルアクセス", "✦ AIパーソナル診断", "✦ 優先サポート"].map(f => (
               <div key={f} style={{ fontSize: 13, color: "rgba(251,248,243,.8)", letterSpacing: "0.05em" }}>{f}</div>
             ))}
+          </div>
           </div>
         </section>
       )}
@@ -455,8 +469,8 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
   ];
 
   return (
-    <section style={{ padding: "28px 32px", background: "#fff", borderBottom: "1px solid #EDE5DC" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.8fr) minmax(0,1.2fr)", gap: 18, alignItems: "stretch" }} className="grid-cols-1-mobile">
+    <section className="mobile-tight" style={{ padding: "30px 32px", background: "#fff", borderBottom: "1px solid #EDE5DC" }}>
+      <div className="section-shell grid-cols-1-mobile" style={{ display: "grid", gridTemplateColumns: "minmax(240px,.75fr) minmax(0,1.25fr)", gap: 18, alignItems: "stretch" }}>
         <div style={{ borderRadius: 16, padding: "20px 20px 18px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 18 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.24em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>3 MINUTE GUIDE</div>
@@ -484,6 +498,7 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
             <button
               key={step.no}
               onClick={step.onClick}
+              className="lift-card"
               style={{
                 border: "1px solid #EDE5DC",
                 borderRadius: 14,
@@ -521,7 +536,8 @@ function ProductRail({ number, title, eyebrow, products, onOpen, isPro, onUpgrad
   const scroll = (d: number) => ref.current?.scrollBy({ left: d * 340, behavior: "smooth" });
 
   return (
-    <section style={{ padding: "44px 32px 40px", borderBottom: "1px solid #EDE5DC" }}>
+    <section className="mobile-tight" style={{ padding: "44px 32px 40px", borderBottom: "1px solid #EDE5DC" }}>
+      <div className="section-shell">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ {number}</div>
@@ -536,6 +552,7 @@ function ProductRail({ number, title, eyebrow, products, onOpen, isPro, onUpgrad
       </div>
       <div ref={ref} style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8 }} className="hide-scrollbar">
         {products.map(p => <RailCard key={p.id} product={p} onOpen={onOpen} isPro={isPro} onUpgrade={onUpgrade} profile={profile} preferences={preferences}/>)}
+      </div>
       </div>
     </section>
   );
@@ -562,7 +579,7 @@ function RailCard({ product: p, onOpen, isPro, onUpgrade, profile, preferences }
     onOpen(p);
   };
   return (
-    <div onClick={handleOpen} style={{ flexShrink: 0, width: 220, cursor: "pointer", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.06)" }}
+    <div className="lift-card" onClick={handleOpen} style={{ flexShrink: 0, width: 220, cursor: "pointer", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.06)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(21,11,0,.12)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(21,11,0,.06)"; }}>
       <div style={{ position: "relative", height: 140, overflow: "hidden", background: m.color }}>
@@ -592,7 +609,7 @@ function EditorCard({ product: p, onOpen, isPro }: { product: Product; onOpen: (
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
   return (
-    <div onClick={() => onOpen(p)} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 10, overflow: "hidden", transition: "transform 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
+    <div className="lift-card" onClick={() => onOpen(p)} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 10, overflow: "hidden", transition: "transform 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
       <div style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", background: m.color }}>

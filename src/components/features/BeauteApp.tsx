@@ -245,18 +245,20 @@ export default function BeauteApp() {
         </header>
 
         {isGuest && (
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "10px 24px", background: "#FFF9EC", borderBottom: "1px solid #E8D7BE" }}>
-            <div style={{ flex: "1 1 360px", minWidth: 0 }}>
-              <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
-                {"GUEST PREVIEW"}
+          <div style={{ background: "#FFF9EC", borderBottom: "1px solid #E8D7BE" }}>
+            <div className="section-shell mobile-tight" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "10px 24px" }}>
+              <div style={{ flex: "1 1 360px", minWidth: 0 }}>
+                <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
+                  {"GUEST PREVIEW"}
+                </div>
+                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
+                  {"\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u306f\u767b\u9332\u306a\u3057\u3067\u898b\u3089\u308c\u307e\u3059\u3002\u7121\u6599\u767b\u9332\u3067\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u7f8e\u5bb9\u30ed\u30b0\u3001PRO\u3067\u7121\u5236\u9650\u89e3\u6790\u3068\u8cfc\u5165\u30ea\u30f3\u30af\u304c\u958b\u653e\u3055\u308c\u307e\u3059\u3002"}
+                </p>
               </div>
-              <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
-                {"\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u306f\u767b\u9332\u306a\u3057\u3067\u898b\u3089\u308c\u307e\u3059\u3002\u7121\u6599\u767b\u9332\u3067\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u7f8e\u5bb9\u30ed\u30b0\u3001PRO\u3067\u7121\u5236\u9650\u89e3\u6790\u3068\u8cfc\u5165\u30ea\u30f3\u30af\u304c\u958b\u653e\u3055\u308c\u307e\u3059\u3002"}
-              </p>
+              <button onClick={() => setShowAuth(true)} style={{ border: "none", borderRadius: 999, padding: "9px 16px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
+                {"\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3"}
+              </button>
             </div>
-            <button onClick={() => setShowAuth(true)} style={{ border: "none", borderRadius: 999, padding: "9px 16px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
-              {"\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3"}
-            </button>
           </div>
         )}
 
