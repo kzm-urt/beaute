@@ -64,6 +64,34 @@ Verification:
 - `npm run build` passes.
 - Local production build on port `3006` visually checked for the updated home category cards on mobile.
 
+## 2026-05-07 Tutorial And Karte OS Pass
+
+Scope:
+
+- Added a tutorial-style flow so users understand how to use the app and why each step increases recommendation quality.
+- Reframed Karte from a static profile screen into a personal beauty operating system that drives next actions and purchase decisions.
+- Strengthened paid conversion copy around precision, purchase judgment, and PRO unlocks.
+
+Changes:
+
+- `src/components/features/HomeTab.tsx`
+  - Added a `3 MINUTE GUIDE` tutorial module with steps for Karte, save/compare, ingredient analysis, and beauty logs.
+  - Added direct CTAs from the tutorial into Search, Karte, Saved, Analyze, Log, and PRO.
+- `src/components/features/KarteTab.tsx`
+  - Added a personal engine score based on profile signals, analysis count, and PRO learning confidence.
+  - Added actionable next-step cards so the user knows whether to refine Karte, analyze, open a product, or log usage.
+  - Added a buyer recommendation block that promotes the best current product candidate and nudges FREE users toward PRO purchase judgment.
+  - Recommendation API tag breadth is capped to avoid overly broad queries.
+- `src/components/features/BeauteApp.tsx`
+  - Passed tutorial navigation handlers into Home.
+  - Updated guest Karte copy to explain the Beauty OS concept.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local production build on port `3006` visually checked for the new tutorial module in the in-app browser.
+
 ## 2026-05-07 Logged-In UX Pass
 
 Scope:

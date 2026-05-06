@@ -22,6 +22,8 @@ interface Props {
   onOpenProduct: (p: Product) => void;
   onEditProfile: () => void;
   onGoAnalyze: () => void;
+  onGoSearch: () => void;
+  onGoLog: () => void;
   onUpgrade: () => void;
 }
 
@@ -33,7 +35,7 @@ const HABITS: Record<string, { icon: string; tips: string[] }> = {
   普通肌: { icon: "✨", tips: ["今の肌状態を守るUVケアを毎日欠かさず", "季節ごとにスキンケアを見直す", "バランスの良い食事と睡眠が一番のスキンケア", "週1回のスペシャルケアで肌をリセット"] },
 };
 
-export default function KarteTab({ profile, isPro, preferences, onOpenProduct, onEditProfile, onGoAnalyze, onUpgrade }: Props) {
+export default function KarteTab({ profile, isPro, preferences, onOpenProduct, onEditProfile, onGoAnalyze, onGoSearch, onGoLog, onUpgrade }: Props) {
   const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [hiddenAnalysisCount, setHiddenAnalysisCount] = useState(0);
@@ -89,7 +91,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
   }, [isPro]);
 
   useEffect(() => {
-    const tags = [profile.skinType, profile.hairType, ...profile.concerns].filter(Boolean);
+    const tags = [profile.skinType, profile.hairType, ...profile.concerns.slice(0, 6)].filter(Boolean);
     const params = new URLSearchParams({ limit: "6" });
     if (tags.length > 0) params.set("tags", tags.join(","));
     else params.set("free", "true");
@@ -108,6 +110,40 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
   const habits = HABITS[profile.skinType] ?? HABITS["普通肌"];
   const visibleAnalyses = analyses;
   const latestAnalysis = visibleAnalyses[0] ?? null;
+  const signalCount = [profile.age, profile.skinType, profile.hairType].filter(Boolean).length + profile.concerns.length;
+  const precisionScore = Math.min(96, 32 + signalCount * 4 + Math.min(analysisTotal, 5) * 4 + (preferences?.confidence ?? 0));
+  const topProduct = products[0] ?? null;
+  const topMatch = topProduct ? getPersonalMatch(topProduct, profile, isPro ? preferences : null) : null;
+  const nextActions = [
+    {
+      label: signalCount < 8 ? "カルテを細かくする" : "カルテを見直す",
+      body: signalCount < 8 ? "予算・避けたいもの・仕上がりを足すと候補の精度が上がります。" : "季節や肌状態が変わったら、条件を更新します。",
+      action: "編集",
+      onClick: onEditProfile,
+      tone: "profile",
+    },
+    {
+      label: latestAnalysis ? "次の商品も成分チェック" : "まず1つ成分分析",
+      body: latestAnalysis ? "気になる商品を解析して、合う理由と注意点を比較します。" : "成分分析を1回入れると、Karteの判断材料が増えます。",
+      action: "分析する",
+      onClick: onGoAnalyze,
+      tone: "analyze",
+    },
+    {
+      label: topProduct ? "候補を見て購入判断" : "楽天商品を探す",
+      body: topProduct ? `${topProduct.brand} の候補があります。価格・レビュー・相性を見て判断できます。` : "楽天の商品を検索して、保存と比較リストに候補を集めます。",
+      action: topProduct ? "商品を見る" : "検索へ",
+      onClick: topProduct ? () => onOpenProduct(topProduct) : onGoSearch,
+      tone: "buy",
+    },
+    {
+      label: "使ったらログに残す",
+      body: "合った/合わなかったを残すほど、PROのおすすめが売れる商品選びに近づきます。",
+      action: "ログ",
+      onClick: onGoLog,
+      tone: "log",
+    },
+  ];
 
   return (
     <div style={{ padding: "24px 24px 60px", maxWidth: 860, margin: "0 auto" }}>
@@ -116,10 +152,74 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       <div style={{ marginBottom: 28 }}>
         <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ MY BEAUTY CHART</div>
         <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 32, fontWeight: 400, color: "#150B00", margin: 0 }}>
-          あなたの美容カルテ
+          あなた専用の美容OS
         </h1>
-        <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6 }}>解析・プロフィール・おすすめをまとめて管理</p>
+        <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6 }}>カルテはプロフィールではなく、検索・成分分析・保存・ログをつなぐ判断エンジンです。</p>
       </div>
+
+      <section style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.86fr) minmax(0,1.14fr)", gap: 0 }} className="grid-cols-1-mobile">
+          <div style={{ padding: "22px 22px 20px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3" }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>PERSONAL ENGINE</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14 }}>
+              <div style={{ width: 86, height: 86, borderRadius: "50%", border: "1px solid rgba(212,168,83,.38)", display: "grid", placeItems: "center", background: "rgba(212,168,83,.08)" }}>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, color: "#D4A853", lineHeight: 1 }}>{precisionScore}</div>
+                  <div style={{ fontSize: 9, color: "rgba(251,248,243,.5)", letterSpacing: ".12em" }}>FIT</div>
+                </div>
+              </div>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 20, lineHeight: 1.35, color: "#FBF8F3" }}>
+                  {signalCount >= 10 ? "かなり細かく見れています" : "あと少しで精度が上がります"}
+                </h2>
+                <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.7, color: "rgba(251,248,243,.68)" }}>
+                  回答{signalCount}個・分析{analysisTotal}件・{isPro ? "PRO学習あり" : "FREE学習中"}。次にやることを下に並べています。
+                </p>
+              </div>
+            </div>
+            {!isPro && (
+              <div style={{ border: "1px solid rgba(212,168,83,.28)", borderRadius: 14, padding: 12, background: "rgba(212,168,83,.08)" }}>
+                <div style={{ fontSize: 10, color: "#D4A853", letterSpacing: ".16em", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRO REVENUE HOOK</div>
+                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "rgba(251,248,243,.72)" }}>
+                  PROでは保存・ログ・成分分析をまとめて、商品ごとに「買う理由」「避ける理由」「購入リンク」を出します。
+                </p>
+                <button onClick={onUpgrade} style={{ marginTop: 10, border: "none", borderRadius: 999, padding: "9px 13px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+                  購入判断をPRO化
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div style={{ padding: 16, display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 10 }} className="grid-cols-1-mobile">
+            {nextActions.map((item, index) => (
+              <button
+                key={item.label}
+                onClick={item.onClick}
+                style={{
+                  border: index === 2 ? "1px solid #D4A85377" : "1px solid #EDE5DC",
+                  borderRadius: 14,
+                  padding: 14,
+                  background: index === 2 ? "#FFF9EC" : "#FBF8F3",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  minHeight: 132,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 10, letterSpacing: ".18em", fontFamily: "ui-monospace,monospace", color: "#A8722A" }}>NEXT 0{index + 1}</span>
+                  <span style={{ width: 22, height: 22, borderRadius: "50%", display: "grid", placeItems: "center", background: index === 2 ? "#1A0E08" : "#EFE6DA", color: index === 2 ? "#D4A853" : "#8A7A6E", fontSize: 12 }}>→</span>
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 900, color: "#150B00", lineHeight: 1.35 }}>{item.label}</div>
+                <p style={{ margin: 0, fontSize: 11, lineHeight: 1.65, color: "#6B5B4A", flex: 1 }}>{item.body}</p>
+                <span style={{ fontSize: 11, color: "#A8722A", fontWeight: 900 }}>{item.action}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ── プロフィールカード ── */}
       <section style={{ background: "linear-gradient(135deg,#1A0E08,#2C1A0E)", borderRadius: 20, padding: "24px 28px", marginBottom: 24, border: "1px solid rgba(212,168,83,.2)" }}>
@@ -291,36 +391,60 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
             プロフィールを設定するとおすすめが表示されます
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 12 }}>
-            {products.map(p => {
-              const m = CAT_META[p.cat];
-              const locked = !p.free && !isPro;
-              const match = getPersonalMatch(p, profile, isPro ? preferences : null);
-              return (
-                <div key={p.id} onClick={() => locked ? onUpgrade() : onOpenProduct(p)} style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 14, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s", boxShadow: "0 2px 10px rgba(21,11,0,.05)" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
-                  <div style={{ background: m.color, padding: "6px 12px", display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 10, color: m.dark, fontWeight: 700 }}>{m.icon} {p.cat}</span>
-                    <span style={{ fontSize: 9, color: m.accent }}>{p.brand}</span>
-                  </div>
-                  <div style={{ padding: "12px 14px" }}>
-                    <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 15, fontWeight: 500, color: "#150B00", marginBottom: 4 }}>{p.name}</div>
-                    <Stars rating={p.rating} size={10} />
-                    <span style={{ fontSize: 10, color: "#8A7A6E", marginLeft: 4 }}>{p.rev.toLocaleString()}件</span>
-                    <div style={{ marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 16, color: "#A8722A" }}>{formatPrice(p.price)}</span>
-                      {isPro && match ? (
-                        <span style={{ fontSize: 10, color: "#A8722A", fontWeight: 800 }}>{match.score}% MATCH</span>
-                      ) : locked ? (
-                        <span style={{ fontSize: 10, color: "#8A7A6E" }}>🔒 PRO</span>
-                      ) : null}
+          <>
+            {topProduct && (
+              <div style={{ background: "linear-gradient(135deg,#FFF9EC,#fff)", border: "1px solid #D4A85366", borderRadius: 16, padding: 16, marginBottom: 12, display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 16, alignItems: "center" }} className="grid-cols-1-mobile">
+                <div>
+                  <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>BUYER RECOMMENDATION</div>
+                  <div style={{ fontSize: 16, lineHeight: 1.45, color: "#150B00", fontWeight: 900 }}>{topProduct.name}</div>
+                  <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.7, color: "#6B5B4A" }}>
+                    {topProduct.brand} / {formatPrice(topProduct.price)} / レビュー{topProduct.rev.toLocaleString()}件
+                    {topMatch ? ` / 相性${topMatch.score}%` : ""}。まずこの候補を購入前チェックに進めます。
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <button onClick={() => onOpenProduct(topProduct)} style={{ border: "none", borderRadius: 999, padding: "10px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
+                    商品を開く
+                  </button>
+                  {!isPro && (
+                    <button onClick={onUpgrade} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "10px 14px", background: "#fff", color: "#A8722A", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
+                      PROで購入判断
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 12 }}>
+              {products.map(p => {
+                const m = CAT_META[p.cat];
+                const locked = !p.free && !isPro;
+                const match = getPersonalMatch(p, profile, isPro ? preferences : null);
+                return (
+                  <div key={p.id} onClick={() => locked ? onUpgrade() : onOpenProduct(p)} style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 14, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s", boxShadow: "0 2px 10px rgba(21,11,0,.05)" }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
+                    <div style={{ background: m.color, padding: "6px 12px", display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 10, color: m.dark, fontWeight: 700 }}>{m.icon} {p.cat}</span>
+                      <span style={{ fontSize: 9, color: m.accent }}>{p.brand}</span>
+                    </div>
+                    <div style={{ padding: "12px 14px" }}>
+                      <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 15, fontWeight: 500, color: "#150B00", marginBottom: 4 }}>{p.name}</div>
+                      <Stars rating={p.rating} size={10} />
+                      <span style={{ fontSize: 10, color: "#8A7A6E", marginLeft: 4 }}>{p.rev.toLocaleString()}件</span>
+                      <div style={{ marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 16, color: "#A8722A" }}>{formatPrice(p.price)}</span>
+                        {isPro && match ? (
+                          <span style={{ fontSize: 10, color: "#A8722A", fontWeight: 800 }}>{match.score}% MATCH</span>
+                        ) : locked ? (
+                          <span style={{ fontSize: 10, color: "#8A7A6E" }}>🔒 PRO</span>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </section>
 

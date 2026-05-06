@@ -16,6 +16,10 @@ interface Props {
   onUpgrade: (sourceArea?: string, product?: Product) => void;
   onGoSearch: (cat?: string) => void;
   onOpenProduct: (p: Product) => void;
+  onGoKarte: () => void;
+  onGoAnalyze: () => void;
+  onGoSaved: () => void;
+  onGoLog: () => void;
 }
 
 const CATEGORY_GUIDES: Record<Category, { lead: string; route: string; tags: string[] }> = {
@@ -29,7 +33,7 @@ const CATEGORY_GUIDES: Record<Category, { lead: string; route: string; tags: str
   サプリ: { lead: "目的と続けやすさで候補を分ける", route: "ビタミン / 鉄分 / プロテイン", tags: ["肌荒れ", "疲れ", "髪"] },
 };
 
-export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct }: Props) {
+export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct, onGoKarte, onGoAnalyze, onGoSaved, onGoLog }: Props) {
   const [videos, setVideos] = useState<YoutubeVideo[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
   const [activeVideoCategory, setActiveVideoCategory] = useState("全体");
@@ -182,6 +186,16 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
         {profile.concerns.slice(0, 3).map(c => <span key={c}>/ {c}</span>)}
         <span style={{ marginLeft: "auto", color: "#150B00", flexShrink: 0 }}>更新 {new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</span>
       </div>
+
+      <TutorialGuide
+        isPro={isPro}
+        onGoKarte={onGoKarte}
+        onGoAnalyze={onGoAnalyze}
+        onGoSearch={() => onGoSearch()}
+        onGoSaved={onGoSaved}
+        onGoLog={onGoLog}
+        onUpgrade={() => onUpgrade("home_tutorial")}
+      />
 
       {!isPro && profileSignals.length > 0 && (
         <section style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff", display: "flex", alignItems: "center", gap: 16 }}>
@@ -393,6 +407,108 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
         </section>
       )}
     </div>
+  );
+}
+
+function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, onGoLog, onUpgrade }: {
+  isPro: boolean;
+  onGoKarte: () => void;
+  onGoAnalyze: () => void;
+  onGoSearch: () => void;
+  onGoSaved: () => void;
+  onGoLog: () => void;
+  onUpgrade: () => void;
+}) {
+  const steps = [
+    {
+      no: "01",
+      title: "カルテを整える",
+      body: "肌・髪・予算・避けたいものを入れるほど、検索結果と商品理由が自分用になります。",
+      action: "カルテを見る",
+      onClick: onGoKarte,
+      badge: "最初にやる",
+    },
+    {
+      no: "02",
+      title: "商品を保存・比較",
+      body: "気になる楽天商品を残すと、あとで比較できて、PROのおすすめ学習にも使われます。",
+      action: "保存リスト",
+      onClick: onGoSaved,
+      badge: "無料でOK",
+    },
+    {
+      no: "03",
+      title: "成分を確認",
+      body: "成分表や説明文を解析して、合う理由・注意点・避けたい傾向を見ます。",
+      action: "成分分析",
+      onClick: onGoAnalyze,
+      badge: "月3回無料",
+    },
+    {
+      no: "04",
+      title: "使った感想をログ",
+      body: "合った/合わなかったを残すと、次の候補がかなり鋭くなります。",
+      action: "ログを書く",
+      onClick: onGoLog,
+      badge: "精度UP",
+    },
+  ];
+
+  return (
+    <section style={{ padding: "28px 32px", background: "#fff", borderBottom: "1px solid #EDE5DC" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.8fr) minmax(0,1.2fr)", gap: 18, alignItems: "stretch" }} className="grid-cols-1-mobile">
+        <div style={{ borderRadius: 16, padding: "20px 20px 18px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 18 }}>
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: "0.24em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>3 MINUTE GUIDE</div>
+            <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, lineHeight: 1.15, fontWeight: 500 }}>
+              迷わず、<br/>買う理由まで。
+            </h2>
+            <p style={{ margin: "12px 0 0", fontSize: 12, lineHeight: 1.85, color: "rgba(251,248,243,.7)" }}>
+              beautéは「検索する」だけではなく、カルテ、保存、成分分析、ログをつなげて候補を育てるアプリです。
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button onClick={onGoSearch} style={{ border: "1px solid rgba(212,168,83,.45)", borderRadius: 999, padding: "9px 12px", background: "rgba(212,168,83,.12)", color: "#D4A853", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+              商品を探す
+            </button>
+            {!isPro && (
+              <button onClick={onUpgrade} style={{ border: "none", borderRadius: 999, padding: "9px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+                PROで精度を上げる
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }} className="grid-cols-1-mobile">
+          {steps.map((step) => (
+            <button
+              key={step.no}
+              onClick={step.onClick}
+              style={{
+                border: "1px solid #EDE5DC",
+                borderRadius: 14,
+                padding: 14,
+                background: "#FBF8F3",
+                textAlign: "left",
+                cursor: "pointer",
+                minHeight: 170,
+                display: "flex",
+                flexDirection: "column",
+                gap: 9,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 10, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace" }}>{step.no}</span>
+                <span style={{ fontSize: 10, borderRadius: 999, padding: "3px 7px", background: "#FFF0C8", color: "#A8722A", fontWeight: 900 }}>{step.badge}</span>
+              </div>
+              <div style={{ fontSize: 14, color: "#150B00", fontWeight: 900, lineHeight: 1.35 }}>{step.title}</div>
+              <p style={{ margin: 0, fontSize: 11, lineHeight: 1.65, color: "#6B5B4A", flex: 1 }}>{step.body}</p>
+              <span style={{ fontSize: 11, color: "#A8722A", fontWeight: 900 }}>{step.action} →</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
