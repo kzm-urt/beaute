@@ -19,9 +19,12 @@ interface Props {
 type SortKey = "personal" | "rating" | "rev" | "price";
 type BrowseMode = "search" | "ranking";
 
+const ALL_CATEGORY = "\u3059\u3079\u3066";
+const DEFAULT_CATEGORY = Object.keys(CAT_META)[0] as Category;
+
 export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct, initialMode = "search", profile }: Props) {
   const [query, setQuery] = useState("");
-  const [activeCat, setActiveCat] = useState<string>("すべて");
+  const [activeCat, setActiveCat] = useState<string>(ALL_CATEGORY);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortKey>(isPro ? "personal" : "rating");
   const [mode, setMode] = useState<BrowseMode>(initialMode);
@@ -66,16 +69,17 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
       if (requestPage === 1) setProductsLoading(true);
       else setLoadingMore(true);
 
+      const trimmedQuery = query.trim();
+      const showRankingAsDefault = mode === "search" && !trimmedQuery && activeTags.length === 0;
+      const requestMode = showRankingAsDefault ? "ranking" : mode;
       const params = new URLSearchParams();
-      params.set("mode", mode);
+      params.set("mode", requestMode);
       params.set("limit", "30");
       params.set("page", String(requestPage));
-      if (activeCat !== "すべて") params.set("cat", activeCat);
-      if (mode === "search" && query.trim()) params.set("q", query.trim());
-      if (mode === "search" && activeTags.length > 0) {
+      if (activeCat !== ALL_CATEGORY) params.set("cat", activeCat);
+      if (!showRankingAsDefault && mode === "search" && trimmedQuery) params.set("q", trimmedQuery);
+      if (!showRankingAsDefault && mode === "search" && activeTags.length > 0) {
         params.set("tags", activeTags.join(","));
-      } else if (mode === "search" && isPro && activeCat === "すべて" && !query.trim() && profileSignals.length > 0) {
-        params.set("tags", profileSignals.slice(0, 5).join(","));
       }
 
       fetch(`/api/products?${params}`)
@@ -103,6 +107,22 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
 
   const toggleTag = (t: string) =>
     setActiveTags((p) => (p.includes(t) ? p.filter((x) => x !== t) : [...p, t]));
+
+  const resetFilters = () => {
+    setQuery("");
+    setActiveCat(ALL_CATEGORY);
+    setActiveTags([]);
+    setMode("ranking");
+    setPage(1);
+  };
+
+  const showDefaultCategory = () => {
+    setQuery("");
+    setActiveCat(DEFAULT_CATEGORY);
+    setActiveTags([]);
+    setMode("ranking");
+    setPage(1);
+  };
 
   // クライアント側ソートのみ（フィルタリングはAPI側）。ランキングは順位順を維持。
   const filtered = [...products].sort((a, b) =>
@@ -148,11 +168,11 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
 
         {/* Category filter */}
         <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10 }} className="hide-scrollbar">
-          <button onClick={() => setActiveCat("すべて")} style={{
+          <button onClick={() => setActiveCat(ALL_CATEGORY)} style={{
             flexShrink: 0, padding: "7px 16px", borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1.5px solid",
-            background: activeCat === "すべて" ? "#150B00" : "#fff",
-            color: activeCat === "すべて" ? "#fff" : "#8A7A6E",
-            borderColor: activeCat === "すべて" ? "#150B00" : "#EDE5DC",
+            background: activeCat === ALL_CATEGORY ? "#150B00" : "#fff",
+            color: activeCat === ALL_CATEGORY ? "#fff" : "#8A7A6E",
+            borderColor: activeCat === ALL_CATEGORY ? "#150B00" : "#EDE5DC",
             cursor: "pointer",
           }}>すべて</button>
           {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m]) => {
@@ -205,7 +225,9 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
               楽天市場リアルタイムランキング
             </span>
           )}
-          <span style={{ marginLeft: "auto", fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace" }}>{filtered.length} 件</span>
+          <span style={{ marginLeft: "auto", fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace" }}>
+            {productsLoading ? "\u53d6\u5f97\u4e2d..." : `${filtered.length} \u4ef6`}
+          </span>
         </div>
 
         {profileSignals.length > 0 && (
@@ -240,6 +262,21 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
 
       {/* ── RESULTS GRID ── */}
       <div style={{ padding: "16px 24px 40px" }}>
+        {!productsLoading && mode === "search" && !query.trim() && activeTags.length === 0 && filtered.length > 0 && (
+          <div style={{
+            marginBottom: 14,
+            padding: "12px 14px",
+            borderRadius: 14,
+            border: "1px solid #EDE5DC",
+            background: "#fff",
+            color: "#6B5B4A",
+            fontSize: 12,
+            lineHeight: 1.6,
+          }}>
+            <strong style={{ color: "#150B00" }}>{"\u4eba\u6c17\u5546\u54c1\u304b\u3089\u8868\u793a\u4e2d\u3002"}</strong>
+            {" \u30ad\u30fc\u30ef\u30fc\u30c9\u3084\u30bf\u30b0\u3092\u5165\u308c\u308b\u3068\u3001\u60a9\u307f\u30fb\u30ab\u30c6\u30b4\u30ea\u306b\u5408\u308f\u305b\u3066\u691c\u7d22\u3057\u307e\u3059\u3002"}
+          </div>
+        )}
         {productsLoading ? (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
             {Array.from({ length: 6 }).map((_, i) => (
@@ -256,7 +293,16 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#8A7A6E" }}>
             <p style={{ fontSize: 40, marginBottom: 12 }}>🔍</p>
-            <p style={{ fontSize: 15 }}>条件に合う製品が見つかりません</p>
+            <p style={{ fontSize: 15, color: "#150B00", fontWeight: 700 }}>{"\u6761\u4ef6\u306b\u5408\u3046\u5546\u54c1\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093"}</p>
+            <p style={{ fontSize: 12, marginTop: 6 }}>{"\u691c\u7d22\u6761\u4ef6\u3092\u5c11\u3057\u5e83\u3052\u308b\u304b\u3001\u4eba\u6c17\u9806\u304b\u3089\u898b\u76f4\u3057\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002"}</p>
+            <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 18 }}>
+              <button onClick={resetFilters} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#150B00", color: "#FBF8F3", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+                {"\u4eba\u6c17\u9806\u3067\u898b\u308b"}
+              </button>
+              <button onClick={showDefaultCategory} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#8A5B18", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+                {"\u30b9\u30ad\u30f3\u30b1\u30a2\u3092\u898b\u308b"}
+              </button>
+            </div>
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>

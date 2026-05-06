@@ -1,12 +1,42 @@
 # beaute Development Log
 
-Last updated: 2026-05-02
+Last updated: 2026-05-07
 
 ## Current Direction
 
 beaute is a beauty product discovery app with auth, profile-based recommendations, ingredient analysis, usage logs, Rakuten product search/ranking, and a FREE/PRO plan split.
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
+
+## 2026-05-07 Logged-In UX Pass
+
+Scope:
+
+- Reviewed logged-in PRO and FREE app surfaces on desktop and mobile with QA accounts.
+- Search tab no longer opens into a weak empty-looking state.
+- Journal now tolerates older corrupted QA rows instead of rendering obvious `????` text.
+
+Changes:
+
+- `src/components/features/SearchTab.tsx`
+  - Blank search/category browsing now uses Rakuten ranking as the default product feed.
+  - Count label shows loading state instead of `0件` while products are still being fetched.
+  - Blank search explains that popular products are being displayed and that keywords/tags switch into search.
+  - Empty state now offers quick recovery buttons for popular ranking and skincare.
+- `src/components/features/LogTab.tsx`
+  - Unknown categories fall back to skincare styling.
+  - Broken/blank product names display as `商品名未設定`.
+  - Broken/blank dates display as `日付未設定`.
+  - Broken memo text is hidden.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local production build was launched on port `3004` for QA.
+- Logged-in desktop PRO search showed 30 products.
+- Logged-in mobile FREE search showed 30 products.
+- Logged-in desktop/mobile Journal no longer surfaced `????` text.
 
 ## Rakuten Integration
 

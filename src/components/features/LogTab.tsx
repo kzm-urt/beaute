@@ -7,6 +7,25 @@ import { GoldButton, Input, Select } from "@/components/ui";
 import type { Category, LogEntry } from "@/types";
 
 const CATS = Object.keys(CAT_META) as Category[];
+const DEFAULT_CATEGORY = CATS[0];
+const UNKNOWN_PRODUCT_NAME = "\u5546\u54c1\u540d\u672a\u8a2d\u5b9a";
+const UNKNOWN_DATE = "\u65e5\u4ed8\u672a\u8a2d\u5b9a";
+
+function getDisplayCategory(value?: string | null): Category {
+  return CATS.includes(value as Category) ? (value as Category) : DEFAULT_CATEGORY;
+}
+
+function isBrokenText(value?: string | null) {
+  const text = (value ?? "").trim();
+  if (!text) return true;
+  const questionCount = (text.match(/\?/g) ?? []).length;
+  const replacementCount = (text.match(/\uFFFD/g) ?? []).length;
+  return /^\?+$/.test(text) || text.includes("????") || replacementCount > 0 || (questionCount >= 3 && questionCount / text.length > 0.25);
+}
+
+function cleanText(value: string | null | undefined, fallback: string) {
+  return isBrokenText(value) ? fallback : value!.trim();
+}
 
 interface Props {
   userId: string;
@@ -75,10 +94,11 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
     setSaving(false);
   };
 
-  const avgRating = log.length
-    ? (log.reduce((s, e) => s + e.rating, 0) / log.length).toFixed(1)
+  const validRatings = log.map((e) => Number(e.rating)).filter((rating) => Number.isFinite(rating));
+  const avgRating = validRatings.length
+    ? (validRatings.reduce((s, rating) => s + rating, 0) / validRatings.length).toFixed(1)
     : "—";
-  const catCount = new Set(log.map((e) => e.category)).size;
+  const catCount = new Set(log.map((e) => getDisplayCategory(e.category))).size;
   const logLimit = isPro ? null : PLAN_RULES.free.logLimit;
   const remainingLogCount = getRemaining(log.length, logLimit);
   const canAddLog = isWithinLimit(log.length, logLimit);
@@ -184,7 +204,12 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
 
       {/* ── LOG ENTRIES (timeline) ── */}
       {!loading && log.map((item, idx) => {
-        const m = CAT_META[item.category] ?? { icon: "✨", color: "#F5E8D5", accent: "#A8722A" };
+        const displayCategory = getDisplayCategory(item.category);
+        const m = CAT_META[displayCategory];
+        const productName = cleanText(item.product_name, UNKNOWN_PRODUCT_NAME);
+        const memo = cleanText(item.memo, "");
+        const startedAt = cleanText(item.started_at, UNKNOWN_DATE);
+        const rating = Number.isFinite(Number(item.rating)) ? Number(item.rating) : 0;
         const isLast = idx === log.length - 1;
         return (
           <div key={item.id} className="relative pl-5">
@@ -203,21 +228,21 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
                   <div className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[18px]"
                     style={{ background: m.color }}>{m.icon}</div>
                   <div>
-                    <p className="text-[11px] font-semibold" style={{ color: m.accent }}>{item.category}</p>
-                    <p className="text-[14px] font-bold" style={{ color: "#150B00" }}>{item.product_name}</p>
+                    <p className="text-[11px] font-semibold" style={{ color: m.accent }}>{displayCategory}</p>
+                    <p className="text-[14px] font-bold" style={{ color: "#150B00" }}>{productName}</p>
                   </div>
                 </div>
-                <p className="text-[10px]" style={{ color: "#C4B4A8" }}>{item.started_at}</p>
+                <p className="text-[10px]" style={{ color: "#C4B4A8" }}>{startedAt}</p>
               </div>
               <div>
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <span key={n} className="text-[15px]" style={{ color: n <= item.rating ? "#D4A853" : "#ddd" }}>★</span>
+                  <span key={n} className="text-[15px]" style={{ color: n <= rating ? "#D4A853" : "#ddd" }}>★</span>
                 ))}
               </div>
-              {item.memo && (
+              {memo && (
                 <p className="text-[12px] mt-2 px-3 py-2 rounded-[10px] italic leading-[1.6]"
                   style={{ background: "#F8F4EF", color: "#555" }}>
-                  「{item.memo}」
+                  「{memo}」
                 </p>
               )}
             </div>
