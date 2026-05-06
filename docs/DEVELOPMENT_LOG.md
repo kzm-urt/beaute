@@ -39,6 +39,31 @@ Verification:
 - `npm run build` passes.
 - Local production build on port `3006` verified guest home, guest auth CTA, return-to-guest action, PRO value ladder, and mobile tab scroll reset in the in-app browser.
 
+## 2026-05-07 Precision Upsell Polish
+
+Scope:
+
+- Reworked weak category blocks into more deliberate discovery cards.
+- Made profile setup more granular so users feel the recommendation engine has real inputs.
+- Added clearer free-to-PRO precision messaging around detailed filtering.
+
+Changes:
+
+- `src/components/features/HomeTab.tsx`
+  - Category section now uses purpose-led cards with category-specific copy, routes, tags, and a PRO precision CTA.
+  - Empty AI recommendation rails fall back to editor picks instead of showing `0` candidates.
+  - Profile concern tags used for initial recommendation search are capped to avoid overly broad Rakuten queries.
+- `src/components/features/ProfileScreen.tsx`
+  - Redesigned onboarding into a two-column desktop layout and stronger mobile flow.
+  - Added detailed signals for current skin state, finish preference, timing, budget, and avoidances.
+  - Added a visible diagnostic signal meter and PRO preview copy.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local production build on port `3006` visually checked for the updated home category cards on mobile.
+
 ## 2026-05-07 Logged-In UX Pass
 
 Scope:

@@ -18,6 +18,17 @@ interface Props {
   onOpenProduct: (p: Product) => void;
 }
 
+const CATEGORY_GUIDES: Record<Category, { lead: string; route: string; tags: string[] }> = {
+  スキンケア: { lead: "肌状態・成分・使用タイミングから選ぶ", route: "化粧水 / 美容液 / 洗顔 / パック", tags: ["毛穴", "保湿", "敏感"] },
+  ヘアケア: { lead: "髪質・ダメージ・仕上がりで絞り込む", route: "シャンプー / オイル / マスク", tags: ["うねり", "補修", "艶"] },
+  メイク: { lead: "肌悩みと仕上がりから失敗を減らす", route: "下地 / ファンデ / リップ / アイ", tags: ["崩れ", "色味", "カバー"] },
+  ボディ: { lead: "保湿・香り・質感で毎日のケアを選ぶ", route: "クリーム / 入浴剤 / スクラブ", tags: ["乾燥", "香り", "ギフト"] },
+  UVケア: { lead: "SPFだけでなく肌質と下地相性まで見る", route: "日焼け止め / UV下地 / トーンアップ", tags: ["皮脂", "白浮き", "敏感"] },
+  フレグランス: { lead: "香調・シーン・持続感で探す", route: "香水 / ミスト / ルーム", tags: ["甘め", "清潔感", "夜"] },
+  ネイル: { lead: "色・持ち・爪悩みに合わせる", route: "カラー / ケア / ジェル", tags: ["速乾", "補強", "血色"] },
+  サプリ: { lead: "目的と続けやすさで候補を分ける", route: "ビタミン / 鉄分 / プロテイン", tags: ["肌荒れ", "疲れ", "髪"] },
+};
+
 export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct }: Props) {
   const [videos, setVideos] = useState<YoutubeVideo[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
@@ -41,7 +52,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       ...learnedTags.slice(0, 4),
       profile.skinType,
       profile.hairType,
-      ...profile.concerns,
+      ...profile.concerns.slice(0, 5),
     ].filter(Boolean);
 
     const params = new URLSearchParams({ limit: "6" });
@@ -75,6 +86,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
   const heroProduct = aiPicks[0] ?? editorsPicks[0] ?? null;
   const heroMeta = heroProduct ? CAT_META[heroProduct.cat] : null;
   const heroMatch = heroProduct ? getPersonalMatch(heroProduct, profile, isPro ? preferences : null) : null;
+  const recommendationProducts = aiPicks.length > 0 ? aiPicks : editorsPicks.slice(0, 6);
 
   return (
     <div>
@@ -200,43 +212,80 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       )}
 
       {/* ── CATEGORY GRID ── */}
-      <section style={{ padding: "44px 32px 36px", borderBottom: "1px solid #EDE5DC" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 22 }}>
+      <section style={{ padding: "40px 32px 34px", borderBottom: "1px solid #EDE5DC", background: "#FBF8F3" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 18, marginBottom: 22 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 01</div>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, margin: 0, fontWeight: 400, color: "#150B00" }}>カテゴリから探す</h2>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, margin: 0, fontWeight: 400, color: "#150B00" }}>目的から探す</h2>
+            <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.7, color: "#7A6A5D" }}>
+              大きなカテゴリだけで終わらせず、悩み・質感・使う場面まで分解して候補を出します。
+            </p>
           </div>
-          <div style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em" }}>08 / 08</div>
+          <button onClick={() => onUpgrade("home_category_precision")} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#A8722A", fontSize: 11, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
+            PROで細かく絞る
+          </button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }} className="grid-cols-2-mobile">
-          {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m], i) => (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }} className="grid-cols-1-mobile">
+          {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m], i) => {
+            const guide = CATEGORY_GUIDES[name];
+            return (
             <button key={name} onClick={() => onGoSearch(name)} style={{
-              padding: "18px 14px", background: m.color, border: `1px solid ${m.accent}44`,
-              textAlign: "left", cursor: "pointer", transition: "transform 0.2s ease",
-              display: "flex", flexDirection: "column", gap: 12, minHeight: 100,
-              color: m.dark, borderRadius: 4,
+              padding: 0, background: "#fff", border: `1px solid ${m.accent}30`,
+              textAlign: "left", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
+              display: "flex", flexDirection: "column", minHeight: 178,
+              color: "#150B00", borderRadius: 8, overflow: "hidden", boxShadow: "0 8px 22px rgba(21,11,0,.04)",
             }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 22 }}>{m.icon}</span>
-                <span style={{ fontSize: 9, letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", opacity: 0.55 }}>0{i + 1}</span>
-              </div>
-              <div>
-                <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 18, fontWeight: 500, lineHeight: 1.2 }}>{name}</div>
-                <div style={{ fontSize: 10, marginTop: 2, opacity: 0.6, fontFamily: "ui-monospace,monospace", letterSpacing: "0.12em" }}>{m.en}</div>
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 14px 30px rgba(21,11,0,.08)"; (e.currentTarget as HTMLButtonElement).style.borderColor = `${m.accent}88`; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 22px rgba(21,11,0,.04)"; (e.currentTarget as HTMLButtonElement).style.borderColor = `${m.accent}30`; }}>
+              <div style={{ height: 6, background: `linear-gradient(90deg, ${m.accent}, ${m.color})` }} />
+              <div style={{ padding: "16px 16px 14px", display: "grid", gap: 10, flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 12, background: m.color, display: "grid", placeItems: "center", color: m.dark, fontSize: 20 }}>
+                    {m.icon}
+                  </div>
+                  <span style={{ fontSize: 10, letterSpacing: "0.18em", fontFamily: "ui-monospace,monospace", color: "#B99B7C" }}>0{i + 1}</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: 17, fontWeight: 900, lineHeight: 1.25, color: "#150B00" }}>{name}</div>
+                  <div style={{ fontSize: 10, marginTop: 2, color: "#A8722A", fontFamily: "ui-monospace,monospace", letterSpacing: "0.12em" }}>{m.en}</div>
+                </div>
+                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.65, color: "#6B5B4A", fontWeight: 700 }}>{guide.lead}</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                  {guide.tags.map((tag) => (
+                    <span key={tag} style={{ border: `1px solid ${m.accent}28`, borderRadius: 999, padding: "3px 7px", background: m.color, color: m.dark, fontSize: 10, fontWeight: 800 }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div style={{ marginTop: "auto", paddingTop: 6, borderTop: "1px solid #F1EADE", display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+                  <span style={{ fontSize: 10, color: "#8A7A6E", lineHeight: 1.5 }}>{guide.route}</span>
+                  <span style={{ color: m.accent, fontSize: 13, fontWeight: 900 }}>→</span>
+                </div>
               </div>
             </button>
-          ))}
+          )})}
         </div>
+        {!isPro && (
+          <div style={{ marginTop: 14, border: "1px solid #E8D7BE", borderRadius: 12, padding: "12px 14px", background: "#FFF9EC", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 420px" }}>
+              <div style={{ fontSize: 10, letterSpacing: "0.2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRECISION LOCKED</div>
+              <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
+                無料ではカテゴリと基本悩みまで。PROでは「朝/夜・予算・避けたい成分・ログの相性」まで使って候補を並べ替えます。
+              </p>
+            </div>
+            <button onClick={() => onUpgrade("home_precision_locked")} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+              精密診断を開放
+            </button>
+          </div>
+        )}
       </section>
 
       {/* ── AI PICKS RAIL ── */}
       <ProductRail
         number="02"
-        title={`今週の ${profile.skinType || "あなた"} へ — ${aiPicks.length} 選`}
-        eyebrow={isPro && preferences?.confidence ? "ログ評価・保存商品・プロフィールによる提案" : "AI × 編集部によるパーソナル提案"}
-        products={aiPicks}
+        title={`今週の ${profile.skinType || "あなた"} 向け候補`}
+        eyebrow={aiPicks.length > 0 ? (isPro && preferences?.confidence ? "ログ評価・保存商品・プロフィールによる提案" : "AI × 編集部によるパーソナル提案") : "まずは編集部ピックから表示中。ログと保存が増えるほど精度が上がります"}
+        products={recommendationProducts}
         onOpen={onOpenProduct}
         isPro={isPro}
         onUpgrade={onUpgrade}
