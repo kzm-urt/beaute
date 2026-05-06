@@ -60,14 +60,14 @@ These require dashboard access or real user interaction:
 
 - Production URL: https://beaute-xi.vercel.app
 - Vercel project: `kzm-urts-projects/beaute`
-- Latest verified deployment: `dpl_5pqCL3pfzzH4t1mbtCCKwpvsp3zs`
+- Latest verified deployment: `dpl_3VtDQGN2tA6VFXThUqanY8inkmQB`
 - Stripe webhook endpoint: `we_1TSb6cDpBMQgTuocdM4dV7mD`
 - Stripe webhook URL: `https://beaute-xi.vercel.app/api/stripe/webhook`
 - Production env vars are set in Vercel, including Supabase, Stripe, Rakuten, YouTube, Anthropic, admin emails, API cost, and affiliate reward settings.
 - Admin Basic auth env vars are set in Vercel Production.
 - `NEXT_PUBLIC_APP_URL` is set to `https://beaute-xi.vercel.app`.
 - `RAKUTEN_REQUEST_ORIGIN` is set to `https://beaute.vercel.app` because that origin is currently accepted by Rakuten. Update it to the production URL only after adding `https://beaute-xi.vercel.app` to Rakuten allowed referrers.
-- Production smoke test passed for the public home page, Rakuten search, Rakuten ranking, the Guest / FREE / PRO funnel, precision upsell, tutorial guide, and Karte personal engine deployment.
+- Production smoke test passed for the public home page, Rakuten search, Rakuten ranking, admin status/analytics behind Basic auth, legal routes, the Guest / FREE / PRO funnel, design system lift, tutorial guide, and Karte personal engine deployment.
 
 ## Manual QA Script
 

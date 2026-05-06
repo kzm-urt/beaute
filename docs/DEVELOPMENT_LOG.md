@@ -39,6 +39,7 @@ Verification:
 
 - `npm run verify` passes.
 - Local production build on port `3006` verified the public home, tutorial/category sections, guest Karte gate, and PRO page in the in-app browser.
+- Production deployment `dpl_3VtDQGN2tA6VFXThUqanY8inkmQB` passed `npm run preflight` against `https://beaute-xi.vercel.app`.
 
 ## 2026-05-07 Guest Funnel Pass
 
