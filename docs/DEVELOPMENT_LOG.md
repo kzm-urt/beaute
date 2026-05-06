@@ -8,6 +8,37 @@ beaute is a beauty product discovery app with auth, profile-based recommendation
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
 
+## 2026-05-07 Guest Funnel Pass
+
+Scope:
+
+- Shifted the product from fully member-gated to a three-step funnel: Guest, FREE member, and PRO.
+- Made the public experience shareable while keeping saved lists, logs, analysis history, and PRO purchase/detail access behind clear conversion points.
+- Clarified the paid value so visitors understand why PRO is worth paying for before they hit Stripe.
+
+Changes:
+
+- `src/components/features/AuthScreen.tsx`
+  - Added a continue-as-guest action so users can preview products without creating an account.
+- `src/components/features/BeauteApp.tsx`
+  - Added guest mode with a safe sample profile for browsing recommendations.
+  - Added a top guest preview banner explaining what is available to Guest, FREE, and PRO users.
+  - Search, home, and ranking are visible to guests.
+  - Analyze, Karte, Saved, and Log show focused registration gates for guests.
+  - Saving a product as favorite/compare prompts auth when used by a guest.
+  - Tab changes reset scroll position so mobile navigation starts at the top of each surface.
+- `src/components/features/PremiumTab.tsx`
+  - Added a Guest / FREE member / PRO value ladder.
+  - Guest PRO buttons now lead to registration instead of trying to start checkout without a user.
+- `src/app/globals.css`
+  - Added guest auth button styling and a mobile single-column helper for gate cards.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local production build on port `3006` verified guest home, guest auth CTA, return-to-guest action, PRO value ladder, and mobile tab scroll reset in the in-app browser.
+
 ## 2026-05-07 Logged-In UX Pass
 
 Scope:

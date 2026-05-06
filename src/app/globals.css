@@ -321,6 +321,25 @@ body {
   opacity: 0.68;
 }
 
+.auth-guest-button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1.5px solid #E4D8C9;
+  border-radius: 12px;
+  background: #fff;
+  color: #5F4A3D;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.auth-guest-button:hover {
+  border-color: #D4A853;
+  color: #150B00;
+}
+
 .auth-plan-note {
   display: grid;
   gap: 4px;
@@ -634,6 +653,10 @@ body {
 
   .grid-cols-2-mobile {
     grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-cols-1-mobile {
+    grid-template-columns: 1fr !important;
   }
 
   .admin-status-row {

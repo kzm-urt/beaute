@@ -37,6 +37,13 @@ const NAV: { key: Tab; icon: Parameters<typeof Icon>[0]["name"]; jp: string; en:
   { key: "premium", icon: "crown",   jp: "プラン",   en: "Pro"     },
 ];
 
+const GUEST_PROFILE: UserProfile = {
+  age: "",
+  skinType: "\u6df7\u5408\u808c",
+  hairType: "\u666e\u901a",
+  concerns: ["\u6bdb\u7a74", "\u4e7e\u71e5", "\u304f\u3059\u307f"],
+};
+
 export default function BeauteApp() {
   const { user, loading: authLoading, signIn, signUp, signOut, sendPasswordReset } = useAuth();
   const { profile, updateProfile, profileDone, setProfileDone, completeProfile, profileLoading, isPro, setIsPro, refreshProfile } = useProfile(user);
@@ -46,6 +53,10 @@ export default function BeauteApp() {
   const [toast, setToast] = useState<{ type: "success" | "cancel"; message: string } | null>(null);
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const isGuest = !user;
+  const effectiveProfile = isGuest ? GUEST_PROFILE : profile;
+  const effectiveIsPro = !isGuest && isPro;
 
   // PWAインストールプロンプトの捕捉
   useEffect(() => {
@@ -95,6 +106,15 @@ export default function BeauteApp() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (user) setShowAuth(false);
+  }, [user]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+    document.querySelector<HTMLElement>(".app-main")?.scrollTo({ top: 0, left: 0 });
+  }, [tab]);
+
   // 認証・プロフィール読み込み中
   if (authLoading || (user && profileLoading)) {
     return (
@@ -104,13 +124,19 @@ export default function BeauteApp() {
     );
   }
 
-  // 未ログイン
-  if (!user) {
-    return <AuthScreen onSignIn={signIn} onSignUp={signUp} onSendPasswordReset={sendPasswordReset} />;
+  if (isGuest && showAuth) {
+    return (
+      <AuthScreen
+        onSignIn={signIn}
+        onSignUp={signUp}
+        onSendPasswordReset={sendPasswordReset}
+        onContinueAsGuest={() => setShowAuth(false)}
+      />
+    );
   }
 
   // プロフィール未設定
-  if (!profileDone)
+  if (!isGuest && !profileDone)
     return <ProfileScreen profile={profile} onChange={updateProfile} onComplete={completeProfile}/>;
 
   const goSearch = (cat?: string) => {
@@ -122,11 +148,17 @@ export default function BeauteApp() {
       eventType: "upgrade_click",
       sourceArea,
       product,
-      isPro,
+      isPro: effectiveIsPro,
     });
     setTab("premium");
   };
-  const editProfile = () => setProfileDone(false);
+  const editProfile = () => {
+    if (isGuest) {
+      setShowAuth(true);
+      return;
+    }
+    setProfileDone(false);
+  };
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#F8F4EF", color: "#150B00", fontFamily: '"Hiragino Kaku Gothic ProN","Noto Sans JP",-apple-system,sans-serif' }}>
@@ -162,26 +194,28 @@ export default function BeauteApp() {
 
         <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(212,168,83,.15)", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#E8D7BE,#C89E6A)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, color: "#1A0E08", fontWeight: 700, flexShrink: 0 }}>
-            {user.email?.[0]?.toUpperCase() || "U"}
+            {isGuest ? "G" : user.email?.[0]?.toUpperCase() || "U"}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11, color: "#FBF8F3", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</div>
-            <div style={{ fontSize: 9, letterSpacing: "0.2em", color: isPro ? "#D4A853" : "rgba(251,248,243,.4)", fontFamily: "ui-monospace,monospace" }}>{isPro ? "PRO MEMBER" : "FREE PLAN"}</div>
+            <div style={{ fontSize: 11, color: "#FBF8F3", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{isGuest ? "\u30b2\u30b9\u30c8\u95b2\u89a7\u4e2d" : user.email}</div>
+            <div style={{ fontSize: 9, letterSpacing: "0.2em", color: effectiveIsPro ? "#D4A853" : "rgba(251,248,243,.4)", fontFamily: "ui-monospace,monospace" }}>{isGuest ? "GUEST" : effectiveIsPro ? "PRO MEMBER" : "FREE PLAN"}</div>
           </div>
           <button
             onClick={editProfile}
-            title="プロフィール編集"
+            title={isGuest ? "\u30ed\u30b0\u30a4\u30f3 / \u7121\u6599\u767b\u9332" : "プロフィール編集"}
             style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(251,248,243,.4)", padding: 4, flexShrink: 0 }}
           >
             <Icon name="note" size={14} stroke="currentColor" sw={2} />
           </button>
-          <button
-            onClick={signOut}
-            title="ログアウト"
-            style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(251,248,243,.4)", padding: 4, flexShrink: 0 }}
-          >
-            <Icon name="close" size={14} stroke="currentColor" sw={2} />
-          </button>
+          {!isGuest && (
+            <button
+              onClick={signOut}
+              title="ログアウト"
+              style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(251,248,243,.4)", padding: 4, flexShrink: 0 }}
+            >
+              <Icon name="close" size={14} stroke="currentColor" sw={2} />
+            </button>
+          )}
         </div>
       </aside>
 
@@ -194,8 +228,8 @@ export default function BeauteApp() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "6px 14px", background: tab === "ranking" ? "#1A0E08" : "#fff", color: tab === "ranking" ? "#D4A853" : "#8A7A6E", border: "1px solid #EDE5DC", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>ランキング</button>
-            {!isPro
-              ? <button onClick={() => upgrade("desktop_header")} style={{ fontSize: 11, padding: "6px 16px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>★ PRO へアップグレード</button>
+            {!effectiveIsPro
+              ? <button onClick={() => isGuest ? setShowAuth(true) : upgrade("desktop_header")} style={{ fontSize: 11, padding: "6px 16px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>{isGuest ? "\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3" : "★ PRO へアップグレード"}</button>
               : <span style={{ fontSize: 10, fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", color: "#D4A853" }}>★ PRO MEMBER</span>
             }
           </div>
@@ -206,19 +240,35 @@ export default function BeauteApp() {
           <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>beauté</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "5px 10px", background: tab === "ranking" ? "#D4A853" : "transparent", color: tab === "ranking" ? "#1A0E08" : "#D4A853", border: "1px solid #D4A853", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>ランキング</button>
-            {!isPro && <button onClick={() => upgrade("mobile_header")} style={{ fontSize: 11, padding: "5px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>PRO</button>}
+            {!effectiveIsPro && <button onClick={() => isGuest ? setShowAuth(true) : upgrade("mobile_header")} style={{ fontSize: 11, padding: "5px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>{isGuest ? "\u767b\u9332" : "PRO"}</button>}
           </div>
         </header>
 
+        {isGuest && (
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "10px 24px", background: "#FFF9EC", borderBottom: "1px solid #E8D7BE" }}>
+            <div style={{ flex: "1 1 360px", minWidth: 0 }}>
+              <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
+                {"GUEST PREVIEW"}
+              </div>
+              <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
+                {"\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u306f\u767b\u9332\u306a\u3057\u3067\u898b\u3089\u308c\u307e\u3059\u3002\u7121\u6599\u767b\u9332\u3067\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u7f8e\u5bb9\u30ed\u30b0\u3001PRO\u3067\u7121\u5236\u9650\u89e3\u6790\u3068\u8cfc\u5165\u30ea\u30f3\u30af\u304c\u958b\u653e\u3055\u308c\u307e\u3059\u3002"}
+              </p>
+            </div>
+            <button onClick={() => setShowAuth(true)} style={{ border: "none", borderRadius: 999, padding: "9px 16px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
+              {"\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3"}
+            </button>
+          </div>
+        )}
+
         <main style={{ flex: 1, overflowY: "auto" }} className="app-main">
-          {tab === "home"    && <HomeTab    profile={profile} isPro={isPro} preferences={preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer}/>}
-          {tab === "search"  && <SearchTab  isPro={isPro} preferences={preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="search" profile={profile}/>}
-          {tab === "ranking" && <SearchTab  isPro={isPro} preferences={preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="ranking" profile={profile}/>}
-          {tab === "analyze" && <AnalyzeTab isPro={isPro} onUpgrade={upgrade}/>}
-          {tab === "karte"   && <KarteTab   profile={profile} isPro={isPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onUpgrade={upgrade}/>}
-          {tab === "saved"   && <SavedTab   isPro={isPro} onUpgrade={upgrade} onOpenProduct={setDrawer}/>}
-          {tab === "log"     && <LogTab userId={user.id} isPro={isPro} onUpgrade={upgrade}/>}
-          {tab === "premium" && <PremiumTab isPro={isPro} onUpgrade={() => setIsPro(true)} user={user}/>}
+          {tab === "home"    && <HomeTab    profile={effectiveProfile} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer}/>}
+          {tab === "search"  && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
+          {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}
+          {tab === "analyze" && (isGuest ? <GuestGate title={"\u6210\u5206\u89e3\u6790\u306f\u7121\u6599\u767b\u9332\u3067\u4f7f\u3048\u307e\u3059"} body={"\u5546\u54c1\u306e\u6210\u5206\u8868\u3092\u64ae\u3063\u3066AI\u89e3\u6790\u3002\u5c65\u6b74\u3092\u6b8b\u305b\u308b\u306e\u3067\u3001\u6bd4\u8f03\u3084\u898b\u76f4\u3057\u304c\u697d\u306b\u306a\u308a\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
+          {tab === "karte"   && (isGuest ? <GuestGate title={"\u30ab\u30eb\u30c6\u306f\u767b\u9332\u5f8c\u306b\u4f5c\u308c\u307e\u3059"} body={"\u808c\u8cea\u30fb\u9aea\u8cea\u30fb\u60a9\u307f\u3092\u4fdd\u5b58\u3057\u3066\u3001\u691c\u7d22\u3084\u304a\u3059\u3059\u3081\u3092\u81ea\u5206\u5c02\u7528\u306b\u8fd1\u3065\u3051\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onUpgrade={upgrade}/>)}
+          {tab === "saved"   && (isGuest ? <GuestGate title={"\u4fdd\u5b58\u30ea\u30b9\u30c8\u306f\u7121\u6599\u767b\u9332\u3067\u4f7f\u3048\u307e\u3059"} body={"\u6c17\u306b\u306a\u308b\u697d\u5929\u5546\u54c1\u3092\u304a\u6c17\u306b\u5165\u308a\u3068\u6bd4\u8f03\u30ea\u30b9\u30c8\u306b\u5206\u3051\u3066\u6b8b\u305b\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <SavedTab isPro={effectiveIsPro} onUpgrade={upgrade} onOpenProduct={setDrawer}/>)}
+          {tab === "log"     && (isGuest ? <GuestGate title={"\u7f8e\u5bb9\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u3067\u8a18\u9332\u3067\u304d\u307e\u3059"} body={"\u4f7f\u7528\u4e2d\u306e\u5546\u54c1\u3068\u611f\u60f3\u3092\u6b8b\u3059\u3068\u3001PRO\u306e\u304a\u3059\u3059\u3081\u7cbe\u5ea6\u304c\u80b2\u3061\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <LogTab userId={user.id} isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
+          {tab === "premium" && <PremiumTab isPro={effectiveIsPro} onUpgrade={() => isGuest ? setShowAuth(true) : setIsPro(true)} user={user}/>}
         </main>
       </div>
 
@@ -253,7 +303,7 @@ export default function BeauteApp() {
       </nav>
 
       {/* ── PRODUCT DRAWER ── */}
-      {drawer && <ProductDrawer product={drawer} onClose={() => setDrawer(null)} isPro={isPro} onUpgrade={upgrade} profile={profile} preferences={preferences}/>}
+      {drawer && <ProductDrawer product={drawer} onClose={() => setDrawer(null)} isPro={effectiveIsPro} onUpgrade={upgrade} profile={effectiveProfile} preferences={isGuest ? null : preferences} isGuest={isGuest} onAuthRequired={() => setShowAuth(true)}/>}
 
       {/* ── PWAインストールバナー ── */}
       {showInstallBanner && (
@@ -311,8 +361,51 @@ export default function BeauteApp() {
   );
 }
 
-function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, preferences }: {
-  product: Product; onClose: () => void; isPro: boolean; onUpgrade: (sourceArea?: string, product?: Product) => void; profile: UserProfile; preferences?: PersonalPreferences | null;
+function GuestGate({ title, body, onAuth, onGoSearch }: {
+  title: string;
+  body: string;
+  onAuth: () => void;
+  onGoSearch: () => void;
+}) {
+  return (
+    <div style={{ minHeight: "calc(100vh - 52px)", display: "grid", placeItems: "center", padding: 24 }}>
+      <section style={{ width: "min(640px,100%)", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: "28px 24px", boxShadow: "0 12px 36px rgba(21,11,0,.08)" }}>
+        <div style={{ fontSize: 10, letterSpacing: "0.24em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>
+          {"GUEST PREVIEW"}
+        </div>
+        <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, lineHeight: 1.25, color: "#150B00", fontWeight: 500, margin: "0 0 10px" }}>
+          {title}
+        </h2>
+        <p style={{ fontSize: 13, lineHeight: 1.9, color: "#6B5B4A", margin: "0 0 20px" }}>
+          {body}
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 22 }} className="grid-cols-1-mobile">
+          {[
+            ["\u30b2\u30b9\u30c8", "\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0"],
+            ["\u7121\u6599\u4f1a\u54e1", "\u4fdd\u5b58\u30fb\u30ed\u30b0\u30fb\u67083\u56de\u89e3\u6790"],
+            ["PRO", "\u7121\u5236\u9650\u89e3\u6790\u30fb\u5168\u5546\u54c1\u8a73\u7d30"],
+          ].map(([label, value]) => (
+            <div key={label} style={{ border: "1px solid #EDE5DC", borderRadius: 12, padding: 12, background: "#F8F4EF" }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: "#150B00", marginBottom: 4 }}>{label}</div>
+              <div style={{ fontSize: 11, lineHeight: 1.55, color: "#8A7A6E" }}>{value}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+          <button onClick={onAuth} style={{ flex: "1 1 180px", border: "none", borderRadius: 12, padding: "13px 16px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 13, fontWeight: 900, cursor: "pointer" }}>
+            {"\u7121\u6599\u767b\u9332\u3059\u308b"}
+          </button>
+          <button onClick={onGoSearch} style={{ flex: "1 1 180px", border: "1px solid #EDE5DC", borderRadius: 12, padding: "13px 16px", background: "#fff", color: "#150B00", fontSize: 13, fontWeight: 900, cursor: "pointer" }}>
+            {"\u5148\u306b\u5546\u54c1\u3092\u898b\u308b"}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, preferences, isGuest = false, onAuthRequired }: {
+  product: Product; onClose: () => void; isPro: boolean; onUpgrade: (sourceArea?: string, product?: Product) => void; profile: UserProfile; preferences?: PersonalPreferences | null; isGuest?: boolean; onAuthRequired?: () => void;
 }) {
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
@@ -347,6 +440,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
   useEffect(() => {
     let ignore = false;
     const fetchSaveState = async () => {
+      if (isGuest) return;
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
@@ -363,9 +457,13 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
     };
     fetchSaveState();
     return () => { ignore = true; };
-  }, [productKey]);
+  }, [isGuest, productKey]);
 
   const updateProductSave = async (kind: "favorite" | "compare") => {
+    if (isGuest) {
+      onAuthRequired?.();
+      return;
+    }
     setSaveLoading(kind);
     setSaveMessage("");
     const { data: { session } } = await supabase.auth.getSession();

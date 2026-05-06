@@ -7,9 +7,10 @@ interface Props {
   onSignIn: (email: string, password: string) => Promise<{ message: string } | null>;
   onSignUp: (email: string, password: string) => Promise<{ message: string } | null>;
   onSendPasswordReset?: (email: string) => Promise<{ message: string } | null>;
+  onContinueAsGuest?: () => void;
 }
 
-export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset }: Props) {
+export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset, onContinueAsGuest }: Props) {
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -199,6 +200,15 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset }: 
               ? "アカウント作成"
               : "リセットメールを送信"}
           </button>
+          {onContinueAsGuest && (
+            <button
+              type="button"
+              onClick={onContinueAsGuest}
+              className="auth-guest-button"
+            >
+              {"\u767b\u9332\u305b\u305a\u306b\u5546\u54c1\u3092\u898b\u3066\u307f\u308b"}
+            </button>
+          )}
         </form>
 
         <div className="auth-plan-note">

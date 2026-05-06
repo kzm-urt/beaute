@@ -33,6 +33,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
   const [statusLoading, setStatusLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const isGuest = !user;
 
   useEffect(() => {
     if (!user) return;
@@ -71,6 +72,10 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
   }, [user, isPro]);
 
   const handleCheckout = async () => {
+    if (isGuest) {
+      onUpgrade();
+      return;
+    }
     setLoading(true);
     try {
       void trackProductEvent({
@@ -172,6 +177,54 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             {PLAN_RULES.pro.trialDays}日無料トライアル、その後月額{PLAN_RULES.pro.priceLabel}（税込）
           </p>
         </div>
+      </div>
+
+      <div className="bg-white rounded-[18px] border border-[#EDE5DC] p-4 mb-5">
+        <div className="mb-3">
+          <p className="text-[10px] tracking-[0.24em] font-semibold mb-1" style={{ color: "#A8722A", fontFamily: "ui-monospace,monospace" }}>
+            {"VALUE LADDER"}
+          </p>
+          <h3 className="text-[18px] font-bold" style={{ color: "#150B00" }}>
+            {"\u30b2\u30b9\u30c8\u3001\u7121\u6599\u4f1a\u54e1\u3001PRO\u306e\u9055\u3044"}
+          </h3>
+          <p className="text-[12px] mt-1 leading-[1.7]" style={{ color: "#8A7A6E" }}>
+            {"\u307e\u305a\u306f\u5546\u54c1\u3092\u898b\u3066\u3001\u6c17\u306b\u306a\u3063\u305f\u3089\u4fdd\u5b58\u3002\u672c\u6c17\u3067\u9078\u3076\u3068\u304d\u306bPRO\u3067\u7cbe\u5ea6\u3068\u4e0a\u9650\u3092\u89e3\u653e\u3057\u307e\u3059\u3002"}
+          </p>
+        </div>
+        <div className="grid gap-2 md:grid-cols-3">
+          {[
+            {
+              label: "\u30b2\u30b9\u30c8",
+              price: "\u767b\u9332\u306a\u3057",
+              body: "\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u30fb\u4eba\u6c17\u5546\u54c1\u3092\u3059\u3050\u898b\u3089\u308c\u307e\u3059\u3002",
+            },
+            {
+              label: "\u7121\u6599\u4f1a\u54e1",
+              price: "\u00a50",
+              body: "\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u7f8e\u5bb9\u30ed\u30b0\u30fb\u6210\u5206\u89e3\u67903\u56de/\u6708\u304c\u4f7f\u3048\u307e\u3059\u3002",
+            },
+            {
+              label: "PRO",
+              price: `${PLAN_RULES.pro.priceLabel}/\u6708`,
+              body: "\u5168\u5546\u54c1\u8a73\u7d30\u3001\u8cfc\u5165\u30ea\u30f3\u30af\u3001\u7121\u5236\u9650\u89e3\u6790\u3001\u30ed\u30b0\u5b66\u7fd2\u306e\u7cbe\u5ea6\u3092\u89e3\u653e\u3002",
+            },
+          ].map((plan) => (
+            <div key={plan.label} className="rounded-[14px] border p-3" style={{ borderColor: plan.label === "PRO" ? "#D4A85388" : "#EDE5DC", background: plan.label === "PRO" ? "#FEF9F0" : "#F8F4EF" }}>
+              <div className="text-[12px] font-black" style={{ color: "#150B00" }}>{plan.label}</div>
+              <div className="text-[18px] font-bold mt-1" style={{ color: plan.label === "PRO" ? "#A8722A" : "#150B00" }}>{plan.price}</div>
+              <p className="text-[11px] leading-[1.65] mt-2" style={{ color: "#6B5B4A" }}>{plan.body}</p>
+            </div>
+          ))}
+        </div>
+        {isGuest && (
+          <button
+            onClick={onUpgrade}
+            className="mt-4 w-full rounded-[12px] border-none py-3 text-[13px] font-black cursor-pointer"
+            style={{ background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08" }}
+          >
+            {"\u7121\u6599\u767b\u9332\u3057\u3066\u4fdd\u5b58\u30fb\u30ed\u30b0\u3092\u4f7f\u3046"}
+          </button>
+        )}
       </div>
 
       {/* ALREADY PRO */}
@@ -286,7 +339,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
               className="w-full py-3.5 rounded-[12px] text-[13px] font-bold border-none cursor-pointer"
               style={{ background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08",
                 boxShadow: "0 6px 20px rgba(212,168,83,.35)", opacity: loading ? 0.7 : 1 }}>
-              {loading ? "処理中..." : `${PLAN_RULES.pro.trialDays}日無料でPROを試す →`}
+              {loading ? "処理中..." : isGuest ? "\u7121\u6599\u767b\u9332\u3057\u3066PRO\u3092\u59cb\u3081\u308b \u2192" : `${PLAN_RULES.pro.trialDays}日無料でPROを試す →`}
             </button>
           )}
         </div>
@@ -354,7 +407,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
       {!isPro && (
         <div className="mt-6">
           <GoldButton onClick={handleCheckout} disabled={loading}>
-            {loading ? "処理中..." : `${PLAN_RULES.pro.trialDays}日無料でPROを始める`}
+            {loading ? "処理中..." : isGuest ? "\u7121\u6599\u767b\u9332\u3057\u3066PRO\u3092\u59cb\u3081\u308b" : `${PLAN_RULES.pro.trialDays}日無料でPROを始める`}
           </GoldButton>
           <p className="text-center text-[11px] mt-2" style={{ color: "#8A7A6E" }}>
             いつでもキャンセル可能 · Stripe安全決済
