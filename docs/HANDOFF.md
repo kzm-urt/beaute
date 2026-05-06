@@ -53,7 +53,7 @@ These require dashboard access or real user interaction:
 
 - Production URL: https://beaute-xi.vercel.app
 - Vercel project: `kzm-urts-projects/beaute`
-- Latest verified deployment: `dpl_CY2NxUyNg7zoH5KBVfHFF7niZmQs`
+- Latest verified deployment: `dpl_J6CphvEwQqjTUtzjTUuAjyGBtP3B`
 - Stripe webhook endpoint: `we_1TSb6cDpBMQgTuocdM4dV7mD`
 - Stripe webhook URL: `https://beaute-xi.vercel.app/api/stripe/webhook`
 - Production env vars are set in Vercel, including Supabase, Stripe, Rakuten, YouTube, Anthropic, admin emails, API cost, and affiliate reward settings.
