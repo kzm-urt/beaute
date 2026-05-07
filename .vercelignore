@@ -1,3 +1,4 @@
 public/sw.js
 src/components/features/KaraokeCoachApp.tsx
 src/lib/karaokeAnalysis.ts
+src/lib/trendingSongs.ts

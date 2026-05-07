@@ -93,7 +93,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
   const recommendationProducts = aiPicks.length > 0 ? aiPicks : editorsPicks.slice(0, 6);
 
   return (
-    <div style={{ background: "linear-gradient(180deg,#FBF8F3 0%,#F8F4EF 42%,#F5EFE7 100%)" }}>
+    <div className="motion-fade-scale" style={{ background: "linear-gradient(180deg,#FBF8F3 0%,#F8F4EF 42%,#F5EFE7 100%)" }}>
       {/* ── HERO ── */}
       <section className="home-hero" style={{ position: "relative", minHeight: 520, overflow: "hidden", background: "#1A0E08" }}>
         {heroProduct && heroMeta && (
@@ -124,10 +124,11 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
               alt={heroProduct.name}
               catColor={heroMeta.color}
               catIcon={heroMeta.icon}
-              style={{ transform: "scale(1.06)", opacity: 0.96 }}
+              className="home-hero-image"
+              style={{ opacity: 0.96 }}
             />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(26,14,8,.96) 0%, rgba(26,14,8,.6) 36%, rgba(26,14,8,.04) 100%)" }} />
-            <div className="home-hero-product-note" style={{ position: "absolute", right: 30, bottom: 28, maxWidth: 310, textAlign: "right", color: "#FBF8F3" }}>
+            <div className="home-hero-product-note motion-reveal" style={{ position: "absolute", right: 30, bottom: 28, maxWidth: 310, textAlign: "right", color: "#FBF8F3" }}>
               <div style={{ fontSize: 10, letterSpacing: "0.2em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 8 }}>
                 {"TODAY'S PICK"}
               </div>
@@ -145,13 +146,13 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px)", backgroundSize: "16.666% 100%", pointerEvents: "none" }}/>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(26,14,8,.98) 0%, rgba(26,14,8,.86) 38%, rgba(26,14,8,.2) 76%, rgba(26,14,8,.08) 100%)", pointerEvents: "none" }}/>
 
-        <div style={{ position: "absolute", top: 22, left: 32, right: 32, display: "flex", justifyContent: "space-between", fontSize: 10, letterSpacing: "0.3em", color: "rgba(251,248,243,.45)", fontFamily: "ui-monospace,monospace" }}>
+        <div className="motion-reveal" style={{ position: "absolute", top: 22, left: 32, right: 32, display: "flex", justifyContent: "space-between", fontSize: 10, letterSpacing: "0.3em", color: "rgba(251,248,243,.45)", fontFamily: "ui-monospace,monospace" }}>
           <span>カバーストーリー · ISSUE 04</span>
           <span className="hidden md:block">━━ AI が {profile.skinType || "あなた"} のために編集</span>
           <span>{new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long" })}</span>
         </div>
 
-        <div className="home-hero-content" style={{ position: "absolute", bottom: 34, left: 32, right: 32, maxWidth: 660 }}>
+        <div className="home-hero-content motion-reveal-slow" style={{ position: "absolute", bottom: 34, left: 32, right: 32, maxWidth: 660 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.2em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 14 }}>
             PERSONAL EDITION · {isPro && preferences?.confidence ? `CONFIDENCE ${preferences.confidence}` : "PROFILE BASED"}
           </div>
@@ -166,11 +167,11 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {heroProduct && (
-              <button onClick={() => onOpenProduct(heroProduct)} style={{ padding: "12px 20px", background: "#D4A853", border: "1px solid #D4A853", color: "#1A0E08", fontSize: 12, letterSpacing: "0.1em", fontWeight: 800, cursor: "pointer", borderRadius: 6 }}>
+              <button className="motion-cta" onClick={() => onOpenProduct(heroProduct)} style={{ padding: "12px 20px", background: "#D4A853", border: "1px solid #D4A853", color: "#1A0E08", fontSize: 12, letterSpacing: "0.1em", fontWeight: 800, cursor: "pointer", borderRadius: 6 }}>
                 今日の一品を見る
               </button>
             )}
-            <button onClick={() => onGoSearch()} style={{ padding: "12px 20px", background: "transparent", border: "1px solid rgba(212,168,83,.72)", color: "#D4A853", fontSize: 12, letterSpacing: "0.1em", fontWeight: 800, cursor: "pointer", borderRadius: 6 }}>
+            <button className="motion-nav-button" onClick={() => onGoSearch()} style={{ padding: "12px 20px", background: "transparent", border: "1px solid rgba(212,168,83,.72)", color: "#D4A853", fontSize: 12, letterSpacing: "0.1em", fontWeight: 800, cursor: "pointer", borderRadius: 6 }}>
               全製品を見る
             </button>
           </div>
@@ -179,7 +180,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
 
       {/* ── AI STRIP ── */}
       <div style={{ background: "#F1EADE", borderBottom: "1px solid #EDE5DC" }}>
-        <div className="section-shell mobile-tight" style={{ padding: "14px 32px", display: "flex", gap: 20, alignItems: "center", overflowX: "auto", fontSize: 11, letterSpacing: "0.12em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace", whiteSpace: "nowrap" }}>
+        <div className="section-shell mobile-tight motion-reveal-slow" style={{ padding: "14px 32px", display: "flex", gap: 20, alignItems: "center", overflowX: "auto", fontSize: 11, letterSpacing: "0.12em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace", whiteSpace: "nowrap" }}>
           <span style={{ color: "#D4A853", fontWeight: 600, flexShrink: 0 }}>{isPro && preferences?.confidence ? "LOG 学習済み" : "AI 解析済み"}</span>
           <span>━━ {profile.skinType || "肌質未設定"}</span>
           {isPro && preferences?.positiveSignals.slice(0, 2).map(signal => <span key={signal}>/ {signal}</span>)}
@@ -200,7 +201,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       />
 
       {!isPro && profileSignals.length > 0 && (
-        <section className="mobile-tight" style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff" }}>
+        <section className="mobile-tight motion-reveal" style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff" }}>
           <div className="section-shell" style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRO PERSONAL FIT</div>
@@ -208,7 +209,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
               {profileSignals.slice(0, 3).join("・")}に合わせたスコア表示と全楽天商品の詳細はPROで使えます。
             </p>
           </div>
-          <button onClick={() => onUpgrade("home_personal_fit_teaser")} style={{ padding: "10px 16px", border: "none", borderRadius: 999, background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 12, fontWeight: 800, cursor: "pointer", flexShrink: 0 }}>
+          <button className="motion-cta" onClick={() => onUpgrade("home_personal_fit_teaser")} style={{ padding: "10px 16px", border: "none", borderRadius: 999, background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 12, fontWeight: 800, cursor: "pointer", flexShrink: 0 }}>
             精度を上げる
           </button>
           </div>
@@ -216,7 +217,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       )}
 
       {isPro && preferences && preferences.confidence > 0 && (
-        <section className="mobile-tight" style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff" }}>
+        <section className="mobile-tight motion-reveal" style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff" }}>
           <div className="section-shell" style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>LEARNING FROM YOUR LOG</div>
@@ -242,15 +243,15 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
               大きなカテゴリだけで終わらせず、悩み・質感・使う場面まで分解して候補を出します。
             </p>
           </div>
-          <button onClick={() => onUpgrade("home_category_precision")} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#A8722A", fontSize: 11, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
+          <button className="motion-nav-button" onClick={() => onUpgrade("home_category_precision")} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#A8722A", fontSize: 11, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
             PROで細かく絞る
           </button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }} className="grid-cols-1-mobile">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }} className="grid-cols-1-mobile motion-stagger">
           {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m], i) => {
             const guide = CATEGORY_GUIDES[name];
             return (
-            <button key={name} className="lift-card" onClick={() => onGoSearch(name)} style={{
+            <button key={name} className="lift-card motion-card" onClick={() => onGoSearch(name)} style={{
               padding: 0, background: "#fff", border: `1px solid ${m.accent}30`,
               textAlign: "left", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
               display: "flex", flexDirection: "column", minHeight: 178,
@@ -294,7 +295,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
                 無料ではカテゴリと基本悩みまで。PROでは「朝/夜・予算・避けたい成分・ログの相性」まで使って候補を並べ替えます。
               </p>
             </div>
-            <button onClick={() => onUpgrade("home_precision_locked")} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+            <button className="motion-cta" onClick={() => onUpgrade("home_precision_locked")} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
               精密診断を開放
             </button>
           </div>
@@ -316,16 +317,16 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       />
 
       {/* ── EDITOR'S PICKS GRID ── */}
-      <section className="mobile-tight" style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
+        <section className="mobile-tight motion-reveal" style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
         <div className="section-shell">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 03</div>
             <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, margin: 0, fontWeight: 400, color: "#150B00" }}>編集部が選ぶ、今週の逸品</h2>
           </div>
-          <button onClick={() => onGoSearch()} style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", background: "none", border: "none", cursor: "pointer" }}>すべて見る →</button>
+          <button className="motion-nav-button" onClick={() => onGoSearch()} style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", background: "none", border: "none", cursor: "pointer" }}>すべて見る →</button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }} className="grid-cols-2-mobile">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }} className="grid-cols-2-mobile motion-stagger">
           {editorsPicks.map(p => (
             <EditorCard key={p.id} product={p} onOpen={onOpenProduct} isPro={isPro}/>
           ))}
@@ -334,7 +335,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       </section>
 
       {/* ── TRENDING VIDEOS ── */}
-      <section className="mobile-tight" style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
+      <section className="mobile-tight motion-reveal" style={{ padding: "44px 32px 48px", borderBottom: "1px solid #EDE5DC" }}>
         <div className="section-shell">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 18 }}>
           <div>
@@ -349,7 +350,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
         {/* カテゴリタブ */}
         <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 12, marginBottom: 16 }} className="hide-scrollbar">
           {["全体", ...Object.keys(CAT_META)].map(cat => (
-            <button key={cat} onClick={() => setActiveVideoCategory(cat)} style={{
+            <button key={cat} className="motion-nav-button" onClick={() => setActiveVideoCategory(cat)} style={{
               flexShrink: 0, padding: "6px 14px", borderRadius: 20, border: "1px solid",
               borderColor: activeVideoCategory === cat ? "#D4A853" : "#EDE5DC",
               background: activeVideoCategory === cat ? "#D4A853" : "transparent",
@@ -373,7 +374,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
                 </div>
               ))
             : videos.map(v => (
-                <a key={v.id} href={v.url} target="_blank" rel="noreferrer" style={{ flexShrink: 0, width: 200, textDecoration: "none" }}>
+                <a key={v.id} className="motion-card" href={v.url} target="_blank" rel="noreferrer" style={{ flexShrink: 0, width: 200, textDecoration: "none" }}>
                   <div style={{ height: 112, borderRadius: 10, overflow: "hidden", position: "relative", marginBottom: 8, background: "#1A0E08" }}>
                     <img src={v.thumbnail} alt={v.title} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.9 }} loading="lazy"/>
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(21,11,0,.6) 0%, transparent 50%)" }}/>
@@ -398,7 +399,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
 
       {/* ── PRO TEASER ── */}
       {!isPro && (
-        <section className="mobile-tight" style={{ background: "#1A0E08", color: "#FBF8F3", padding: "56px 32px" }}>
+        <section className="mobile-tight motion-reveal motion-premium-hero" style={{ background: "#1A0E08", color: "#FBF8F3", padding: "56px 32px", position: "relative", overflow: "hidden" }}>
           <div className="section-shell" style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 40, alignItems: "center" }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 14 }}>━━ BEAUTÉ PRO</div>
@@ -408,7 +409,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
             <p style={{ fontSize: 13, lineHeight: 1.9, color: "rgba(251,248,243,.65)", margin: "0 0 24px", maxWidth: 380 }}>
               月額{PLAN_RULES.pro.priceLabel}で、無制限の成分解析・全製品フルアクセス・AIパーソナル診断。
             </p>
-            <button onClick={() => onUpgrade("home_pro_teaser")} style={{ padding: "13px 28px", background: "linear-gradient(135deg,#D4A853,#A8722A)", border: "none", color: "#1A0E08", fontSize: 13, letterSpacing: "0.1em", fontWeight: 700, cursor: "pointer", borderRadius: 6 }}>
+            <button className="motion-cta" onClick={() => onUpgrade("home_pro_teaser")} style={{ padding: "13px 28px", background: "linear-gradient(135deg,#D4A853,#A8722A)", border: "none", color: "#1A0E08", fontSize: 13, letterSpacing: "0.1em", fontWeight: 700, cursor: "pointer", borderRadius: 6 }}>
               PRO へアップグレード →
             </button>
           </div>
@@ -469,9 +470,9 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
   ];
 
   return (
-    <section className="mobile-tight" style={{ padding: "30px 32px", background: "#fff", borderBottom: "1px solid #EDE5DC" }}>
+    <section className="mobile-tight motion-reveal" style={{ padding: "30px 32px", background: "#fff", borderBottom: "1px solid #EDE5DC" }}>
       <div className="section-shell grid-cols-1-mobile" style={{ display: "grid", gridTemplateColumns: "minmax(240px,.75fr) minmax(0,1.25fr)", gap: 18, alignItems: "stretch" }}>
-        <div style={{ borderRadius: 16, padding: "20px 20px 18px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 18 }}>
+        <div className="motion-card" style={{ borderRadius: 16, padding: "20px 20px 18px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 18 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.24em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>3 MINUTE GUIDE</div>
             <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, lineHeight: 1.15, fontWeight: 500 }}>
@@ -482,23 +483,23 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
             </p>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button onClick={onGoSearch} style={{ border: "1px solid rgba(212,168,83,.45)", borderRadius: 999, padding: "9px 12px", background: "rgba(212,168,83,.12)", color: "#D4A853", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+            <button className="motion-nav-button" onClick={onGoSearch} style={{ border: "1px solid rgba(212,168,83,.45)", borderRadius: 999, padding: "9px 12px", background: "rgba(212,168,83,.12)", color: "#D4A853", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
               商品を探す
             </button>
             {!isPro && (
-              <button onClick={onUpgrade} style={{ border: "none", borderRadius: 999, padding: "9px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+              <button className="motion-cta" onClick={onUpgrade} style={{ border: "none", borderRadius: 999, padding: "9px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
                 PROで精度を上げる
               </button>
             )}
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }} className="grid-cols-1-mobile">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }} className="grid-cols-1-mobile motion-stagger">
           {steps.map((step) => (
             <button
               key={step.no}
               onClick={step.onClick}
-              className="lift-card"
+              className="lift-card motion-card"
               style={{
                 border: "1px solid #EDE5DC",
                 borderRadius: 14,
@@ -536,7 +537,7 @@ function ProductRail({ number, title, eyebrow, products, onOpen, isPro, onUpgrad
   const scroll = (d: number) => ref.current?.scrollBy({ left: d * 340, behavior: "smooth" });
 
   return (
-    <section className="mobile-tight" style={{ padding: "44px 32px 40px", borderBottom: "1px solid #EDE5DC" }}>
+    <section className="mobile-tight motion-reveal" style={{ padding: "44px 32px 40px", borderBottom: "1px solid #EDE5DC" }}>
       <div className="section-shell">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
         <div>
@@ -546,11 +547,11 @@ function ProductRail({ number, title, eyebrow, products, onOpen, isPro, onUpgrad
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           {["←", "→"].map((d, i) => (
-            <button key={d} onClick={() => scroll(i === 0 ? -1 : 1)} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid #D9CDBC", background: "transparent", cursor: "pointer", fontSize: 14, color: "#150B00", display: "flex", alignItems: "center", justifyContent: "center" }}>{d}</button>
+            <button key={d} className="motion-nav-button" onClick={() => scroll(i === 0 ? -1 : 1)} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid #D9CDBC", background: "transparent", cursor: "pointer", fontSize: 14, color: "#150B00", display: "flex", alignItems: "center", justifyContent: "center" }}>{d}</button>
           ))}
         </div>
       </div>
-      <div ref={ref} style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8 }} className="hide-scrollbar">
+      <div ref={ref} style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 8 }} className="hide-scrollbar motion-stagger">
         {products.map(p => <RailCard key={p.id} product={p} onOpen={onOpen} isPro={isPro} onUpgrade={onUpgrade} profile={profile} preferences={preferences}/>)}
       </div>
       </div>
@@ -579,7 +580,7 @@ function RailCard({ product: p, onOpen, isPro, onUpgrade, profile, preferences }
     onOpen(p);
   };
   return (
-    <div className="lift-card" onClick={handleOpen} style={{ flexShrink: 0, width: 220, cursor: "pointer", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.06)" }}
+    <div className="lift-card motion-card" onClick={handleOpen} style={{ flexShrink: 0, width: 220, cursor: "pointer", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.06)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(21,11,0,.12)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(21,11,0,.06)"; }}>
       <div style={{ position: "relative", height: 140, overflow: "hidden", background: m.color }}>
@@ -609,7 +610,7 @@ function EditorCard({ product: p, onOpen, isPro }: { product: Product; onOpen: (
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
   return (
-    <div className="lift-card" onClick={() => onOpen(p)} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 10, overflow: "hidden", transition: "transform 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
+    <div className="lift-card motion-card" onClick={() => onOpen(p)} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 10, overflow: "hidden", transition: "transform 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
       <div style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", background: m.color }}>

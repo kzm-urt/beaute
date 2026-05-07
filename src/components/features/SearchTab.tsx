@@ -134,9 +134,9 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
   );
 
   return (
-    <div>
+    <div className="motion-fade-scale">
       {/* ── SEARCH / FILTER BAR ── */}
-      <div style={{ position: "sticky", top: 52, zIndex: 15, background: "rgba(248,244,239,.97)", backdropFilter: "blur(10px)", borderBottom: "1px solid #EDE5DC", padding: "12px 24px 10px" }} className="top-[52px] md:top-[52px] top-[52px]">
+      <div style={{ position: "sticky", top: 52, zIndex: 15, background: "rgba(248,244,239,.97)", backdropFilter: "blur(10px)", borderBottom: "1px solid #EDE5DC", padding: "12px 24px 10px" }} className="top-[52px] md:top-[52px] top-[52px] motion-reveal">
         <Input
           value={query}
           onChange={setQuery}
@@ -148,6 +148,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         <div style={{ display: "inline-flex", gap: 4, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, padding: 4, marginBottom: 12 }}>
           {([["search", "商品検索"], ["ranking", "楽天ランキング"]] as [BrowseMode, string][]).map(([value, label]) => (
             <button
+              className="motion-nav-button"
               key={value}
               onClick={() => setMode(value)}
               style={{
@@ -168,7 +169,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
 
         {/* Category filter */}
         <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10 }} className="hide-scrollbar">
-          <button onClick={() => setActiveCat(ALL_CATEGORY)} style={{
+          <button className="motion-nav-button" onClick={() => setActiveCat(ALL_CATEGORY)} style={{
             flexShrink: 0, padding: "7px 16px", borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1.5px solid",
             background: activeCat === ALL_CATEGORY ? "#150B00" : "#fff",
             color: activeCat === ALL_CATEGORY ? "#fff" : "#8A7A6E",
@@ -178,7 +179,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
           {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m]) => {
             const active = activeCat === name;
             return (
-              <button key={name} onClick={() => setActiveCat(name)} style={{
+              <button key={name} className="motion-nav-button" onClick={() => setActiveCat(name)} style={{
                 flexShrink: 0, padding: "7px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600,
                 background: active ? m.dark : m.color,
                 color: active ? m.color : m.dark,
@@ -194,7 +195,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         {mode === "search" && (
           <>
             {/* Tag accordion */}
-            <button onClick={() => setShowTags(s => !s)} style={{ fontSize: 12, fontWeight: 600, border: "none", background: "transparent", cursor: "pointer", color: "#A8722A", padding: "4px 0", display: "flex", alignItems: "center", gap: 4 }}>
+            <button className="motion-nav-button" onClick={() => setShowTags(s => !s)} style={{ fontSize: 12, fontWeight: 600, border: "none", background: "transparent", cursor: "pointer", color: "#A8722A", padding: "4px 0", display: "flex", alignItems: "center", gap: 4 }}>
               <Icon name={showTags ? "chevDown" : "chev"} size={14} stroke="#A8722A" sw={2}/>
               タグで絞り込む{activeTags.length > 0 && ` (${activeTags.length}件)`}
             </button>
@@ -252,7 +253,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
               </p>
             </div>
             {!isPro && (
-              <button onClick={() => onUpgrade("search_personal_teaser")} style={{ flexShrink: 0, border: "none", borderRadius: 999, padding: "8px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
+              <button className="motion-cta" onClick={() => onUpgrade("search_personal_teaser")} style={{ flexShrink: 0, border: "none", borderRadius: 999, padding: "8px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
                 試す
               </button>
             )}
@@ -278,7 +279,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
           </div>
         )}
         {productsLoading ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
+          <div className="motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} style={{ borderRadius: 12, overflow: "hidden", background: "#F1EADE" }}>
                 <div style={{ height: 160, background: "#EDE5DC" }}/>
@@ -291,21 +292,21 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 20px", color: "#8A7A6E" }}>
+          <div className="motion-reveal" style={{ textAlign: "center", padding: "60px 20px", color: "#8A7A6E" }}>
             <p style={{ fontSize: 40, marginBottom: 12 }}>🔍</p>
             <p style={{ fontSize: 15, color: "#150B00", fontWeight: 700 }}>{"\u6761\u4ef6\u306b\u5408\u3046\u5546\u54c1\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093"}</p>
             <p style={{ fontSize: 12, marginTop: 6 }}>{"\u691c\u7d22\u6761\u4ef6\u3092\u5c11\u3057\u5e83\u3052\u308b\u304b\u3001\u4eba\u6c17\u9806\u304b\u3089\u898b\u76f4\u3057\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002"}</p>
             <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 18 }}>
-              <button onClick={resetFilters} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#150B00", color: "#FBF8F3", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+              <button className="motion-cta" onClick={resetFilters} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#150B00", color: "#FBF8F3", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
                 {"\u4eba\u6c17\u9806\u3067\u898b\u308b"}
               </button>
-              <button onClick={showDefaultCategory} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#8A5B18", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+              <button className="motion-nav-button" onClick={showDefaultCategory} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#8A5B18", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
                 {"\u30b9\u30ad\u30f3\u30b1\u30a2\u3092\u898b\u308b"}
               </button>
             </div>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
+          <div className="motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
             {filtered.map(p => (
               <SearchCard key={p.id} product={p} isPro={isPro} onUpgrade={onUpgrade} onOpen={onOpenProduct} profile={profile} preferences={isPro ? preferences : null} sourceArea={mode === "ranking" ? "ranking_card" : "search_card"}/>
             ))}
@@ -315,6 +316,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         {!productsLoading && filtered.length > 0 && hasMore && (
           <div style={{ display: "flex", justifyContent: "center", marginTop: 24 }}>
             <button
+              className="motion-nav-button"
               onClick={() => setPage((p) => p + 1)}
               disabled={loadingMore}
               style={{
@@ -360,7 +362,7 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
   };
 
   return (
-    <div onClick={handleOpen}
+    <div className="motion-card" onClick={handleOpen}
       style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 20px rgba(21,11,0,.1)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(21,11,0,.05)"; }}>

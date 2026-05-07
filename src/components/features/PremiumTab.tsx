@@ -155,12 +155,12 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
     : "\u652f\u6255\u3044\u65b9\u6cd5\u306e\u5909\u66f4\u3001\u8acb\u6c42\u66f8\u306e\u78ba\u8a8d\u3001\u89e3\u7d04\u306fStripe\u306e\u7ba1\u7406\u30da\u30fc\u30b8\u3067\u884c\u3048\u307e\u3059\u3002";
 
   return (
-    <div className="px-4 py-5 pb-10 mobile-tight" style={{ maxWidth: 1180, margin: "0 auto" }}>
+    <div className="px-4 py-5 pb-10 mobile-tight motion-fade-scale" style={{ maxWidth: 1180, margin: "0 auto" }}>
       {/* HEADER */}
-      <div className="rounded-[22px] overflow-hidden mb-5 relative"
+      <div className="rounded-[22px] overflow-hidden mb-5 relative motion-premium-hero"
         style={{ background: "linear-gradient(145deg,#1A0E08 0%,#2A1208 50%,#4A1E0A 100%)", padding: "32px 24px 28px" }}>
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 85% 15%,rgba(212,168,83,.25) 0%,transparent 55%)" }}/>
+          style={{ background: "repeating-linear-gradient(90deg,rgba(212,168,83,.08) 0 1px,transparent 1px 90px),linear-gradient(90deg,transparent,rgba(212,168,83,.14),transparent)" }}/>
         <div className="absolute top-0 left-0 right-0 h-[2px]"
           style={{ background: "linear-gradient(90deg,transparent,#D4A853,transparent)" }}/>
         <div className="relative">
@@ -179,7 +179,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
         </div>
       </div>
 
-      <div className="bg-white rounded-[18px] border border-[#EDE5DC] p-4 mb-5">
+      <div className="bg-white rounded-[18px] border border-[#EDE5DC] p-4 mb-5 motion-reveal">
         <div className="mb-3">
           <p className="text-[10px] tracking-[0.24em] font-semibold mb-1" style={{ color: "#A8722A", fontFamily: "ui-monospace,monospace" }}>
             {"VALUE LADDER"}
@@ -191,7 +191,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             {"\u307e\u305a\u306f\u5546\u54c1\u3092\u898b\u3066\u3001\u6c17\u306b\u306a\u3063\u305f\u3089\u4fdd\u5b58\u3002\u672c\u6c17\u3067\u9078\u3076\u3068\u304d\u306bPRO\u3067\u7cbe\u5ea6\u3068\u4e0a\u9650\u3092\u89e3\u653e\u3057\u307e\u3059\u3002"}
           </p>
         </div>
-        <div className="grid gap-2 md:grid-cols-3">
+        <div className="grid gap-2 md:grid-cols-3 motion-stagger">
           {[
             {
               label: "\u30b2\u30b9\u30c8",
@@ -209,7 +209,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
               body: "\u5168\u5546\u54c1\u8a73\u7d30\u3001\u8cfc\u5165\u30ea\u30f3\u30af\u3001\u7121\u5236\u9650\u89e3\u6790\u3001\u30ed\u30b0\u5b66\u7fd2\u306e\u7cbe\u5ea6\u3092\u89e3\u653e\u3002",
             },
           ].map((plan) => (
-            <div key={plan.label} className="rounded-[14px] border p-3" style={{ borderColor: plan.label === "PRO" ? "#D4A85388" : "#EDE5DC", background: plan.label === "PRO" ? "#FEF9F0" : "#F8F4EF" }}>
+            <div key={plan.label} className="rounded-[14px] border p-3 motion-card" style={{ borderColor: plan.label === "PRO" ? "#D4A85388" : "#EDE5DC", background: plan.label === "PRO" ? "#FEF9F0" : "#F8F4EF" }}>
               <div className="text-[12px] font-black" style={{ color: "#150B00" }}>{plan.label}</div>
               <div className="text-[18px] font-bold mt-1" style={{ color: plan.label === "PRO" ? "#A8722A" : "#150B00" }}>{plan.price}</div>
               <p className="text-[11px] leading-[1.65] mt-2" style={{ color: "#6B5B4A" }}>{plan.body}</p>
@@ -219,7 +219,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
         {isGuest && (
           <button
             onClick={onUpgrade}
-            className="mt-4 w-full rounded-[12px] border-none py-3 text-[13px] font-black cursor-pointer"
+            className="mt-4 w-full rounded-[12px] border-none py-3 text-[13px] font-black cursor-pointer motion-cta"
             style={{ background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08" }}
           >
             {"\u7121\u6599\u767b\u9332\u3057\u3066\u4fdd\u5b58\u30fb\u30ed\u30b0\u3092\u4f7f\u3046"}
@@ -229,7 +229,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
 
       {/* ALREADY PRO */}
       {isPro && (
-        <div className="rounded-[16px] p-4 mb-5 text-center border"
+        <div className="rounded-[16px] p-4 mb-5 text-center border motion-reveal motion-status-pulse"
           style={{ background: "linear-gradient(135deg,#FEF9F0,#FDF3E3)", borderColor: "#D4A853" }}>
           <p className="text-[22px] mb-1">👑</p>
           <p className="text-[15px] font-bold" style={{ color: "#150B00" }}>{proStatusTitle}</p>
@@ -249,7 +249,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
       )}
 
       {isPro && (
-        <div className="rounded-[16px] p-4 mb-5 border bg-white"
+        <div className="rounded-[16px] p-4 mb-5 border bg-white motion-reveal"
           style={{ borderColor: "#EDE5DC" }}>
           <div className="flex justify-between items-start gap-3 mb-3">
             <div>
@@ -267,7 +267,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             <button
               onClick={handlePortal}
               disabled={portalLoading}
-              className="w-full py-3 rounded-[12px] text-[13px] font-bold border-none cursor-pointer"
+              className="w-full py-3 rounded-[12px] text-[13px] font-bold border-none cursor-pointer motion-cta"
               style={{ background: "#150B00", color: "#FBF8F3", opacity: portalLoading ? 0.7 : 1 }}>
               {portalLoading ? "開いています..." : "契約・支払いを管理する →"}
             </button>
@@ -280,9 +280,9 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
       )}
 
       {/* PLAN CARDS */}
-      <div className="space-y-3 mb-5">
+      <div className="space-y-3 mb-5 motion-stagger">
         {/* FREE */}
-        <div className="bg-white rounded-[16px] border border-[#EDE5DC] p-4">
+        <div className="bg-white rounded-[16px] border border-[#EDE5DC] p-4 motion-card">
           <div className="flex justify-between items-start mb-3">
             <div>
               <p className="text-[11px] font-semibold tracking-wide mb-0.5" style={{ color: "#8A7A6E" }}>FREE</p>
@@ -304,7 +304,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
         </div>
 
         {/* PRO */}
-        <div className="rounded-[16px] p-4 relative overflow-hidden border"
+        <div className="rounded-[16px] p-4 relative overflow-hidden border motion-card motion-premium-hero"
           style={{ background: "linear-gradient(145deg,#1A0E08,#2A1208)", borderColor: "#D4A85355" }}>
           <div className="absolute top-0 left-0 right-0 h-[2px]"
             style={{ background: "linear-gradient(90deg,transparent,#D4A853,transparent)" }}/>
@@ -336,7 +336,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             <button
               onClick={handleCheckout}
               disabled={loading}
-              className="w-full py-3.5 rounded-[12px] text-[13px] font-bold border-none cursor-pointer"
+              className="w-full py-3.5 rounded-[12px] text-[13px] font-bold border-none cursor-pointer motion-cta"
               style={{ background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08",
                 boxShadow: "0 6px 20px rgba(212,168,83,.35)", opacity: loading ? 0.7 : 1 }}>
               {loading ? "処理中..." : isGuest ? "\u7121\u6599\u767b\u9332\u3057\u3066PRO\u3092\u59cb\u3081\u308b \u2192" : `${PLAN_RULES.pro.trialDays}日無料でPROを試す →`}
@@ -346,7 +346,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
       </div>
 
       {!isPro && (
-        <div className="rounded-[16px] p-4 mb-5 border"
+        <div className="rounded-[16px] p-4 mb-5 border motion-reveal"
           style={{ background: "#fff", borderColor: "#D4A85366" }}>
           <p className="text-[12px] font-bold mb-2" style={{ color: "#150B00" }}>PROで変わること</p>
           <div className="grid grid-cols-3 gap-2">
@@ -355,7 +355,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
               { value: "50", label: "履歴" },
               { value: "ALL", label: "楽天詳細" },
             ].map((item) => (
-              <div key={item.label} className="rounded-[12px] py-3 text-center" style={{ background: "#F8F4EF" }}>
+              <div key={item.label} className="rounded-[12px] py-3 text-center motion-card" style={{ background: "#F8F4EF" }}>
                 <p className="text-[19px] font-bold" style={{ color: "#A8722A" }}>{item.value}</p>
                 <p className="text-[10px]" style={{ color: "#8A7A6E" }}>{item.label}</p>
               </div>
@@ -373,7 +373,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             { text: "全製品のレビューが見られて、比較がめちゃくちゃ楽になりました。", user: "中島 M." },
             { text: "ランキングから気になる商品を全部見られるので、買う前の迷いがかなり減りました。", user: "近藤 Y." },
           ].map((t, i) => (
-            <div key={i} className="bg-white rounded-[14px] border border-[#EDE5DC] p-3.5">
+            <div key={i} className="bg-white rounded-[14px] border border-[#EDE5DC] p-3.5 motion-card">
               <p className="text-[12px] leading-[1.6] italic mb-2" style={{ color: "#444" }}>「{t.text}」</p>
               <p className="text-[10px] font-semibold" style={{ color: "#A8722A" }}>— {t.user}</p>
             </div>
@@ -386,7 +386,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
         <p className="text-[12px] font-bold mb-3 tracking-wide" style={{ color: "#150B00" }}>よくある質問</p>
         <div className="space-y-2">
           {FAQ.map((f, i) => (
-            <div key={i} className="bg-white rounded-[14px] border border-[#EDE5DC] overflow-hidden">
+            <div key={i} className="bg-white rounded-[14px] border border-[#EDE5DC] overflow-hidden motion-card">
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 className="w-full flex justify-between items-center px-4 py-3 text-left bg-transparent border-none cursor-pointer">

@@ -95,7 +95,7 @@ export function GoldButton({ children, onClick, disabled, className, small }: {
   return (
     <button onClick={onClick} disabled={disabled}
       className={cn(
-        "font-bold rounded-[12px] text-[#1A0E08] tracking-wide transition-all duration-200",
+        "motion-cta font-bold rounded-[12px] text-[#1A0E08] tracking-wide transition-all duration-200",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         "hover:enabled:-translate-y-0.5 hover:enabled:shadow-lg",
         small ? "px-5 py-2 text-[12px]" : "w-full py-[13px] text-[14px]",

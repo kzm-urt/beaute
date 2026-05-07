@@ -81,6 +81,28 @@ textarea:focus-visible {
   from { transform: translateX(-50%) translateY(-12px); opacity: 0; }
   to   { transform: translateX(-50%) translateY(0);     opacity: 1; }
 }
+@keyframes beauteReveal {
+  from { transform: translateY(14px); opacity: 0; filter: blur(3px); }
+  to   { transform: translateY(0);    opacity: 1; filter: blur(0); }
+}
+@keyframes beauteFadeScale {
+  from { transform: scale(0.985); opacity: 0; }
+  to   { transform: scale(1);     opacity: 1; }
+}
+@keyframes beauteHeroDrift {
+  from { transform: scale(1.035) translate3d(-6px, 0, 0); }
+  to   { transform: scale(1.075) translate3d(7px, -5px, 0); }
+}
+@keyframes beauteSheen {
+  0%   { transform: translateX(-130%) skewX(-16deg); opacity: 0; }
+  18%  { opacity: 0.2; }
+  52%  { opacity: 0.1; }
+  100% { transform: translateX(130%) skewX(-16deg); opacity: 0; }
+}
+@keyframes beauteSoftPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 168, 83, 0); }
+  50%      { box-shadow: 0 0 0 7px rgba(212, 168, 83, 0.08); }
+}
 
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { scrollbar-width: none; }
@@ -88,6 +110,141 @@ textarea:focus-visible {
 .fade-up { animation: fadeUp 0.35s ease; }
 
 .score-bar { transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+
+.app-shell {
+  animation: beauteFadeScale 0.36s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.motion-reveal {
+  animation: beauteReveal 0.58s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.motion-reveal-slow {
+  animation: beauteReveal 0.78s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.motion-fade-scale {
+  animation: beauteFadeScale 0.42s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.motion-stagger > * {
+  animation: beauteReveal 0.54s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.motion-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.motion-stagger > *:nth-child(2) { animation-delay: 54ms; }
+.motion-stagger > *:nth-child(3) { animation-delay: 108ms; }
+.motion-stagger > *:nth-child(4) { animation-delay: 162ms; }
+.motion-stagger > *:nth-child(5) { animation-delay: 216ms; }
+.motion-stagger > *:nth-child(6) { animation-delay: 270ms; }
+.motion-stagger > *:nth-child(7) { animation-delay: 324ms; }
+.motion-stagger > *:nth-child(8) { animation-delay: 378ms; }
+.motion-stagger > *:nth-child(9) { animation-delay: 432ms; }
+.motion-stagger > *:nth-child(10) { animation-delay: 486ms; }
+.motion-stagger > *:nth-child(11) { animation-delay: 540ms; }
+.motion-stagger > *:nth-child(12) { animation-delay: 594ms; }
+
+.motion-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    filter 0.2s ease;
+}
+
+.motion-card:hover {
+  filter: saturate(1.03);
+}
+
+.motion-card:active {
+  transform: translateY(-1px) scale(0.995);
+}
+
+.motion-nav-button {
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.motion-nav-button:hover {
+  transform: translateY(-1px);
+}
+
+.motion-nav-button:active {
+  transform: scale(0.96);
+}
+
+.motion-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.motion-cta::after {
+  content: "";
+  position: absolute;
+  inset: -22% -55%;
+  z-index: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+  transform: translateX(-130%) skewX(-16deg);
+  animation: beauteSheen 4.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.motion-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: saturate(1.06);
+}
+
+.motion-status-pulse {
+  animation: beauteSoftPulse 3.6s ease-in-out infinite;
+}
+
+.home-hero,
+.motion-premium-hero {
+  isolation: isolate;
+}
+
+.home-hero::after,
+.motion-premium-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(90deg, transparent, rgba(212, 168, 83, 0.08), transparent);
+  transform: translateX(-100%);
+  animation: beauteSheen 6.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.home-hero > *,
+.motion-premium-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-hero-image {
+  transform-origin: center;
+  animation: beauteHeroDrift 14s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.product-drawer-backdrop {
+  animation: fadeIn 0.18s ease both;
+}
+
+.product-drawer-image {
+  transform-origin: center;
+  animation: beauteFadeScale 0.46s cubic-bezier(.2,.8,.2,1) both;
+}
 
 .app-main {
   padding-bottom: 0;

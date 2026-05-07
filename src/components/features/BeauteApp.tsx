@@ -118,7 +118,7 @@ export default function BeauteApp() {
   // 認証・プロフィール読み込み中
   if (authLoading || (user && profileLoading)) {
     return (
-      <div style={{ minHeight: "100vh", background: "#F8F4EF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div className="motion-fade-scale" style={{ minHeight: "100vh", background: "#F8F4EF", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 32, color: "#A8722A" }}>beauté</div>
       </div>
     );
@@ -161,7 +161,7 @@ export default function BeauteApp() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#F8F4EF", color: "#150B00", fontFamily: '"Hiragino Kaku Gothic ProN","Noto Sans JP",-apple-system,sans-serif' }}>
+    <div className="app-shell" style={{ display: "flex", minHeight: "100vh", background: "#F8F4EF", color: "#150B00", fontFamily: '"Hiragino Kaku Gothic ProN","Noto Sans JP",-apple-system,sans-serif' }}>
 
       {/* ── SIDEBAR (desktop) ── */}
       <aside className="hidden md:flex" style={{ width: 220, background: "#1A0E08", color: "#FBF8F3", flexDirection: "column", position: "sticky", top: 0, height: "100vh", flexShrink: 0 }}>
@@ -174,7 +174,7 @@ export default function BeauteApp() {
           {NAV.map(({ key, icon, jp, en }) => {
             const active = tab === key;
             return (
-              <button key={key} onClick={() => setTab(key)} style={{
+              <button key={key} className="motion-nav-button" onClick={() => setTab(key)} style={{
                 width: "100%", textAlign: "left", padding: "11px 14px", marginBottom: 2,
                 background: active ? "rgba(212,168,83,.12)" : "transparent", border: "none",
                 borderLeft: active ? "2px solid #D4A853" : "2px solid transparent",
@@ -227,9 +227,9 @@ export default function BeauteApp() {
             beauté ✦ {NAV.find(n => n.key === tab)?.en} — {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "6px 14px", background: tab === "ranking" ? "#1A0E08" : "#fff", color: tab === "ranking" ? "#D4A853" : "#8A7A6E", border: "1px solid #EDE5DC", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>ランキング</button>
+            <button className="motion-nav-button" onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "6px 14px", background: tab === "ranking" ? "#1A0E08" : "#fff", color: tab === "ranking" ? "#D4A853" : "#8A7A6E", border: "1px solid #EDE5DC", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>ランキング</button>
             {!effectiveIsPro
-              ? <button onClick={() => isGuest ? setShowAuth(true) : upgrade("desktop_header")} style={{ fontSize: 11, padding: "6px 16px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>{isGuest ? "\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3" : "★ PRO へアップグレード"}</button>
+              ? <button className="motion-cta" onClick={() => isGuest ? setShowAuth(true) : upgrade("desktop_header")} style={{ fontSize: 11, padding: "6px 16px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>{isGuest ? "\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3" : "★ PRO へアップグレード"}</button>
               : <span style={{ fontSize: 10, fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", color: "#D4A853" }}>★ PRO MEMBER</span>
             }
           </div>
@@ -239,14 +239,14 @@ export default function BeauteApp() {
         <header className="flex md:hidden" style={{ height: 52, padding: "0 16px", alignItems: "center", justifyContent: "space-between", background: "#1A0E08", position: "sticky", top: 0, zIndex: 20 }}>
           <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>beauté</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "5px 10px", background: tab === "ranking" ? "#D4A853" : "transparent", color: tab === "ranking" ? "#1A0E08" : "#D4A853", border: "1px solid #D4A853", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>ランキング</button>
-            {!effectiveIsPro && <button onClick={() => isGuest ? setShowAuth(true) : upgrade("mobile_header")} style={{ fontSize: 11, padding: "5px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>{isGuest ? "\u767b\u9332" : "PRO"}</button>}
+            <button className="motion-nav-button" onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "5px 10px", background: tab === "ranking" ? "#D4A853" : "transparent", color: tab === "ranking" ? "#1A0E08" : "#D4A853", border: "1px solid #D4A853", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>ランキング</button>
+            {!effectiveIsPro && <button className="motion-cta" onClick={() => isGuest ? setShowAuth(true) : upgrade("mobile_header")} style={{ fontSize: 11, padding: "5px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>{isGuest ? "\u767b\u9332" : "PRO"}</button>}
           </div>
         </header>
 
         {isGuest && (
           <div style={{ background: "#FFF9EC", borderBottom: "1px solid #E8D7BE" }}>
-            <div className="section-shell mobile-tight" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "10px 24px" }}>
+            <div className="section-shell mobile-tight motion-reveal-slow" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "10px 24px" }}>
               <div style={{ flex: "1 1 360px", minWidth: 0 }}>
                 <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
                   {"GUEST PREVIEW"}
@@ -255,7 +255,7 @@ export default function BeauteApp() {
                   {"\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u306f\u767b\u9332\u306a\u3057\u3067\u898b\u3089\u308c\u307e\u3059\u3002\u7121\u6599\u767b\u9332\u3067\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u7f8e\u5bb9\u30ed\u30b0\u3001PRO\u3067\u7121\u5236\u9650\u89e3\u6790\u3068\u8cfc\u5165\u30ea\u30f3\u30af\u304c\u958b\u653e\u3055\u308c\u307e\u3059\u3002"}
                 </p>
               </div>
-              <button onClick={() => setShowAuth(true)} style={{ border: "none", borderRadius: 999, padding: "9px 16px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
+              <button className="motion-cta" onClick={() => setShowAuth(true)} style={{ border: "none", borderRadius: 999, padding: "9px 16px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
                 {"\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3"}
               </button>
             </div>
@@ -292,7 +292,7 @@ export default function BeauteApp() {
         {NAV.map(({ key, icon, jp }) => {
           const active = tab === key;
           return (
-            <button key={key} onClick={() => setTab(key)} style={{
+            <button key={key} className="motion-nav-button" onClick={() => setTab(key)} style={{
               flex: "0 0 70px", minWidth: 70, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
               background: "none", border: "none", cursor: "pointer",
               color: active ? "#D4A853" : "rgba(251,248,243,.4)", transition: "color 0.15s",
@@ -371,7 +371,7 @@ function GuestGate({ title, body, onAuth, onGoSearch }: {
 }) {
   return (
     <div style={{ minHeight: "calc(100vh - 52px)", display: "grid", placeItems: "center", padding: 24 }}>
-      <section style={{ width: "min(640px,100%)", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: "28px 24px", boxShadow: "0 12px 36px rgba(21,11,0,.08)" }}>
+      <section className="motion-reveal" style={{ width: "min(640px,100%)", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: "28px 24px", boxShadow: "0 12px 36px rgba(21,11,0,.08)" }}>
         <div style={{ fontSize: 10, letterSpacing: "0.24em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>
           {"GUEST PREVIEW"}
         </div>
@@ -381,23 +381,23 @@ function GuestGate({ title, body, onAuth, onGoSearch }: {
         <p style={{ fontSize: 13, lineHeight: 1.9, color: "#6B5B4A", margin: "0 0 20px" }}>
           {body}
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 22 }} className="grid-cols-1-mobile">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 22 }} className="grid-cols-1-mobile motion-stagger">
           {[
             ["\u30b2\u30b9\u30c8", "\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0"],
             ["\u7121\u6599\u4f1a\u54e1", "\u4fdd\u5b58\u30fb\u30ed\u30b0\u30fb\u67083\u56de\u89e3\u6790"],
             ["PRO", "\u7121\u5236\u9650\u89e3\u6790\u30fb\u5168\u5546\u54c1\u8a73\u7d30"],
           ].map(([label, value]) => (
-            <div key={label} style={{ border: "1px solid #EDE5DC", borderRadius: 12, padding: 12, background: "#F8F4EF" }}>
+            <div key={label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 12, padding: 12, background: "#F8F4EF" }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: "#150B00", marginBottom: 4 }}>{label}</div>
               <div style={{ fontSize: 11, lineHeight: 1.55, color: "#8A7A6E" }}>{value}</div>
             </div>
           ))}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-          <button onClick={onAuth} style={{ flex: "1 1 180px", border: "none", borderRadius: 12, padding: "13px 16px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 13, fontWeight: 900, cursor: "pointer" }}>
+          <button className="motion-cta" onClick={onAuth} style={{ flex: "1 1 180px", border: "none", borderRadius: 12, padding: "13px 16px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 13, fontWeight: 900, cursor: "pointer" }}>
             {"\u7121\u6599\u767b\u9332\u3059\u308b"}
           </button>
-          <button onClick={onGoSearch} style={{ flex: "1 1 180px", border: "1px solid #EDE5DC", borderRadius: 12, padding: "13px 16px", background: "#fff", color: "#150B00", fontSize: 13, fontWeight: 900, cursor: "pointer" }}>
+          <button className="motion-nav-button" onClick={onGoSearch} style={{ flex: "1 1 180px", border: "1px solid #EDE5DC", borderRadius: 12, padding: "13px 16px", background: "#fff", color: "#150B00", fontSize: 13, fontWeight: 900, cursor: "pointer" }}>
             {"\u5148\u306b\u5546\u54c1\u3092\u898b\u308b"}
           </button>
         </div>
@@ -525,12 +525,12 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
   };
 
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(21,11,0,.55)", display: "flex", justifyContent: "flex-end" }}>
+        <div className="product-drawer-backdrop" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(21,11,0,.55)", display: "flex", justifyContent: "flex-end" }}>
       <div className="product-drawer-panel" onClick={e => e.stopPropagation()} style={{ width: "min(520px,100vw)", background: "#FBF8F3", height: "100%", overflowY: "auto", animation: "slideInRight 0.28s ease" }}>
 
         {/* Image */}
         <div className="product-drawer-hero" style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden", background: m.color }}>
-          <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} style={{ position: "absolute", inset: 0 }}/>
+          <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} className="product-drawer-image" style={{ position: "absolute", inset: 0 }}/>
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(21,11,0,.5) 0%, transparent 55%)" }}/>
           {locked && <div style={{ position: "absolute", inset: 0, background: "rgba(21,11,0,.18)" }}/>}
           <button onClick={onClose} style={{ position: "absolute", top: 14, right: 14, width: 36, height: 36, borderRadius: "50%", background: "rgba(251,248,243,.92)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -671,6 +671,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
                   </p>
                 )}
                 <a
+                  className="motion-cta"
                   href={purchaseUrl}
                   target="_blank"
                   rel="noopener noreferrer"

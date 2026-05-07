@@ -8,6 +8,54 @@ beaute is a beauty product discovery app with auth, profile-based recommendation
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
 
+## 2026-05-07 Motion Polish Pass
+
+Scope:
+
+- Added tasteful motion across the public and logged-in app surfaces without changing the product model.
+- Focused the animation layer on perceived quality: first paint, hero product movement, CTA feedback, card entry, tab transitions, and product drawer opening.
+- Kept the motion subtle enough for a beauty utility app, with `prefers-reduced-motion` support inherited from the global reset.
+- Fixed a temporary experiment leak where karaoke app metadata had overwritten the beaute page title, manifest, and social preview copy.
+
+Changes:
+
+- `src/app/page.tsx`
+  - Restored the root route to `BeauteApp` so the beauty app remains the active entry point.
+- `src/app/layout.tsx` and `public/manifest.json`
+  - Restored beaute title, description, keywords, app name, Open Graph/Twitter copy, app theme colors, and font loading.
+- `.vercelignore`
+  - Excludes the temporary karaoke experiment files from Vercel uploads.
+- `src/app/globals.css`
+  - Added shared motion primitives for reveal, fade-scale, hero image drift, CTA sheen, card feedback, nav feedback, and status pulse.
+  - Added drawer backdrop/image motion and premium/hero sheen rules.
+  - Removed unused karaoke-specific CSS from the public app bundle.
+- `src/components/features/BeauteApp.tsx`
+  - Added app shell, guest banner, navigation, guest gates, product drawer, and purchase CTA motion classes.
+- `src/components/features/HomeTab.tsx`
+  - Added animated hero copy/product image, tutorial steps, category cards, product rails, editor picks, video cards, and PRO teaser.
+- `src/components/features/SearchTab.tsx`
+  - Added animated search/filter surface, result grid, empty state, product cards, and load-more controls.
+- `src/components/features/KarteTab.tsx`
+  - Added motion to the Beauty OS header, engine status, next actions, recommendation cards, and video/product blocks.
+- `src/components/features/PremiumTab.tsx`
+  - Added motion to the PRO hero, value ladder, plan cards, proof blocks, FAQ, and CTAs.
+- `src/components/ui/index.tsx`
+  - Added the shared CTA motion treatment to `GoldButton`.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local metadata check confirms the home title is `beauté | あなただけの美容提案`, and the HTML/manifest no longer contain karaoke wording.
+- Local production build on port `3006` verified guest home, tutorial/category sections, search results, product drawer, PRO page, and guest Karte gate in the in-app browser.
+- In-app browser console logs were empty after the interaction pass.
+- `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight` passes.
+- Preview deployment `dpl_sKnvK466vmH2Vq3sPB9j8d9i8HKX` built successfully, but the preview URL was protected by Vercel and returned `401` to external preflight.
+- Production deployment `dpl_6xBTbesFmVWgtBuP3P5gq6Y2qurL` was aliased to `https://beaute-xi.vercel.app`.
+- `NEXT_PUBLIC_APP_URL=https://beaute-xi.vercel.app npm run preflight` passes.
+- Metadata hotfix deployment `dpl_84uHj8rpksxmWvT5vHDqM4BWpDLT` was aliased to `https://beaute-xi.vercel.app`.
+- Production metadata check confirms the home title is `beauté | あなただけの美容提案`, the manifest name is `beauté — AI美容提案`, and neither HTML nor manifest contains karaoke wording.
+
 ## 2026-05-07 Design System Lift
 
 Scope:

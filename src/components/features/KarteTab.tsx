@@ -146,10 +146,10 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
   ];
 
   return (
-    <div className="mobile-tight" style={{ padding: "28px 24px 64px", maxWidth: 1120, margin: "0 auto" }}>
+    <div className="mobile-tight motion-fade-scale" style={{ padding: "28px 24px 64px", maxWidth: 1120, margin: "0 auto" }}>
 
       {/* ── ヘッダー ── */}
-      <div style={{ marginBottom: 26, display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(260px,360px)", gap: 18, alignItems: "end" }} className="grid-cols-1-mobile">
+      <div style={{ marginBottom: 26, display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(260px,360px)", gap: 18, alignItems: "end" }} className="grid-cols-1-mobile motion-reveal">
         <div>
           <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ MY BEAUTY CHART</div>
           <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 36, fontWeight: 400, color: "#150B00", margin: 0 }}>
@@ -157,7 +157,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
           </h1>
           <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6, lineHeight: 1.8 }}>カルテはプロフィールではなく、検索・成分分析・保存・ログをつなぐ判断エンジンです。</p>
         </div>
-        <div className="soft-card" style={{ padding: "14px 16px", display: "grid", gap: 10 }}>
+        <div className="soft-card motion-card motion-status-pulse" style={{ padding: "14px 16px", display: "grid", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
             <span className="micro-label">ENGINE STATUS</span>
             <strong style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, color: "#A8722A", lineHeight: 1 }}>{precisionScore}</strong>
@@ -180,7 +180,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
         </div>
       </div>
 
-      <section className="lift-card" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
+      <section className="lift-card motion-card motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.86fr) minmax(0,1.14fr)", gap: 0 }} className="grid-cols-1-mobile">
           <div style={{ padding: "22px 22px 20px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3" }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>PERSONAL ENGINE</div>
@@ -206,18 +206,18 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                 <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "rgba(251,248,243,.72)" }}>
                   PROでは保存・ログ・成分分析をまとめて、商品ごとに「買う理由」「避ける理由」「購入リンク」を出します。
                 </p>
-                <button onClick={onUpgrade} style={{ marginTop: 10, border: "none", borderRadius: 999, padding: "9px 13px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+                <button className="motion-cta" onClick={onUpgrade} style={{ marginTop: 10, border: "none", borderRadius: 999, padding: "9px 13px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
                   購入判断をPRO化
                 </button>
               </div>
             )}
           </div>
 
-          <div style={{ padding: 16, display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 10 }} className="grid-cols-1-mobile">
+          <div style={{ padding: 16, display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 10 }} className="grid-cols-1-mobile motion-stagger">
             {nextActions.map((item, index) => (
               <button
                 key={item.label}
-                className="lift-card"
+                className="lift-card motion-card"
                 onClick={item.onClick}
                 style={{
                   border: index === 2 ? "1px solid #D4A85377" : "1px solid #EDE5DC",
@@ -246,7 +246,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       </section>
 
       {/* ── プロフィールカード ── */}
-      <section style={{ background: "linear-gradient(135deg,#1A0E08,#2C1A0E)", borderRadius: 20, padding: "24px 28px", marginBottom: 24, border: "1px solid rgba(212,168,83,.2)" }}>
+      <section className="motion-reveal" style={{ background: "linear-gradient(135deg,#1A0E08,#2C1A0E)", borderRadius: 20, padding: "24px 28px", marginBottom: 24, border: "1px solid rgba(212,168,83,.2)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 9, letterSpacing: "0.3em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>PROFILE</div>
@@ -284,7 +284,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       </section>
 
       {isPro && preferences && preferences.confidence > 0 && (
-        <section style={{ background: "#fff", border: "1px solid #D4A85366", borderRadius: 16, padding: "16px 18px", marginBottom: 24 }}>
+        <section className="motion-reveal" style={{ background: "#fff", border: "1px solid #D4A85366", borderRadius: 16, padding: "16px 18px", marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
             <div>
               <div style={{ fontSize: 9, letterSpacing: "0.24em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>PERSONAL MEMORY</div>
@@ -398,7 +398,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                   <div style={{ fontSize: 12, fontWeight: 700, color: "#150B00" }}>過去{hiddenAnalysisCount}件の解析履歴を保存中</div>
                   <div style={{ fontSize: 11, color: "#8A7A6E", marginTop: 2 }}>PROで履歴50件まで見返せます。</div>
                 </div>
-                <button onClick={onUpgrade} style={{ border: "none", borderRadius: 999, padding: "8px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
+                <button className="motion-cta" onClick={onUpgrade} style={{ border: "none", borderRadius: 999, padding: "8px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
                   解放
                 </button>
               </div>
@@ -417,7 +417,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
         ) : (
           <>
             {topProduct && (
-              <div style={{ background: "linear-gradient(135deg,#FFF9EC,#fff)", border: "1px solid #D4A85366", borderRadius: 16, padding: 16, marginBottom: 12, display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 16, alignItems: "center" }} className="grid-cols-1-mobile">
+              <div style={{ background: "linear-gradient(135deg,#FFF9EC,#fff)", border: "1px solid #D4A85366", borderRadius: 16, padding: 16, marginBottom: 12, display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 16, alignItems: "center" }} className="grid-cols-1-mobile motion-reveal">
                 <div>
                   <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>BUYER RECOMMENDATION</div>
                   <div style={{ fontSize: 16, lineHeight: 1.45, color: "#150B00", fontWeight: 900 }}>{topProduct.name}</div>
@@ -427,24 +427,24 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                  <button onClick={() => onOpenProduct(topProduct)} style={{ border: "none", borderRadius: 999, padding: "10px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
+                  <button className="motion-cta" onClick={() => onOpenProduct(topProduct)} style={{ border: "none", borderRadius: 999, padding: "10px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
                     商品を開く
                   </button>
                   {!isPro && (
-                    <button onClick={onUpgrade} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "10px 14px", background: "#fff", color: "#A8722A", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
+                    <button className="motion-nav-button" onClick={onUpgrade} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "10px 14px", background: "#fff", color: "#A8722A", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
                       PROで購入判断
                     </button>
                   )}
                 </div>
               </div>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 12 }}>
+            <div className="motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 12 }}>
               {products.map(p => {
                 const m = CAT_META[p.cat];
                 const locked = !p.free && !isPro;
                 const match = getPersonalMatch(p, profile, isPro ? preferences : null);
                 return (
-                  <div key={p.id} onClick={() => locked ? onUpgrade() : onOpenProduct(p)} style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 14, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s", boxShadow: "0 2px 10px rgba(21,11,0,.05)" }}
+                  <div key={p.id} className="motion-card" onClick={() => locked ? onUpgrade() : onOpenProduct(p)} style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 14, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s", boxShadow: "0 2px 10px rgba(21,11,0,.05)" }}
                     onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
                     <div style={{ background: m.color, padding: "6px 12px", display: "flex", justifyContent: "space-between" }}>
@@ -476,9 +476,9 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       {videos.length > 0 && (
         <section style={{ marginBottom: 28 }}>
           <SectionHeader label="03" title="あなたにおすすめの動画" sub={`${profile.skinType || "美容"}系コンテンツ`} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 12 }}>
+          <div className="motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 12 }}>
             {videos.map(v => (
-              <a key={v.id} href={v.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", display: "flex", gap: 12, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 14, padding: "12px 14px", transition: "box-shadow 0.2s" }}
+              <a key={v.id} className="motion-card" href={v.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", display: "flex", gap: 12, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 14, padding: "12px 14px", transition: "box-shadow 0.2s" }}
                 onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 16px rgba(21,11,0,.1)"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none"; }}>
                 {v.thumbnail && (
