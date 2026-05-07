@@ -16,6 +16,7 @@ import type { PersonalPreferences, Product, UserProfile } from "@/types";
 const AuthScreen = dynamic(() => import("./AuthScreen"), { loading: () => <TabLoading /> });
 const ProfileScreen = dynamic(() => import("./ProfileScreen"), { loading: () => <TabLoading /> });
 const HomeTab = dynamic(() => import("./HomeTab"), { loading: () => <TabLoading /> });
+const GuideTab = dynamic(() => import("./GuideTab"), { loading: () => <TabLoading /> });
 const SearchTab = dynamic(() => import("./SearchTab"), { loading: () => <TabLoading /> });
 const AnalyzeTab = dynamic(() => import("./AnalyzeTab"), { loading: () => <TabLoading /> });
 const LogTab = dynamic(() => import("./LogTab"), { loading: () => <TabLoading /> });
@@ -23,16 +24,17 @@ const PremiumTab = dynamic(() => import("./PremiumTab"), { loading: () => <TabLo
 const KarteTab = dynamic(() => import("./KarteTab"), { loading: () => <TabLoading /> });
 const SavedTab = dynamic(() => import("./SavedTab"), { loading: () => <TabLoading /> });
 
-type Tab = "home" | "search" | "ranking" | "analyze" | "karte" | "saved" | "log" | "premium";
+type Tab = "home" | "guide" | "search" | "ranking" | "analyze" | "karte" | "saved" | "log" | "premium";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
 }
 
-const TAB_KEYS: Tab[] = ["home", "search", "ranking", "analyze", "karte", "saved", "log", "premium"];
+const TAB_KEYS: Tab[] = ["home", "guide", "search", "ranking", "analyze", "karte", "saved", "log", "premium"];
 
 const NAV: { key: Tab; icon: Parameters<typeof Icon>[0]["name"]; jp: string; en: string }[] = [
   { key: "home",    icon: "home",    jp: "ホーム",   en: "Home"    },
+  { key: "guide",   icon: "guide",   jp: "使い方",   en: "Guide"   },
   { key: "search",  icon: "search",  jp: "検索",     en: "Search"  },
   { key: "ranking", icon: "ranking", jp: "ランキング", en: "Ranking" },
   { key: "analyze", icon: "sparkle", jp: "成分解析", en: "Analyze" },
@@ -296,6 +298,7 @@ export default function BeauteApp() {
 
         <main style={{ flex: 1, overflowY: "auto" }} className="app-main">
           {tab === "home"    && <HomeTab    profile={effectiveProfile} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
+          {tab === "guide"   && <GuideTab   isGuest={isGuest} isPro={effectiveIsPro} onAuth={() => setShowAuth(true)} onUpgrade={upgrade} onGoSearch={() => setTab("search")} onGoRanking={() => setTab("ranking")} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
           {tab === "search"  && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
           {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}
           {tab === "analyze" && (isGuest ? <GuestGate title={"\u6210\u5206\u89e3\u6790\u306f\u7121\u6599\u767b\u9332\u3067\u4f7f\u3048\u307e\u3059"} body={"\u5546\u54c1\u306e\u6210\u5206\u8868\u3092\u64ae\u3063\u3066AI\u89e3\u6790\u3002\u5c65\u6b74\u3092\u6b8b\u305b\u308b\u306e\u3067\u3001\u6bd4\u8f03\u3084\u898b\u76f4\u3057\u304c\u697d\u306b\u306a\u308a\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 // ── Icon (SVG stroke-based) ──────────────────────────────────────────
 type IconName =
   | "home" | "search" | "sparkle" | "note" | "karte" | "ranking" | "crown" | "user"
+  | "guide"
   | "upload" | "camera" | "filter" | "chev" | "chevDown" | "play"
   | "plus" | "check" | "bell" | "heart" | "bookmark" | "arrow"
   | "dot" | "close" | "calendar" | "droplet";
@@ -21,6 +22,7 @@ export function Icon({ name, size = 18, stroke = "currentColor", sw = 1.4 }: {
     ranking:  <><path d="M5 20V9M12 20V4M19 20v-7"/><path d="M3 20h18"/></>,
     crown:    <><path d="M3 8l4 4 5-7 5 7 4-4v10H3z"/></>,
     user:     <><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></>,
+    guide:    <><path d="M4 5.5A2.5 2.5 0 016.5 3H20v16H6.5A2.5 2.5 0 004 21z"/><path d="M4 5.5V21M8 7h8M8 11h7M8 15h5"/></>,
     upload:   <><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></>,
     camera:   <><path d="M4 7h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="4"/></>,
     filter:   <><path d="M3 5h18M6 12h12M10 19h4"/></>,

@@ -8,6 +8,34 @@ beaute is a beauty product discovery app with auth, profile-based recommendation
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
 
+## 2026-05-07 Guide Tab Pass
+
+Scope:
+
+- Added a dedicated in-app guide tab so guests, free users, and PRO users can understand how to get value from beaute.
+- Turned the guide into an onboarding and conversion surface rather than a static help page.
+- Kept it dynamically loaded so the root bundle stays light.
+
+Changes:
+
+- `src/components/features/GuideTab.tsx`
+  - New `?tab=guide` screen with a premium guide hero, basic usage flow, personal/karte engine explanation, guest/free/PRO comparison, routines, and bottom PRO CTA.
+  - CTAs route into search, ranking, saved, karte, analyze, log, registration, or PRO upgrade depending on account state.
+- `src/components/features/BeauteApp.tsx`
+  - Added the `guide` tab to URL routing, desktop sidebar, mobile bottom navigation, and main tab rendering.
+- `src/components/ui/index.tsx`
+  - Added a `guide` icon for navigation.
+- `src/app/globals.css`
+  - Added responsive guide tab layout, plan table, signal grid, routine cards, and mobile-specific refinements.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local production build on port `3006` verified with screenshots:
+  - Desktop `/?tab=guide`.
+  - Mobile `/?tab=guide` at `390x844`.
+
 ## 2026-05-07 Performance Pass
 
 Scope:
