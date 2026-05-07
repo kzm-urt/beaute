@@ -5,12 +5,18 @@
 
 -- ── プロフィール ──────────────────────────────────────────────
 create table if not exists profiles (
-  id                uuid references auth.users on delete cascade primary key,
-  age               text,
-  skin_type         text,
-  hair_type         text,
-  concerns          text[],
-  is_pro            boolean default false,
+    id                uuid references auth.users on delete cascade primary key,
+    age               text,
+    gender            text,
+    skin_type         text,
+    hair_type         text,
+    concerns          text[],
+    current_products  text[],
+    current_state     text[],
+    desired_ingredients text[],
+    beauty_habits     text[],
+    beauty_goals      text[],
+    is_pro            boolean default false,
   stripe_customer_id text,
   stripe_subscription_id text,
   stripe_subscription_status text,
@@ -21,9 +27,15 @@ create table if not exists profiles (
 
 alter table profiles add column if not exists stripe_subscription_id text;
 alter table profiles add column if not exists age text;
+alter table profiles add column if not exists gender text;
 alter table profiles add column if not exists skin_type text;
 alter table profiles add column if not exists hair_type text;
 alter table profiles add column if not exists concerns text[];
+alter table profiles add column if not exists current_products text[];
+alter table profiles add column if not exists current_state text[];
+alter table profiles add column if not exists desired_ingredients text[];
+alter table profiles add column if not exists beauty_habits text[];
+alter table profiles add column if not exists beauty_goals text[];
 alter table profiles add column if not exists is_pro boolean default false;
 alter table profiles add column if not exists stripe_customer_id text;
 alter table profiles add column if not exists stripe_subscription_status text;

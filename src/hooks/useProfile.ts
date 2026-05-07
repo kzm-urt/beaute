@@ -5,7 +5,62 @@ import { supabase } from "@/lib/supabase";
 import { resolveIsPro } from "@/lib/plan";
 import type { UserProfile } from "@/types";
 
-const DEFAULT: UserProfile = { age: "", skinType: "", hairType: "", concerns: [] };
+const DEFAULT: UserProfile = {
+  age: "",
+  gender: "",
+  skinType: "",
+  hairType: "",
+  concerns: [],
+  currentProducts: [],
+  currentState: [],
+  desiredIngredients: [],
+  habits: [],
+  goals: [],
+};
+
+const BASE_PROFILE_SELECT = "age, skin_type, hair_type, concerns, is_pro";
+const FULL_PROFILE_SELECT = [
+  "age",
+  "gender",
+  "skin_type",
+  "hair_type",
+  "concerns",
+  "current_products",
+  "current_state",
+  "desired_ingredients",
+  "beauty_habits",
+  "beauty_goals",
+  "is_pro",
+].join(",");
+
+type ProfileRow = {
+  age?: string | null;
+  gender?: string | null;
+  skin_type?: string | null;
+  hair_type?: string | null;
+  concerns?: string[] | null;
+  current_products?: string[] | null;
+  current_state?: string[] | null;
+  desired_ingredients?: string[] | null;
+  beauty_habits?: string[] | null;
+  beauty_goals?: string[] | null;
+  is_pro?: boolean | null;
+};
+
+function fromRow(data: ProfileRow): UserProfile {
+  return {
+    age: data.age ?? "",
+    gender: data.gender ?? "",
+    skinType: data.skin_type ?? "",
+    hairType: data.hair_type ?? "",
+    concerns: data.concerns ?? [],
+    currentProducts: data.current_products ?? [],
+    currentState: data.current_state ?? [],
+    desiredIngredients: data.desired_ingredients ?? [],
+    habits: data.beauty_habits ?? [],
+    goals: data.beauty_goals ?? [],
+  };
+}
 
 export function useProfile(user: User | null) {
   const [profile, setProfile] = useState<UserProfile>(DEFAULT);
@@ -22,68 +77,91 @@ export function useProfile(user: User | null) {
       return;
     }
 
-    supabase
-      .from("profiles")
-      .select("age, skin_type, hair_type, concerns, is_pro")
-      .eq("id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          const p: UserProfile = {
-            age: data.age ?? "",
-            skinType: data.skin_type ?? "",
-            hairType: data.hair_type ?? "",
-            concerns: data.concerns ?? [],
-          };
-          setProfile(p);
-          setIsPro(resolveIsPro(data.is_pro, user.email));
-          if (p.age || p.skinType) setProfileDone(true);
-        }
-        setProfileLoading(false);
-      });
+    const loadProfile = async () => {
+      let profileData: ProfileRow | null = null;
+      const fullResult = await supabase
+        .from("profiles")
+        .select(FULL_PROFILE_SELECT)
+        .eq("id", user.id)
+        .single();
+      profileData = fullResult.data as ProfileRow | null;
+
+      if (!profileData) {
+        const fallback = await supabase
+          .from("profiles")
+          .select(BASE_PROFILE_SELECT)
+          .eq("id", user.id)
+          .single();
+        profileData = fallback.data as ProfileRow | null;
+      }
+
+      if (profileData) {
+        const p = fromRow(profileData);
+        setProfile(p);
+        setIsPro(resolveIsPro(profileData.is_pro, user.email));
+        if (p.age || p.skinType) setProfileDone(true);
+      }
+      setProfileLoading(false);
+    };
+
+    void loadProfile();
   }, [user]);
 
-  const updateProfile = async (next: UserProfile) => {
-    setProfile(next);
+  const saveProfile = async (next: UserProfile) => {
     if (!user) return;
-    await supabase.from("profiles").upsert({
+    const basePayload = {
       id: user.id,
       age: next.age,
       skin_type: next.skinType,
       hair_type: next.hairType,
       concerns: next.concerns,
       updated_at: new Date().toISOString(),
+    };
+    const { error } = await supabase.from("profiles").upsert({
+      ...basePayload,
+      gender: next.gender,
+      current_products: next.currentProducts,
+      current_state: next.currentState,
+      desired_ingredients: next.desiredIngredients,
+      beauty_habits: next.habits,
+      beauty_goals: next.goals,
     });
+
+    if (error) {
+      await supabase.from("profiles").upsert(basePayload);
+    }
+  };
+
+  const updateProfile = async (next: UserProfile) => {
+    setProfile(next);
+    await saveProfile(next);
   };
 
   const completeProfile = async () => {
     setProfileDone(true);
-    if (!user) return;
-    await supabase.from("profiles").upsert({
-      id: user.id,
-      age: profile.age,
-      skin_type: profile.skinType,
-      hair_type: profile.hairType,
-      concerns: profile.concerns,
-      updated_at: new Date().toISOString(),
-    });
+    await saveProfile(profile);
   };
 
   const refreshProfile = async () => {
     if (!user) return;
-    const { data } = await supabase
+    let profileData: ProfileRow | null = null;
+    const fullResult = await supabase
       .from("profiles")
-      .select("age, skin_type, hair_type, concerns, is_pro")
+      .select(FULL_PROFILE_SELECT)
       .eq("id", user.id)
       .single();
-    if (data) {
-      setIsPro(resolveIsPro(data.is_pro, user.email));
-      setProfile({
-        age: data.age ?? "",
-        skinType: data.skin_type ?? "",
-        hairType: data.hair_type ?? "",
-        concerns: data.concerns ?? [],
-      });
+    profileData = fullResult.data as ProfileRow | null;
+    if (!profileData) {
+      const fallback = await supabase
+        .from("profiles")
+        .select(BASE_PROFILE_SELECT)
+        .eq("id", user.id)
+        .single();
+      profileData = fallback.data as ProfileRow | null;
+    }
+    if (profileData) {
+      setIsPro(resolveIsPro(profileData.is_pro, user.email));
+      setProfile(fromRow(profileData));
     }
   };
 

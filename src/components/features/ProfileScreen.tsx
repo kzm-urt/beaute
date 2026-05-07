@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { CONCERNS } from "@/lib/constants";
 import type { UserProfile } from "@/types";
 
@@ -9,8 +10,13 @@ interface Props {
 }
 
 const AGE_OPTS = ["10代", "20代前半", "20代後半", "30代前半", "30代後半", "40代", "50代以上"];
+const GENDER_OPTS = ["女性", "男性", "ノンバイナリー", "回答しない"];
 const SKIN_OPTS = ["乾燥肌", "脂性肌", "混合肌", "敏感肌", "普通肌"];
 const HAIR_OPTS = ["細め・柔らか", "普通", "剛毛・硬め", "くせ毛", "カラー毛", "パーマ毛"];
+const CURRENT_STATE_OPTS = ["朝は乾く", "夕方テカる", "赤みが出る", "ざらつく", "メイクが浮く", "毛穴落ちする", "抜け毛が気になる", "髪が広がる"];
+const DESIRED_INGREDIENT_OPTS = ["ナイアシンアミド", "セラミド", "ビタミンC", "レチノール", "CICA", "ヒアルロン酸", "ペプチド", "コラーゲン", "鉄分"];
+const HABIT_OPTS = ["毎日UV", "朝洗顔", "夜レチノール", "週2パック", "アイロン毎日", "外回り多め", "睡眠不足", "運動少なめ"];
+const GOAL_OPTS = ["毛穴を目立たせない", "肌荒れを減らす", "透明感", "ツヤを出す", "皮脂コントロール", "髪をまとめる", "時短", "コスパ重視"];
 
 const DETAIL_GROUPS = [
   {
@@ -105,8 +111,55 @@ function Section({ label, note, children, compact }: {
   );
 }
 
+function splitListText(value: string) {
+  return value
+    .split(/[\n,、]/)
+    .map((item) => item.trim())
+    .filter((item, index, values) => item && values.indexOf(item) === index)
+    .slice(0, 12);
+}
+
+function TextListEditor({ value, onChange, placeholder }: {
+  value: string[];
+  onChange: (items: string[]) => void;
+  placeholder: string;
+}) {
+  const [text, setText] = useState(value.join("\n"));
+
+  useEffect(() => {
+    setText(value.join("\n"));
+  }, [value]);
+
+  return (
+    <textarea
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={() => onChange(splitListText(text))}
+      placeholder={placeholder}
+      className="w-full resize-none rounded-[12px] px-3.5 py-3 text-[12px] leading-[1.65] outline-none"
+      style={{
+        minHeight: 108,
+        color: "#F5EEE4",
+        background: "rgba(255,255,255,.07)",
+        border: "1.5px solid rgba(255,255,255,.16)",
+        fontFamily: "inherit",
+      }}
+    />
+  );
+}
+
 export default function ProfileScreen({ profile, onChange, onComplete }: Props) {
   const set = (key: keyof UserProfile, val: string) => onChange({ ...profile, [key]: val });
+  const setList = (key: keyof UserProfile, value: string[]) => onChange({ ...profile, [key]: value });
+  const toggleList = (key: keyof UserProfile, value: string) => {
+    const current = profile[key] as string[];
+    onChange({
+      ...profile,
+      [key]: current.includes(value)
+        ? current.filter((x) => x !== value)
+        : [...current, value],
+    });
+  };
   const toggleConcern = (c: string) => {
     onChange({
       ...profile,
@@ -126,8 +179,15 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
     });
   };
 
-  const signalCount = [profile.age, profile.skinType, profile.hairType].filter(Boolean).length + profile.concerns.length;
-  const completion = Math.min(100, Math.round((signalCount / 12) * 100));
+  const signalCount =
+    [profile.age, profile.gender, profile.skinType, profile.hairType].filter(Boolean).length +
+    profile.concerns.length +
+    profile.currentProducts.length +
+    profile.currentState.length +
+    profile.desiredIngredients.length +
+    profile.habits.length +
+    profile.goals.length;
+  const completion = Math.min(100, Math.round((signalCount / 24) * 100));
 
   return (
     <div
@@ -154,7 +214,7 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
           <div style={{ marginTop: 26 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(245,238,228,.68)", marginBottom: 8 }}>
               <span>診断シグナル</span>
-              <strong style={{ color: "#D4A853" }}>{signalCount} / 12</strong>
+              <strong style={{ color: "#D4A853" }}>{signalCount} / 24</strong>
             </div>
             <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,.1)", overflow: "hidden" }}>
               <div style={{ width: `${completion}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#A8722A,#D4A853)" }} />
@@ -162,7 +222,7 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
             <div style={{ marginTop: 16, border: "1px solid rgba(212,168,83,.24)", borderRadius: 14, padding: 14, background: "rgba(212,168,83,.08)" }}>
               <p style={{ margin: 0, color: "#D4A853", fontSize: 11, letterSpacing: ".14em", fontWeight: 900 }}>PRO PREVIEW</p>
               <p style={{ margin: "6px 0 0", color: "rgba(245,238,228,.72)", fontSize: 12, lineHeight: 1.75 }}>
-                回答が8個以上あると、PROで「相性スコア」「避けたい条件」「購入前チェック」を細かく表示できます。
+                回答が14個以上あると、PROで「相性スコア」「避けたい条件」「購入前チェック」「動画での使い方」まで細かく表示できます。
               </p>
             </div>
           </div>
@@ -170,9 +230,12 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
 
         <main className="rounded-[18px] p-4 md:p-5" style={{ background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.12)", boxShadow: "0 22px 70px rgba(0,0,0,.22)" }}>
           <div className="grid gap-3">
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-3">
               <Section label="年齢" compact>
                 <PillGroup options={AGE_OPTS} value={profile.age} onChange={(v) => set("age", v)} />
+              </Section>
+              <Section label="性別" compact>
+                <PillGroup options={GENDER_OPTS} value={profile.gender} onChange={(v) => set("gender", v)} />
               </Section>
               <Section label="肌タイプ" compact>
                 <PillGroup options={SKIN_OPTS} value={profile.skinType} onChange={(v) => set("skinType", v)} />
@@ -186,6 +249,29 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
             <Section label="いま気になる悩み" note="複数選択できます。無料提案でもここは強く効きます。">
               <PillGroup options={CONCERNS} value={profile.concerns} onChange={toggleConcern} multi />
             </Section>
+
+            <Section label="使っている製品" note="商品名・ブランド名を入れると、買い替え候補や相性の比較に使えます。1行に1つずつ入力できます。">
+              <TextListEditor
+                value={profile.currentProducts}
+                onChange={(items) => setList("currentProducts", items)}
+                placeholder={"例)\n肌ラボ 極潤\nアネッサ 日焼け止め\nフィーノ ヘアマスク"}
+              />
+            </Section>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <Section label="今の状態" note="今日〜最近の状態を入れると、次にやるケアが具体的になります。" compact>
+                <PillGroup options={CURRENT_STATE_OPTS} value={profile.currentState} onChange={(v) => toggleList("currentState", v)} multi />
+              </Section>
+              <Section label="欲しい成分" note="成分名から商品と動画を引っ張ります。" compact>
+                <PillGroup options={DESIRED_INGREDIENT_OPTS} value={profile.desiredIngredients} onChange={(v) => toggleList("desiredIngredients", v)} multi />
+              </Section>
+              <Section label="習慣" note="使い方・生活リズムまで見ると、現実的な提案になります。" compact>
+                <PillGroup options={HABIT_OPTS} value={profile.habits} onChange={(v) => toggleList("habits", v)} multi />
+              </Section>
+              <Section label="目標" note="最終的にどう見せたいかをおすすめに反映します。" compact>
+                <PillGroup options={GOAL_OPTS} value={profile.goals} onChange={(v) => toggleList("goals", v)} multi />
+              </Section>
+            </div>
 
             <div className="grid gap-3 md:grid-cols-2">
               {DETAIL_GROUPS.map((group) => (

@@ -39,9 +39,15 @@ const NAV: { key: Tab; icon: Parameters<typeof Icon>[0]["name"]; jp: string; en:
 
 const GUEST_PROFILE: UserProfile = {
   age: "",
+  gender: "回答しない",
   skinType: "\u6df7\u5408\u808c",
   hairType: "\u666e\u901a",
   concerns: ["\u6bdb\u7a74", "\u4e7e\u71e5", "\u304f\u3059\u307f"],
+  currentProducts: ["化粧水", "日焼け止め"],
+  currentState: ["夕方テカる", "毛穴落ちする"],
+  desiredIngredients: ["ナイアシンアミド", "セラミド"],
+  habits: ["毎日UV", "メイク前"],
+  goals: ["毛穴を目立たせない", "透明感"],
 };
 
 export default function BeauteApp() {

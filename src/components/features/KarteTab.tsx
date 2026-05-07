@@ -35,6 +35,37 @@ const HABITS: Record<string, { icon: string; tips: string[] }> = {
   普通肌: { icon: "✨", tips: ["今の肌状態を守るUVケアを毎日欠かさず", "季節ごとにスキンケアを見直す", "バランスの良い食事と睡眠が一番のスキンケア", "週1回のスペシャルケアで肌をリセット"] },
 };
 
+function getProfileSignals(profile: UserProfile) {
+  return [
+    profile.age,
+    profile.gender,
+    profile.skinType,
+    profile.hairType,
+    ...profile.concerns,
+    ...profile.currentProducts,
+    ...profile.currentState,
+    ...profile.desiredIngredients,
+    ...profile.habits,
+    ...profile.goals,
+  ].filter(Boolean);
+}
+
+function getVideoQuery(profile: UserProfile) {
+  const queryParts = [
+    profile.skinType,
+    profile.hairType,
+    ...profile.concerns.slice(0, 2),
+    ...profile.currentState.slice(0, 2),
+    ...profile.desiredIngredients.slice(0, 2),
+    profile.currentProducts[0],
+  ].filter(Boolean);
+  return queryParts.length > 0 ? queryParts.join(" ") : "美容 スキンケア コスメ";
+}
+
+function listText(items: string[], fallback = "未登録") {
+  return items.length > 0 ? items.slice(0, 4).join("・") : fallback;
+}
+
 export default function KarteTab({ profile, isPro, preferences, onOpenProduct, onEditProfile, onGoAnalyze, onGoSearch, onGoLog, onUpgrade }: Props) {
   const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
   const [analysisLoading, setAnalysisLoading] = useState(true);
@@ -91,33 +122,42 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
   }, [isPro]);
 
   useEffect(() => {
-    const tags = [profile.skinType, profile.hairType, ...profile.concerns.slice(0, 6)].filter(Boolean);
-    const params = new URLSearchParams({ limit: "6" });
+    const tags = [
+      profile.skinType,
+      profile.hairType,
+      ...profile.concerns.slice(0, 5),
+      ...profile.currentState.slice(0, 3),
+      ...profile.desiredIngredients.slice(0, 4),
+      ...profile.goals.slice(0, 3),
+    ].filter(Boolean);
+    const params = new URLSearchParams({ limit: "8" });
     if (tags.length > 0) params.set("tags", tags.join(","));
     else params.set("free", "true");
     fetch(`/api/products?${params}`)
       .then(r => r.json())
       .then(d => setProducts(d.products ?? []));
-  }, [profile.skinType, profile.hairType, profile.concerns]);
+  }, [profile.skinType, profile.hairType, profile.concerns, profile.currentState, profile.desiredIngredients, profile.goals]);
 
   useEffect(() => {
-    const cat = profile.skinType ? "スキンケア" : "全体";
-    fetch(`/api/youtube?category=${encodeURIComponent(cat)}&max=4`)
+    const cat = profile.hairType && profile.concerns.some((concern) => concern.includes("毛")) ? "ヘアケア" : profile.skinType ? "スキンケア" : "全体";
+    const query = getVideoQuery(profile);
+    fetch(`/api/youtube?category=${encodeURIComponent(cat)}&query=${encodeURIComponent(query)}&max=6`)
       .then(r => r.json())
       .then(d => setVideos(d.videos ?? []));
-  }, [profile.skinType]);
+  }, [profile]);
 
   const habits = HABITS[profile.skinType] ?? HABITS["普通肌"];
   const visibleAnalyses = analyses;
   const latestAnalysis = visibleAnalyses[0] ?? null;
-  const signalCount = [profile.age, profile.skinType, profile.hairType].filter(Boolean).length + profile.concerns.length;
-  const precisionScore = Math.min(96, 32 + signalCount * 4 + Math.min(analysisTotal, 5) * 4 + (preferences?.confidence ?? 0));
+  const profileSignals = getProfileSignals(profile);
+  const signalCount = profileSignals.length;
+  const precisionScore = Math.min(98, 28 + signalCount * 3 + Math.min(analysisTotal, 5) * 4 + Math.min(products.length, 8) + (preferences?.confidence ?? 0));
   const topProduct = products[0] ?? null;
   const topMatch = topProduct ? getPersonalMatch(topProduct, profile, isPro ? preferences : null) : null;
   const nextActions = [
     {
-      label: signalCount < 8 ? "カルテを細かくする" : "カルテを見直す",
-      body: signalCount < 8 ? "予算・避けたいもの・仕上がりを足すと候補の精度が上がります。" : "季節や肌状態が変わったら、条件を更新します。",
+      label: profile.currentProducts.length === 0 ? "使用中アイテムを登録" : signalCount < 14 ? "カルテを細かくする" : "カルテを見直す",
+      body: profile.currentProducts.length === 0 ? "今使っている商品名を入れると、買い替え・足すべき成分・避ける候補を出しやすくなります。" : signalCount < 14 ? "性別・今の状態・欲しい成分・習慣を足すと候補の精度が上がります。" : "季節や肌状態が変わったら、条件を更新します。",
       action: "編集",
       onClick: onEditProfile,
       tone: "profile",
@@ -131,16 +171,16 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
     },
     {
       label: topProduct ? "候補を見て購入判断" : "楽天商品を探す",
-      body: topProduct ? `${topProduct.brand} の候補があります。価格・レビュー・相性を見て判断できます。` : "楽天の商品を検索して、保存と比較リストに候補を集めます。",
+      body: topProduct ? `${topProduct.brand} の候補があります。価格・レビュー・相性・動画レビューを合わせて判断できます。` : "楽天の商品を検索して、保存と比較リストに候補を集めます。",
       action: topProduct ? "商品を見る" : "検索へ",
       onClick: topProduct ? () => onOpenProduct(topProduct) : onGoSearch,
       tone: "buy",
     },
     {
-      label: "使ったらログに残す",
-      body: "合った/合わなかったを残すほど、PROのおすすめが売れる商品選びに近づきます。",
-      action: "ログ",
-      onClick: onGoLog,
+      label: videos.length > 0 ? "動画で使い方を見る" : "使ったらログに残す",
+      body: videos.length > 0 ? "美容系YouTuberやレビュー動画を見て、使い方と購入前の違和感を減らします。" : "合った/合わなかったを残すほど、PROのおすすめが売れる商品選びに近づきます。",
+      action: videos.length > 0 ? "動画" : "ログ",
+      onClick: videos.length > 0 ? () => window.open(videos[0].url, "_blank", "noopener,noreferrer") : onGoLog,
       tone: "log",
     },
   ];
@@ -251,7 +291,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
           <div>
             <div style={{ fontSize: 9, letterSpacing: "0.3em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>PROFILE</div>
             <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>
-              {profile.skinType || "未設定"} {profile.age ? `· ${profile.age}` : ""}
+              {profile.skinType || "未設定"} {profile.age ? `· ${profile.age}` : ""} {profile.gender ? `· ${profile.gender}` : ""}
             </div>
           </div>
           <button onClick={onEditProfile} style={{ fontSize: 11, padding: "7px 14px", background: "rgba(212,168,83,.15)", color: "#D4A853", border: "1px solid rgba(212,168,83,.3)", borderRadius: 20, cursor: "pointer", fontWeight: 600 }}>
@@ -260,6 +300,10 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
+          <div>
+            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>GENDER</div>
+            <div style={{ fontSize: 13, color: "#FBF8F3" }}>{profile.gender || "—"}</div>
+          </div>
           <div>
             <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>SKIN</div>
             <div style={{ fontSize: 13, color: "#FBF8F3" }}>{profile.skinType || "—"}</div>
@@ -280,6 +324,32 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
               {isPro ? "PRO MEMBER" : "FREE"}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: 18, marginBottom: 24, boxShadow: "0 8px 30px rgba(21,11,0,.05)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 5 }}>PERSONAL CONTEXT</div>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 24, fontWeight: 400, margin: 0, color: "#150B00" }}>今の状態から、次の一手へ。</h2>
+          </div>
+          <button onClick={onEditProfile} className="motion-nav-button" style={{ border: "1px solid #EDE5DC", borderRadius: 999, background: "#FBF8F3", color: "#A8722A", padding: "8px 12px", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+            追加する
+          </button>
+        </div>
+        <div className="grid-cols-1-mobile motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10 }}>
+          {[
+            ["使用中", listText(profile.currentProducts), "買い替え・足し算の基準"],
+            ["今の状態", listText(profile.currentState, listText(profile.concerns)), "今日のコンディション"],
+            ["欲しい成分", listText(profile.desiredIngredients), "商品と動画の検索軸"],
+            ["習慣", listText(profile.habits), "続けられる提案の材料"],
+          ].map(([label, value, caption]) => (
+            <div key={label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 14, padding: 13, background: "#FBF8F3", minHeight: 116 }}>
+              <div style={{ fontSize: 10, letterSpacing: ".16em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 8 }}>{label}</div>
+              <div style={{ fontSize: 13, fontWeight: 900, color: "#150B00", lineHeight: 1.5 }}>{value}</div>
+              <div style={{ fontSize: 10, color: "#8A7A6E", lineHeight: 1.5, marginTop: 7 }}>{caption}</div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -475,10 +545,16 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       {/* ── おすすめ動画 ── */}
       {videos.length > 0 && (
         <section style={{ marginBottom: 28 }}>
-          <SectionHeader label="03" title="あなたにおすすめの動画" sub={`${profile.skinType || "美容"}系コンテンツ`} />
+          <SectionHeader label="03" title="YouTube / Creator Proof" sub={`${getVideoQuery(profile)} から選定`} />
+          <div style={{ background: "linear-gradient(135deg,#1A0E08,#3A1D0D)", border: "1px solid rgba(212,168,83,.26)", borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ fontSize: 10, letterSpacing: ".18em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>INFLUENCER ASSIST</div>
+            <p style={{ margin: 0, color: "rgba(251,248,243,.72)", fontSize: 12, lineHeight: 1.75 }}>
+              商品の成分だけでなく、実際の使い方・レビュー・比較動画も購入前チェックに入れます。PROでは保存/ログと合わせて、あなたに近い使い方の動画を優先します。
+            </p>
+          </div>
           <div className="motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 12 }}>
             {videos.map(v => (
-              <a key={v.id} className="motion-card" href={v.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", display: "flex", gap: 12, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 14, padding: "12px 14px", transition: "box-shadow 0.2s" }}
+              <a key={v.id} className="motion-card tap-card" href={v.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", display: "flex", gap: 12, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 14, padding: "12px 14px", transition: "box-shadow 0.2s" }}
                 onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 16px rgba(21,11,0,.1)"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none"; }}>
                 {v.thumbnail && (
@@ -486,7 +562,8 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: "#150B00", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{v.title}</div>
-                  <div style={{ fontSize: 10, color: "#D4A853", marginTop: 4 }}>🔥 {v.views}回再生</div>
+                  <div style={{ fontSize: 10, color: "#8A7A6E", marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.channelTitle}</div>
+                  <div className="tap-card-hint" style={{ fontSize: 10, color: "#D4A853", marginTop: 2 }}>🔥 {v.views}回再生 · YouTubeで見る</div>
                 </div>
               </a>
             ))}

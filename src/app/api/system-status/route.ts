@@ -26,9 +26,9 @@ interface StatusGroup {
 const TABLE_CHECKS = [
   {
     table: "profiles",
-    label: "profiles / 課金カラム",
+    label: "profiles / 課金・パーソナルカラム",
     select:
-      "id,is_pro,stripe_customer_id,stripe_subscription_id,stripe_subscription_status,stripe_current_period_end,stripe_cancel_at_period_end",
+      "id,age,gender,skin_type,hair_type,concerns,current_products,current_state,desired_ingredients,beauty_habits,beauty_goals,is_pro,stripe_customer_id,stripe_subscription_id,stripe_subscription_status,stripe_current_period_end,stripe_cancel_at_period_end",
   },
   {
     table: "log_entries",

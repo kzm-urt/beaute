@@ -40,9 +40,15 @@ export interface Product {
 
 export interface UserProfile {
   age: string;
+  gender: string;
   skinType: string;
   hairType: string;
   concerns: string[];
+  currentProducts: string[];
+  currentState: string[];
+  desiredIngredients: string[];
+  habits: string[];
+  goals: string[];
 }
 
 export interface LogEntry {

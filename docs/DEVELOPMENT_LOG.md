@@ -526,6 +526,16 @@ Recent checks:
 - Product detail CTA copy now keeps users in the product drawer first, then sends them to Rakuten from the detail action.
 - Verified locally with `npm run typecheck`, `npm run build`, browser product-click QA on `http://localhost:3006`, and `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`.
 
+2026-05-07 personal creator pass:
+
+- Profile/Karte now supports richer personal signals: gender, current products, current condition, desired ingredients, habits, and beauty goals.
+- `profiles` gained optional columns for the new personal fields. Re-run `supabase/schema.sql` in Supabase SQL Editor before relying on persistence in production.
+- The app falls back to the old profile columns if the new Supabase columns are not applied yet, so public browsing does not break during rollout.
+- Karte now turns those signals into a "current state -> next action -> product -> video" flow.
+- YouTube search now accepts a personal `query` and falls back to category searches when the personal query returns no results.
+- Product matching now considers desired ingredients, current products, current state, goals, and learned preferences.
+- Verified locally with `npm run typecheck`, `npm run build`, `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`, and `/api/youtube?query=...`.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:
