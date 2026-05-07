@@ -319,6 +319,26 @@ textarea:focus-visible {
   overflow: hidden;
 }
 
+.product-drawer-mobile-summary {
+  display: none;
+}
+
+.search-mode-switch,
+.search-category-rail,
+.search-sort-row {
+  max-width: 100%;
+}
+
+.search-category-rail {
+  scroll-padding-inline: 18px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.search-category-rail > button {
+  scroll-snap-align: start;
+}
+
 .product-drawer-section-card {
   background: #fff;
   border: 1px solid var(--beaute-border);
@@ -757,6 +777,10 @@ textarea:focus-visible {
 
 .app-main {
   padding-bottom: 0;
+}
+
+.guest-preview-text-mobile {
+  display: none;
 }
 
 .section-shell {
@@ -1888,6 +1912,70 @@ textarea:focus-visible {
     padding-right: 18px !important;
   }
 
+  .guest-preview-inner {
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .guest-preview-copy {
+    flex: 1 1 auto !important;
+  }
+
+  .guest-preview-eyebrow,
+  .guest-preview-text {
+    display: none !important;
+  }
+
+  .guest-preview-text-mobile {
+    display: block !important;
+  }
+
+  .guest-preview-button {
+    padding: 7px 11px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+
+  .search-mode-switch {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    border-radius: 16px !important;
+    padding: 5px !important;
+    box-shadow: 0 10px 24px rgba(21, 11, 0, 0.05);
+  }
+
+  .search-mode-switch button {
+    min-height: 38px;
+    padding-inline: 10px !important;
+  }
+
+  .search-category-rail {
+    margin-inline: -18px;
+    padding: 2px 18px 12px !important;
+    mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 42px), transparent 100%);
+  }
+
+  .search-category-rail > button {
+    min-height: 36px;
+    padding-inline: 14px !important;
+    box-shadow: 0 7px 16px rgba(21, 11, 0, 0.04);
+  }
+
+  .search-sort-row {
+    overflow-x: auto;
+    margin-inline: -18px;
+    padding: 0 18px 4px;
+    scroll-padding-inline: 18px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .search-sort-row > * {
+    flex-shrink: 0;
+  }
+
   .guide-tab {
     padding-bottom: 102px;
   }
@@ -2071,7 +2159,7 @@ textarea:focus-visible {
   }
 
   .home-hero {
-    min-height: 590px !important;
+    min-height: 560px !important;
   }
 
   .home-hero-product {
@@ -2082,6 +2170,11 @@ textarea:focus-visible {
     pointer-events: none;
   }
 
+  .home-hero-image {
+    object-fit: cover !important;
+    background: #1A0E08 !important;
+  }
+
   .home-hero-product-note {
     display: none;
   }
@@ -2089,7 +2182,7 @@ textarea:focus-visible {
   .home-hero-content {
     left: 20px !important;
     right: 20px !important;
-    bottom: 26px !important;
+    bottom: 22px !important;
   }
 
   .legal-page {
@@ -2179,9 +2272,13 @@ textarea:focus-visible {
   }
 
   .product-drawer-hero {
-    aspect-ratio: 1 / 0.66 !important;
-    max-height: 250px;
+    aspect-ratio: 1 / 0.58 !important;
+    max-height: 220px;
     border-bottom: 1px solid rgba(21, 11, 0, 0.08);
+  }
+
+  .product-drawer-hero-caption {
+    display: none !important;
   }
 
   .product-drawer-title {
@@ -2191,7 +2288,38 @@ textarea:focus-visible {
   }
 
   .product-drawer-body {
-    padding: 16px 16px 0 !important;
+    padding: 14px 16px 0 !important;
+  }
+
+  .product-drawer-mobile-summary {
+    display: block;
+    margin: 0 0 14px;
+    padding: 0 0 14px;
+    border-bottom: 1px solid var(--beaute-border);
+  }
+
+  .product-drawer-mobile-summary span {
+    display: block;
+    margin-bottom: 7px;
+    color: #A8722A;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .product-drawer-mobile-summary h2 {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    color: #150B00;
+    font-family: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.45;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
   }
 
   .product-drawer-price-row {
@@ -2261,6 +2389,8 @@ textarea:focus-visible {
 
   .search-filter-bar {
     backdrop-filter: none !important;
+    top: 0 !important;
+    padding-top: 10px !important;
   }
 }
 

@@ -279,17 +279,20 @@ export default function BeauteApp() {
         </header>
 
         {isGuest && (
-          <div style={{ background: "#FFF9EC", borderBottom: "1px solid #E8D7BE" }}>
-            <div className="section-shell mobile-tight motion-reveal-slow" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "10px 24px" }}>
-              <div style={{ flex: "1 1 360px", minWidth: 0 }}>
-                <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
+          <div className="guest-preview-bar" style={{ background: "#FFF9EC", borderBottom: "1px solid #E8D7BE" }}>
+            <div className="guest-preview-inner section-shell mobile-tight motion-reveal-slow" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "10px 24px" }}>
+              <div className="guest-preview-copy" style={{ flex: "1 1 360px", minWidth: 0 }}>
+                <div className="guest-preview-eyebrow" style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
                   {"GUEST PREVIEW"}
                 </div>
-                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
+                <p className="guest-preview-text" style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
                   {"\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u306f\u767b\u9332\u306a\u3057\u3067\u898b\u3089\u308c\u307e\u3059\u3002\u7121\u6599\u767b\u9332\u3067\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u7f8e\u5bb9\u30ed\u30b0\u3001PRO\u3067\u7121\u5236\u9650\u89e3\u6790\u3068\u8cfc\u5165\u30ea\u30f3\u30af\u304c\u958b\u653e\u3055\u308c\u307e\u3059\u3002"}
                 </p>
+                <p className="guest-preview-text-mobile" style={{ display: "none", margin: 0, fontSize: 11, lineHeight: 1.55, color: "#5F4A3D", fontWeight: 800 }}>
+                  {"保存・比較・ログは無料登録で使えます。"}
+                </p>
               </div>
-              <button className="motion-cta" onClick={() => setShowAuth(true)} style={{ border: "none", borderRadius: 999, padding: "9px 16px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
+              <button className="guest-preview-button motion-cta" onClick={() => setShowAuth(true)} style={{ border: "none", borderRadius: 999, padding: "9px 16px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
                 {"\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3"}
               </button>
             </div>
@@ -573,7 +576,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
           <button aria-label="商品詳細を閉じる" className="product-drawer-close" onClick={onClose} style={{ position: "absolute", top: 14, right: 14, width: 36, height: 36, borderRadius: "50%", background: "rgba(251,248,243,.92)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Icon name="close" size={16} stroke="#150B00" sw={2}/>
           </button>
-          <div style={{ position: "absolute", bottom: 16, left: 20 }}>
+          <div className="product-drawer-hero-caption" style={{ position: "absolute", bottom: 16, left: 20 }}>
             <div style={{ fontSize: 10, color: "rgba(251,248,243,.7)", fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em" }}>{productSourceLabel} / {p.brand}</div>
             <div className="product-drawer-title" style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>{p.name}</div>
           </div>
@@ -581,6 +584,11 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
 
         {/* Body */}
         <div className="product-drawer-body" style={{ padding: "22px 26px 40px" }}>
+          <div className="product-drawer-mobile-summary">
+            <span>{productSourceLabel} / {p.brand}</span>
+            <h2>{p.name}</h2>
+          </div>
+
           <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap", alignItems: "center" }}>
             <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: m.color, color: m.dark, fontWeight: 600 }}>{m.icon} {p.cat} · {p.sub}</span>
             {p.free ? <FreeBadge/> : <ProBadge/>}

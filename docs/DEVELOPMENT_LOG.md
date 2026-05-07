@@ -683,6 +683,14 @@ Recent checks:
 - `docs/IMAGE_PROMPTS.md` contains production prompts for replacing those temporary generated SVG assets with AI-generated bitmap assets later.
 - Verified locally with `npm run build`, `npm run typecheck`, `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`, and desktop/mobile Playwright screenshots on `http://localhost:3006`.
 
+2026-05-07 mobile polish pass:
+
+- Guest preview copy is now compressed on mobile so the header area leaves more room for content.
+- Home mobile hero image uses cover fitting to avoid white side bands on product imagery.
+- Search and ranking mobile layouts now remove the sticky top gap, use a full-width mode switch, and make category/sort rails easier to swipe.
+- Product detail on mobile now keeps the image cleaner and moves long product names into a readable body summary.
+- Verified locally with `npm run typecheck`, `npm run build`, `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`, and 390px Playwright screenshots for Home, Guide, Search, Ranking, Premium, and product drawer. No horizontal overflow was detected.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

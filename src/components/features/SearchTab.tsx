@@ -169,7 +169,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
       </div>
 
       <div style={{ padding: "16px 24px 0" }}>
-        <div style={{ display: "inline-flex", gap: 4, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, padding: 4, marginBottom: 12 }}>
+        <div className="search-mode-switch" style={{ display: "inline-flex", gap: 4, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, padding: 4, marginBottom: 12 }}>
           {([["search", "商品検索"], ["ranking", "楽天ランキング"]] as [BrowseMode, string][]).map(([value, label]) => (
             <button
               className="motion-nav-button"
@@ -192,7 +192,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         </div>
 
         {/* Category filter */}
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10 }} className="hide-scrollbar">
+        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10 }} className="search-category-rail hide-scrollbar">
           <button className="motion-nav-button" onClick={() => setActiveCat(ALL_CATEGORY)} style={{
             flexShrink: 0, padding: "7px 16px", borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1.5px solid",
             background: activeCat === ALL_CATEGORY ? "#150B00" : "#fff",
@@ -232,7 +232,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         )}
 
         {/* Sort + count */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+        <div className="search-sort-row" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
           {mode === "search" ? (
             <>
               <span style={{ fontSize: 11, color: "#8A7A6E" }}>並び替え:</span>
