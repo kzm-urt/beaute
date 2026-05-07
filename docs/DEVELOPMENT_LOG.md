@@ -479,8 +479,8 @@ Production app:
 - Primary URL: `https://beaute-xi.vercel.app`
 - Vercel project: `kzm-urts-projects/beaute`
 - GitHub repo: `https://github.com/kzm-urt/beaute.git`
-- Latest verified production deployment: `dpl_4xMFMobsaJYi1gMKZzsPLN7wyLm2`
-- Vercel inspect URL: `https://vercel.com/kzm-urts-projects/beaute/4xMFMobsaJYi1gMKZzsPLN7wyLm2`
+- Latest verified production deployment: `dpl_DdsoWBSc3hahdJwMgj2gVdhQdH2u`
+- Vercel inspect URL: `https://vercel.com/kzm-urts-projects/beaute/DdsoWBSc3hahdJwMgj2gVdhQdH2u`
 
 Production setup completed on 2026-05-02:
 
