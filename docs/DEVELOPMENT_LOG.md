@@ -8,6 +8,42 @@ beaute is a beauty product discovery app with auth, profile-based recommendation
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
 
+## 2026-05-07 Product Conversion Pass
+
+Scope:
+
+- Raised the product browsing and product detail surfaces from catalog cards into purchase-decision screens.
+- Made the paid value clearer by showing what users get from PRO precision: fit reasons, cautions, comparison, purchase links, and review/video context.
+- Fixed the mobile product drawer so tapping a product opens an on-screen bottom sheet instead of rendering the detail far below the scrolled product list.
+
+Changes:
+
+- `src/lib/productInsights.ts`
+  - Added a shared helper that turns product rank, review volume, category, profile signals, and match reasons into a purchase verdict, fit reason, timing, caution, and PRO cue.
+- `src/components/features/SearchTab.tsx`
+  - Redesigned product result cards with stronger image treatment, source/rank badges, `BUY REASON` / `PERSONAL FIT`, review proof, tags, and clearer `購入前チェック` / `精密判断` CTAs.
+  - Locked products now speak in purchase-judgment language instead of generic detail access.
+- `src/components/features/BeauteApp.tsx`
+  - Added direct `?tab=search`, `?tab=ranking`, etc. support for easier QA and shareable app states.
+  - Added a product drawer purchase verdict card with fit/rank orb and three checks: fit reason, usage timing, and caution.
+  - Added a PRO precision teaser for free products and strengthened locked-product upgrade copy.
+- `src/components/features/HomeTab.tsx`
+  - Added purchase-reason snippets to recommendation rails and editor picks so the home page leads naturally into product detail.
+- `src/app/globals.css`
+  - Added product result card, purchase verdict, PRO precision, and mobile drawer styles.
+  - Changed the root app shell animation from transform-based scale to fade-only so fixed drawers and banners remain viewport-fixed on mobile.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight` passes.
+- Local production build on port `3006` verified:
+  - Guest home desktop and mobile screenshots.
+  - `/?tab=search` desktop and mobile product result screenshots.
+  - Desktop product drawer purchase verdict and CTA screenshot.
+  - Mobile product drawer opens as a visible bottom sheet after tapping a product.
+
 ## 2026-05-07 Motion Polish Pass
 
 Scope:

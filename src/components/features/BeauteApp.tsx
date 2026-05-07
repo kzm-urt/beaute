@@ -6,6 +6,7 @@ import { usePersonalPreferences } from "@/hooks/usePersonalPreferences";
 import { CAT_META } from "@/lib/constants";
 import { formatPrice, getProductKey, toRakutenAffiliateUrl } from "@/lib/utils";
 import { getPersonalMatch } from "@/lib/personalization";
+import { getProductInsight } from "@/lib/productInsights";
 import { trackProductEvent } from "@/lib/productEvents";
 import { supabase } from "@/lib/supabase";
 import { Icon, Stars, FreeBadge, ProBadge, GoldButton, ProductImage } from "@/components/ui";
@@ -26,6 +27,8 @@ interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
 }
 
+const TAB_KEYS: Tab[] = ["home", "search", "ranking", "analyze", "karte", "saved", "log", "premium"];
+
 const NAV: { key: Tab; icon: Parameters<typeof Icon>[0]["name"]; jp: string; en: string }[] = [
   { key: "home",    icon: "home",    jp: "ホーム",   en: "Home"    },
   { key: "search",  icon: "search",  jp: "検索",     en: "Search"  },
@@ -36,6 +39,12 @@ const NAV: { key: Tab; icon: Parameters<typeof Icon>[0]["name"]; jp: string; en:
   { key: "log",     icon: "note",    jp: "ログ",     en: "Journal" },
   { key: "premium", icon: "crown",   jp: "プラン",   en: "Pro"     },
 ];
+
+function getInitialTab(): Tab {
+  if (typeof window === "undefined") return "home";
+  const value = new URLSearchParams(window.location.search).get("tab");
+  return TAB_KEYS.includes(value as Tab) ? value as Tab : "home";
+}
 
 const GUEST_PROFILE: UserProfile = {
   age: "",
@@ -54,7 +63,7 @@ export default function BeauteApp() {
   const { user, loading: authLoading, signIn, signUp, signOut, sendPasswordReset } = useAuth();
   const { profile, updateProfile, profileDone, setProfileDone, completeProfile, profileLoading, isPro, setIsPro, refreshProfile } = useProfile(user);
   const { preferences } = usePersonalPreferences(Boolean(user && profileDone && isPro));
-  const [tab, setTab] = useState<Tab>("home");
+  const [tab, setTab] = useState<Tab>(getInitialTab);
   const [drawer, setDrawer] = useState<Product | null>(null);
   const [toast, setToast] = useState<{ type: "success" | "cancel"; message: string } | null>(null);
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -115,6 +124,13 @@ export default function BeauteApp() {
   useEffect(() => {
     if (user) setShowAuth(false);
   }, [user]);
+
+  useEffect(() => {
+    const path = tab === "home" ? "/" : `/?tab=${tab}`;
+    if (`${window.location.pathname}${window.location.search}` !== path) {
+      window.history.replaceState({}, "", path);
+    }
+  }, [tab]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -427,6 +443,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
     { label: p.rank ? "順位" : "価格", value: p.rank ? `#${p.rank}` : formatPrice(p.price) },
   ];
   const fitReasons = match?.reasons.slice(0, 3) ?? [];
+  const insight = getProductInsight(p, profile, fitReasons);
   const [savedFavorite, setSavedFavorite] = useState(false);
   const [savedCompare, setSavedCompare] = useState(false);
   const [saveLoading, setSaveLoading] = useState<"favorite" | "compare" | null>(null);
@@ -573,6 +590,33 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
 
           <p style={{ fontSize: 14, lineHeight: 1.8, color: "#6B5B4A", marginBottom: 16 }}>{p.desc}</p>
 
+          <div className="product-drawer-verdict-card">
+            <div className="product-drawer-verdict-head">
+              <div>
+                <div className="product-drawer-micro">PURCHASE VERDICT</div>
+                <h3>{insight.verdict}</h3>
+              </div>
+              <div className="product-drawer-fit-orb">
+                <span>{isPro && match ? match.score : p.rank ? `#${p.rank}` : Math.round(p.rating * 20)}</span>
+                <small>{isPro && match ? "FIT" : p.rank ? "RANK" : "RATE"}</small>
+              </div>
+            </div>
+            <div className="product-drawer-check-grid">
+              <div>
+                <span>合う理由</span>
+                <p>{isPro && match ? insight.why : `${p.cat}・${p.sub}として比較価値あり`}</p>
+              </div>
+              <div>
+                <span>使いどころ</span>
+                <p>{insight.timing}</p>
+              </div>
+              <div>
+                <span>注意点</span>
+                <p>{insight.caution}</p>
+              </div>
+            </div>
+          </div>
+
           <div className="product-drawer-section-card">
             <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>BUYING SIGNALS</div>
             <div className="product-drawer-signal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
@@ -587,6 +631,18 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
               価格・レビュー・商品情報を見ながら、買う前の候補として比較できます。
             </p>
           </div>
+
+          {!isPro && !locked && (
+            <div className="product-drawer-pro-teaser">
+              <div>
+                <div className="product-drawer-micro">PRO PRECISION</div>
+                <p>肌質・悩み・ログを使うと「あなたに合う理由」「避けたい条件」「買う順番」まで出せます。</p>
+              </div>
+              <button className="motion-cta" onClick={() => onUpgrade("product_drawer_precision_teaser", p)}>
+                精度を上げる
+              </button>
+            </div>
+          )}
 
           {isPro && match && (
             <div className="product-drawer-section-card" style={{ borderColor: "#D4A85366" }}>
@@ -639,7 +695,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
             <div className="product-drawer-section-card" style={{ background: "#F8F4EF" }}>
               <div style={{ fontSize: 11, letterSpacing: "0.12em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>LOCKED DETAILS</div>
               <p style={{ fontSize: 12, lineHeight: 1.7, color: "#6B5B4A", margin: 0 }}>
-                買う前メモ、タグ全文、関連レビュー動画、楽天購入リンクはPROで表示されます。
+                買う前メモ、タグ全文、関連レビュー動画、楽天購入リンクはPROで表示されます。保存・比較しながら、買う前の迷いを潰せます。
               </p>
             </div>
           )}
@@ -649,9 +705,9 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
               <div className="product-drawer-section-card" style={{ borderColor: "#D4A85366" }}>
                 <p style={{ fontSize: 13, fontWeight: 800, color: "#150B00", margin: "0 0 5px" }}>この商品はPRO詳細枠です</p>
                 <p style={{ fontSize: 12, lineHeight: 1.7, color: "#8A7A6E", margin: "0 0 12px" }}>
-                  PROで楽天購入リンク、あなた向けスコア、比較リストを解放できます。気になる商品を買う前に一気に絞り込めます。
+                  PROで楽天購入リンク、あなた向けスコア、比較リスト、レビュー動画を解放できます。高い買い物ほど、買う前に一気に絞り込めます。
                 </p>
-                <GoldButton onClick={handleLockedUpgrade}>🔓 PROで全情報を解放する</GoldButton>
+                <GoldButton onClick={handleLockedUpgrade}>PROで購入判断を解放する</GoldButton>
               </div>
             )
             : (

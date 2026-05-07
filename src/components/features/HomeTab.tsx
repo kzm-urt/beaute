@@ -5,6 +5,7 @@ import type { YoutubeVideo } from "@/app/api/youtube/route";
 import { formatPrice } from "@/lib/utils";
 import { PLAN_RULES } from "@/lib/plan";
 import { getPersonalMatch, getProfileSignals } from "@/lib/personalization";
+import { getProductInsight } from "@/lib/productInsights";
 import { trackProductEvent } from "@/lib/productEvents";
 import { Icon, Stars, FreeBadge, ProBadge, ProductImage } from "@/components/ui";
 import type { PersonalPreferences, UserProfile, Product, Category } from "@/types";
@@ -419,7 +420,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }} className="grid-cols-2-mobile motion-stagger">
           {editorsPicks.map(p => (
-            <EditorCard key={p.id} product={p} onOpen={onOpenProduct} isPro={isPro}/>
+            <EditorCard key={p.id} product={p} onOpen={onOpenProduct} isPro={isPro} profile={profile} preferences={preferences}/>
           ))}
         </div>
         </div>
@@ -656,6 +657,7 @@ function RailCard({ product: p, onOpen, isPro, onUpgrade, profile, preferences }
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
   const match = getPersonalMatch(p, profile, preferences);
+  const insight = getProductInsight(p, profile, match?.reasons ?? []);
   const handleOpen = () => {
     if (locked) {
       void trackProductEvent({
@@ -688,18 +690,28 @@ function RailCard({ product: p, onOpen, isPro, onUpgrade, profile, preferences }
         <div style={{ fontSize: 9, color: m.accent, fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", marginBottom: 3 }}>{p.brand}</div>
         <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 15, fontWeight: 500, lineHeight: 1.3, color: "#150B00", marginBottom: 6 }}>{p.name}</div>
         <Stars rating={p.rating} size={11}/>
+        <div style={{ marginTop: 9, padding: "8px 9px", borderRadius: 10, background: "#FBF8F3", border: "1px solid #EDE5DC" }}>
+          <div style={{ fontSize: 8, letterSpacing: "0.14em", color: "#A8722A", fontFamily: "ui-monospace,monospace", fontWeight: 900 }}>BUY REASON</div>
+          <p style={{ margin: "3px 0 0", fontSize: 10, lineHeight: 1.45, color: "#6B5B4A", fontWeight: 700, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {isPro && match ? insight.why : insight.verdict}
+          </p>
+        </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
           <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 17, fontWeight: 500, color: "#150B00" }}>{formatPrice(p.price)}</span>
-          <span className="tap-card-hint" style={{ fontSize: 9, padding: "3px 8px", borderRadius: 20, background: m.color, color: m.dark }}>詳細 →</span>
+          <span className="tap-card-hint" style={{ fontSize: 9, padding: "3px 8px", borderRadius: 20, background: m.color, color: m.dark }}>チェック →</span>
         </div>
       </div>
     </div>
   );
 }
 
-function EditorCard({ product: p, onOpen, isPro }: { product: Product; onOpen: (p: Product) => void; isPro: boolean }) {
+function EditorCard({ product: p, onOpen, isPro, profile, preferences }: {
+  product: Product; onOpen: (p: Product) => void; isPro: boolean; profile: UserProfile; preferences?: PersonalPreferences | null;
+}) {
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
+  const match = getPersonalMatch(p, profile, preferences);
+  const insight = getProductInsight(p, profile, match?.reasons ?? []);
   return (
     <div className="lift-card motion-card tap-card" role="button" tabIndex={0} onClick={() => onOpen(p)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(p); } }} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 10, overflow: "hidden", transition: "transform 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
@@ -720,6 +732,9 @@ function EditorCard({ product: p, onOpen, isPro }: { product: Product; onOpen: (
       <div style={{ padding: "12px 14px" }}>
         <div style={{ fontSize: 9, color: m.accent, fontFamily: "ui-monospace,monospace", letterSpacing: "0.12em", marginBottom: 2 }}>{p.brand}</div>
         <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 15, fontWeight: 500, lineHeight: 1.3, color: "#150B00", marginBottom: 4 }}>{p.name}</div>
+        <p style={{ minHeight: 32, margin: "0 0 8px", fontSize: 10, lineHeight: 1.5, color: "#6B5B4A", fontWeight: 700, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          {isPro && match ? insight.why : insight.verdict}
+        </p>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Stars rating={p.rating} size={10}/>
           <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 15, fontWeight: 500, color: "#A8722A" }}>{formatPrice(p.price)}</span>

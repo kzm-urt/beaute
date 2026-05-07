@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, type CSSProperties } from "react";
 import { CAT_META, ALL_TAGS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 import { getPersonalMatch, getProfileSignals } from "@/lib/personalization";
+import { getProductInsight } from "@/lib/productInsights";
 import { trackProductEvent } from "@/lib/productEvents";
 import { Chip, Input, Stars, Icon, FreeBadge, ProBadge, ProductImage } from "@/components/ui";
 import type { Category, PersonalPreferences, Product, UserProfile } from "@/types";
@@ -346,6 +347,7 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
   const match = getPersonalMatch(p, profile, preferences);
+  const insight = getProductInsight(p, profile, match?.reasons ?? []);
   const handleOpen = () => {
     if (locked) {
       void trackProductEvent({
@@ -362,67 +364,62 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
   };
 
   return (
-    <div className="motion-card tap-card" role="button" tabIndex={0} onClick={handleOpen} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleOpen(); } }}
-      style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
-      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 20px rgba(21,11,0,.1)"; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(21,11,0,.05)"; }}>
-
-      {/* Image */}
-      <div style={{ position: "relative", height: 160, overflow: "hidden", background: m.color }}>
+    <div
+      className="search-product-card motion-card tap-card"
+      role="button"
+      tabIndex={0}
+      onClick={handleOpen}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleOpen(); } }}
+      style={{ "--product-accent": m.accent, "--product-soft": m.color } as CSSProperties}
+    >
+      <div className="search-product-hero">
         <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} />
-        {locked && <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top,rgba(21,11,0,.58),rgba(248,244,239,.18))" }}/>}
-        <div style={{ position: "absolute", top: 8, left: 8 }}>{p.free ? <FreeBadge/> : <ProBadge/>}</div>
-        {p.rank && (
-          <div style={{ position: "absolute", top: 8, right: 8, background: "#1A0E08", color: "#D4A853", borderRadius: 12, padding: "3px 8px", fontSize: 10, fontWeight: 800, letterSpacing: "0.04em" }}>
-            #{p.rank}
-          </div>
-        )}
+        <div className="search-product-hero-shade" />
+        <div className="search-product-badges">
+          {p.free ? <FreeBadge/> : <ProBadge/>}
+          {p.rank && <span className="search-product-rank">#{p.rank}</span>}
+        </div>
+        <div className="search-product-brand">{p.brand}</div>
         {locked && (
-          <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, padding: "8px 10px", borderRadius: 10, background: "rgba(26,14,8,.9)", color: "#F5EEE4", fontSize: 11, fontWeight: 700, textAlign: "center" }}>
-            PROで詳細・購入リンクを解放
+          <div className="search-product-lock">
+            <span>PROで購入判断を解放</span>
           </div>
         )}
       </div>
 
-      {/* Category strip */}
-      <div style={{ background: m.color, padding: "7px 12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: m.dark, letterSpacing: "0.05em" }}>{m.icon} {p.cat} · {p.sub}</span>
-        <span style={{ fontSize: 9, color: m.accent, fontFamily: "ui-monospace,monospace" }}>{p.brand}</span>
-      </div>
-
-      {/* Body */}
-      <div style={{ padding: "12px 14px 14px" }}>
-        <h3 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 16, fontWeight: 500, lineHeight: 1.3, color: "#150B00", margin: "0 0 6px" }}>{p.name}</h3>
-        <p style={{ fontSize: 12, lineHeight: 1.6, color: "#6B5B4A", margin: "0 0 8px" }}>{p.desc}</p>
-        <Stars rating={p.rating}/>
-        <span style={{ fontSize: 11, color: "#8A7A6E", marginLeft: 6 }}>{p.rev.toLocaleString()}件</span>
-
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, margin: "8px 0 10px" }}>
-          {p.tags.slice(0, 3).map(t => (
-            <span key={t} style={{ fontSize: 10, padding: "3px 8px", borderRadius: 20, background: m.color, color: m.dark, border: `1px solid ${m.accent}44` }}>{t}</span>
-          ))}
+      <div className="search-product-body">
+        <div className="search-product-meta">
+          <span>{m.icon} {p.cat} · {p.sub}</span>
+          <span>{p.source === "rakuten" ? "RAKUTEN" : "BEAUTE"}</span>
         </div>
 
-        {isPro && match && (
-          <div style={{ margin: "2px 0 10px", padding: "8px 10px", borderRadius: 10, background: "#F8F4EF", border: "1px solid #EDE5DC" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
-              <span style={{ fontSize: 10, fontWeight: 800, color: "#A8722A", letterSpacing: "0.08em" }}>あなた向け</span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#150B00" }}>{match.score}%</span>
-            </div>
-            {match.reasons.length > 0 && (
-              <div style={{ fontSize: 10, color: "#8A7A6E", marginTop: 3 }}>
-                {match.reasons.slice(0, 2).join("・")} に反応
-              </div>
-            )}
-          </div>
-        )}
+        <h3 className="search-product-title">{p.name}</h3>
+        <p className="search-product-desc">{p.desc}</p>
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 18, fontWeight: 500, color: "#A8722A" }}>{formatPrice(p.price)}</span>
-          {locked
-            ? <span className="tap-card-hint" style={{ fontSize: 11, color: "#8A7A6E" }}>🔒 PROで見る</span>
-            : <span className="tap-card-hint" style={{ fontSize: 11, color: m.dark, fontWeight: 600 }}>{p.url ? "詳細を見る →" : "詳細を見る →"}</span>
-          }
+        <div className="search-product-proof">
+          <Stars rating={p.rating}/>
+          <span>{p.rev.toLocaleString()}件</span>
+        </div>
+
+        <div className="search-product-insight">
+          <div>
+            <span className="search-product-insight-label">{isPro && match ? "PERSONAL FIT" : "BUY REASON"}</span>
+            <p>{isPro && match ? insight.why : insight.verdict}</p>
+          </div>
+          {isPro && match ? (
+            <strong>{match.score}%</strong>
+          ) : (
+            <strong>{locked ? "PRO" : "OK"}</strong>
+          )}
+        </div>
+
+        <div className="search-product-tags">
+          {p.tags.slice(0, 3).map(t => <span key={t}>{t}</span>)}
+        </div>
+
+        <div className="search-product-footer">
+          <span>{formatPrice(p.price)}</span>
+          <span className="tap-card-hint">{locked ? "精密判断 →" : "購入前チェック →"}</span>
         </div>
       </div>
     </div>
