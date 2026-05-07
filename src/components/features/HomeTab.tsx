@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, type CSSProperties } from "react";
 import { CAT_META } from "@/lib/constants";
 import type { YoutubeVideo } from "@/app/api/youtube/route";
 import { formatPrice } from "@/lib/utils";
@@ -31,6 +31,91 @@ const CATEGORY_GUIDES: Record<Category, { lead: string; route: string; tags: str
   フレグランス: { lead: "香調・シーン・持続感で探す", route: "香水 / ミスト / ルーム", tags: ["甘め", "清潔感", "夜"] },
   ネイル: { lead: "色・持ち・爪悩みに合わせる", route: "カラー / ケア / ジェル", tags: ["速乾", "補強", "血色"] },
   サプリ: { lead: "目的と続けやすさで候補を分ける", route: "ビタミン / 鉄分 / プロテイン", tags: ["肌荒れ", "疲れ", "髪"] },
+};
+
+type CategoryArtVariant = "skincare" | "haircare" | "makeup" | "body" | "uv" | "fragrance" | "nail" | "supplement";
+
+const categoryArt = (accent: string, variant: CategoryArtVariant) => {
+  const bottle = `<rect x="610" y="178" width="170" height="370" rx="34" fill="#F8EBDD" opacity=".48"/><rect x="650" y="120" width="90" height="76" rx="18" fill="#D8B56A" opacity=".52"/><rect x="642" y="250" width="106" height="148" rx="20" fill="#150B00" opacity=".2"/>`;
+  const tube = `<g transform="rotate(-16 352 396)"><rect x="278" y="150" width="150" height="430" rx="44" fill="#F8EBDD" opacity=".45"/><rect x="307" y="544" width="92" height="58" rx="12" fill="${accent}" opacity=".5"/></g>`;
+  const compact = `<circle cx="795" cy="404" r="128" fill="#F8EBDD" opacity=".24"/><circle cx="795" cy="404" r="88" fill="${accent}" opacity=".32"/><circle cx="795" cy="404" r="56" fill="#120804" opacity=".28"/>`;
+  const cap = `<rect x="270" y="232" width="90" height="300" rx="42" fill="${accent}" opacity=".5"/><rect x="295" y="170" width="40" height="78" rx="12" fill="#F8EBDD" opacity=".48"/>`;
+  const shapes: Record<CategoryArtVariant, string> = {
+    skincare: `${bottle}<ellipse cx="355" cy="525" rx="170" ry="72" fill="#F8EBDD" opacity=".22"/><rect x="255" y="390" width="220" height="118" rx="54" fill="#F8EBDD" opacity=".34"/><circle cx="430" cy="214" r="34" fill="${accent}" opacity=".5"/>`,
+    haircare: `${tube}<path d="M635 190 C860 260 842 470 650 540" fill="none" stroke="#F8EBDD" stroke-width="54" stroke-linecap="round" opacity=".22"/><path d="M690 158 C865 292 802 450 612 548" fill="none" stroke="${accent}" stroke-width="16" stroke-linecap="round" opacity=".48"/>`,
+    makeup: `${compact}<g transform="rotate(-28 405 438)"><rect x="350" y="265" width="82" height="290" rx="38" fill="${accent}" opacity=".54"/><rect x="366" y="180" width="50" height="112" rx="22" fill="#F8EBDD" opacity=".5"/></g><rect x="478" y="172" width="80" height="340" rx="38" fill="#F8EBDD" opacity=".3"/>`,
+    body: `<ellipse cx="420" cy="520" rx="190" ry="76" fill="#F8EBDD" opacity=".24"/><circle cx="376" cy="390" r="128" fill="#F8EBDD" opacity=".28"/><circle cx="374" cy="390" r="86" fill="${accent}" opacity=".2"/>${bottle}`,
+    uv: `${bottle}<circle cx="300" cy="218" r="96" fill="${accent}" opacity=".26"/><circle cx="300" cy="218" r="152" fill="none" stroke="#F8EBDD" stroke-width="18" opacity=".14"/><path d="M196 408 C310 326 430 326 544 408" fill="none" stroke="#F8EBDD" stroke-width="28" stroke-linecap="round" opacity=".2"/>`,
+    fragrance: `<rect x="522" y="194" width="236" height="322" rx="36" fill="#F8EBDD" opacity=".32"/><rect x="586" y="126" width="108" height="94" rx="22" fill="#D8B56A" opacity=".46"/><circle cx="364" cy="464" r="118" fill="${accent}" opacity=".22"/><path d="M248 282 C364 182 492 214 554 310" fill="none" stroke="#F8EBDD" stroke-width="22" stroke-linecap="round" opacity=".18"/>`,
+    nail: `${cap}<g transform="rotate(18 704 410)"><rect x="656" y="226" width="92" height="312" rx="38" fill="#F8EBDD" opacity=".32"/><rect x="676" y="162" width="52" height="92" rx="16" fill="${accent}" opacity=".5"/></g><ellipse cx="752" cy="560" rx="168" ry="48" fill="#F8EBDD" opacity=".18"/>`,
+    supplement: `<rect x="522" y="176" width="214" height="344" rx="44" fill="${accent}" opacity=".32"/><rect x="566" y="122" width="126" height="82" rx="18" fill="#F8EBDD" opacity=".35"/><g opacity=".42"><ellipse cx="330" cy="392" rx="58" ry="28" fill="#F8EBDD" transform="rotate(-24 330 392)"/><ellipse cx="400" cy="486" rx="58" ry="28" fill="#D8B56A" transform="rotate(20 400 486)"/><ellipse cx="818" cy="418" rx="58" ry="28" fill="#F8EBDD" transform="rotate(-18 818 418)"/></g>`,
+  };
+
+  return `data:image/svg+xml,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 760">
+      <defs>
+        <filter id="blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="36"/></filter>
+        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#120804"/><stop offset=".52" stop-color="#291409"/><stop offset="1" stop-color="#080402"/></linearGradient>
+      </defs>
+      <rect width="1100" height="760" fill="url(#g)"/>
+      <circle cx="850" cy="126" r="250" fill="${accent}" opacity=".28" filter="url(#blur)"/>
+      <circle cx="180" cy="650" r="240" fill="#F8EBDD" opacity=".1" filter="url(#blur)"/>
+      <path d="M104 112 H996 M104 650 H996 M170 76 V684 M930 76 V684" stroke="#F8EBDD" stroke-width="1" opacity=".13"/>
+      <rect x="86" y="68" width="928" height="624" rx="34" fill="none" stroke="#F8EBDD" stroke-width="1" opacity=".18"/>
+      ${shapes[variant]}
+    </svg>
+  `)}`;
+};
+
+const CATEGORY_VISUALS: Record<Category, { image: string; mood: string; mark: string; prompt: string }> = {
+  スキンケア: {
+    image: categoryArt("#C4556A", "skincare"),
+    mood: "skin ritual",
+    mark: "SK",
+    prompt: "Luxury Japanese beauty editorial still life, translucent serum bottle, porcelain cream jar, soft ivory stone, single camellia petal, warm morning light, premium skincare ritual, no text, no logo.",
+  },
+  ヘアケア: {
+    image: categoryArt("#4A8BAD", "haircare"),
+    mood: "silk hair",
+    mark: "HR",
+    prompt: "Luxury haircare editorial still life, glossy hair oil bottle, silk ribbon, dark walnut surface, soft salon light, refined Japanese magazine composition, no text, no logo.",
+  },
+  メイク: {
+    image: categoryArt("#AD4A8B", "makeup"),
+    mood: "soft glamour",
+    mark: "MK",
+    prompt: "High-end makeup editorial still life, lipstick, compact powder, sheer fabric, muted rose and black lacquer, cinematic studio light, no text, no logo.",
+  },
+  ボディ: {
+    image: categoryArt("#4AAD8B", "body"),
+    mood: "body veil",
+    mark: "BD",
+    prompt: "Premium body care still life, cream texture, bath oil glass bottle, pale stone, clean spa atmosphere, soft steam, elegant minimal composition, no text, no logo.",
+  },
+  UVケア: {
+    image: categoryArt("#C49A2A", "uv"),
+    mood: "sun shield",
+    mark: "UV",
+    prompt: "Luxury sunscreen editorial still life, slim SPF bottle, sunlit frosted glass, pale gold reflection, clean summer light, premium skincare advertising, no text, no logo.",
+  },
+  フレグランス: {
+    image: categoryArt("#8B4AAD", "fragrance"),
+    mood: "sillage",
+    mark: "FR",
+    prompt: "Luxury fragrance editorial still life, sculptural perfume bottle, black marble, dried rose, amber reflection, moody premium lighting, no text, no logo.",
+  },
+  ネイル: {
+    image: categoryArt("#AD4A4A", "nail"),
+    mood: "lacquer",
+    mark: "NL",
+    prompt: "High-end nail polish editorial still life, glass nail lacquer bottle, subtle pearl powder, polished stone, elegant hand care mood, no text, no logo.",
+  },
+  サプリ: {
+    image: categoryArt("#4AAD4A", "supplement"),
+    mood: "inner glow",
+    mark: "SP",
+    prompt: "Premium beauty supplement editorial still life, amber glass supplement jar, capsules, linen, morning light, wellness luxury aesthetic, no text, no logo.",
+  },
 };
 
 export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct, onGoKarte, onGoAnalyze, onGoSaved, onGoLog }: Props) {
@@ -247,41 +332,47 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
             PROで細かく絞る
           </button>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }} className="grid-cols-1-mobile motion-stagger">
+        <div className="category-couture-grid grid-cols-1-mobile motion-stagger">
           {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m], i) => {
             const guide = CATEGORY_GUIDES[name];
+            const visual = CATEGORY_VISUALS[name];
+            const cardStyle = {
+              "--category-accent": m.accent,
+              "--category-image": `url(${visual.image})`,
+            } as CSSProperties;
             return (
-            <button key={name} className="lift-card motion-card" onClick={() => onGoSearch(name)} style={{
-              padding: 0, background: "#fff", border: `1px solid ${m.accent}30`,
-              textAlign: "left", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
-              display: "flex", flexDirection: "column", minHeight: 178,
-              color: "#150B00", borderRadius: 8, overflow: "hidden", boxShadow: "0 8px 22px rgba(21,11,0,.04)",
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 14px 30px rgba(21,11,0,.08)"; (e.currentTarget as HTMLButtonElement).style.borderColor = `${m.accent}88`; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 22px rgba(21,11,0,.04)"; (e.currentTarget as HTMLButtonElement).style.borderColor = `${m.accent}30`; }}>
-              <div style={{ height: 6, background: `linear-gradient(90deg, ${m.accent}, ${m.color})` }} />
-              <div style={{ padding: "16px 16px 14px", display: "grid", gap: 10, flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 12, background: m.color, display: "grid", placeItems: "center", color: m.dark, fontSize: 20 }}>
-                    {m.icon}
+            <button
+              key={name}
+              className="category-couture-card motion-card tap-card"
+              onClick={() => onGoSearch(name)}
+              style={cardStyle}
+              aria-label={`${name}を詳しく探す`}
+            >
+              <div className="category-couture-content">
+                <div className="category-couture-topline">
+                  <span>{visual.mood}</span>
+                  <span>0{i + 1}</span>
+                </div>
+
+                <div className="category-couture-title-wrap">
+                  <span className="category-couture-icon">{visual.mark}</span>
+                  <div>
+                    <div className="category-couture-title">{name}</div>
+                    <div className="category-couture-en">{m.en}</div>
                   </div>
-                  <span style={{ fontSize: 10, letterSpacing: "0.18em", fontFamily: "ui-monospace,monospace", color: "#B99B7C" }}>0{i + 1}</span>
                 </div>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 900, lineHeight: 1.25, color: "#150B00" }}>{name}</div>
-                  <div style={{ fontSize: 10, marginTop: 2, color: "#A8722A", fontFamily: "ui-monospace,monospace", letterSpacing: "0.12em" }}>{m.en}</div>
-                </div>
-                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.65, color: "#6B5B4A", fontWeight: 700 }}>{guide.lead}</p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+
+                <p className="category-couture-lead">{guide.lead}</p>
+
+                <div className="category-couture-tags">
                   {guide.tags.map((tag) => (
-                    <span key={tag} style={{ border: `1px solid ${m.accent}28`, borderRadius: 999, padding: "3px 7px", background: m.color, color: m.dark, fontSize: 10, fontWeight: 800 }}>
-                      {tag}
-                    </span>
+                    <span key={tag}>{tag}</span>
                   ))}
                 </div>
-                <div style={{ marginTop: "auto", paddingTop: 6, borderTop: "1px solid #F1EADE", display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
-                  <span style={{ fontSize: 10, color: "#8A7A6E", lineHeight: 1.5 }}>{guide.route}</span>
-                  <span style={{ color: m.accent, fontSize: 13, fontWeight: 900 }}>→</span>
+
+                <div className="category-couture-footer">
+                  <span>{guide.route}</span>
+                  <span className="tap-card-hint">Explore →</span>
                 </div>
               </div>
             </button>

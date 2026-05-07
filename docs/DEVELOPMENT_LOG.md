@@ -536,6 +536,13 @@ Recent checks:
 - Product matching now considers desired ingredients, current products, current state, goals, and learned preferences.
 - Verified locally with `npm run typecheck`, `npm run build`, `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`, and `/api/youtube?query=...`.
 
+2026-05-07 category luxury pass:
+
+- The Home "目的から探す" grid was redesigned from plain pastel cards into dark editorial category tiles with monogram marks, inner hairline borders, gold/accent lighting, and stronger hover/tap feedback.
+- Category backgrounds now use brand-safe generated SVG art instead of third-party category photos, so no accidental product logo or unrelated apparel image appears in that section.
+- `docs/IMAGE_PROMPTS.md` contains production prompts for replacing those temporary generated SVG assets with AI-generated bitmap assets later.
+- Verified locally with `npm run build`, `npm run typecheck`, `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`, and desktop/mobile Playwright screenshots on `http://localhost:3006`.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

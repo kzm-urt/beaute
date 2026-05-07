@@ -380,6 +380,195 @@ textarea:focus-visible {
     repeating-linear-gradient(90deg, rgba(168, 114, 42, 0.045) 0 1px, transparent 1px 128px);
 }
 
+.category-couture-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.category-couture-card {
+  --category-accent: #D4A853;
+  --category-image: none;
+  position: relative;
+  min-height: 272px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(212, 168, 83, 0.28);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--category-accent) 24%, transparent), transparent 36%),
+    linear-gradient(145deg, #1A0E08 0%, #2A160B 48%, #120804 100%);
+  color: #FBF8F3;
+  text-align: left;
+  cursor: pointer;
+  box-shadow:
+    0 20px 54px rgba(21, 11, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  isolation: isolate;
+}
+
+.category-couture-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--category-image);
+  background-size: cover;
+  background-position: center;
+  opacity: 1;
+  transform: scale(1.04);
+  filter: saturate(0.94) contrast(1.04) brightness(0.9);
+  transition: transform 0.56s cubic-bezier(.2,.8,.2,1), filter 0.56s cubic-bezier(.2,.8,.2,1), opacity 0.56s cubic-bezier(.2,.8,.2,1);
+}
+
+.category-couture-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(14, 7, 2, 0.06) 0%, rgba(14, 7, 2, 0.42) 40%, rgba(14, 7, 2, 0.9) 100%),
+    linear-gradient(90deg, rgba(14, 7, 2, 0.88) 0%, rgba(14, 7, 2, 0.48) 48%, rgba(14, 7, 2, 0.08) 100%),
+    radial-gradient(circle at 82% 15%, color-mix(in srgb, var(--category-accent) 24%, transparent), transparent 40%),
+    repeating-linear-gradient(90deg, rgba(251, 248, 243, 0.04) 0 1px, transparent 1px 92px);
+  pointer-events: none;
+}
+
+.category-couture-card:hover {
+  border-color: color-mix(in srgb, var(--category-accent) 64%, #FBF8F3);
+  box-shadow:
+    0 28px 70px rgba(21, 11, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.category-couture-card:hover::before {
+  opacity: 1;
+  transform: scale(1.1);
+  filter: saturate(1.06) contrast(1.08) brightness(0.98);
+}
+
+.category-couture-content {
+  position: relative;
+  z-index: 2;
+  min-height: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+}
+
+.category-couture-content::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(251, 248, 243, 0.14);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.category-couture-topline,
+.category-couture-en,
+.category-couture-footer {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.14em;
+}
+
+.category-couture-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(251, 248, 243, 0.72);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.category-couture-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: auto;
+}
+
+.category-couture-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(145deg, rgba(251, 248, 243, 0.24), rgba(251, 248, 243, 0.08)),
+    color-mix(in srgb, var(--category-accent) 16%, transparent);
+  border: 1px solid rgba(251, 248, 243, 0.22);
+  backdrop-filter: blur(14px);
+  color: #FBF8F3;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.category-couture-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 600;
+  color: #FBF8F3;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.34);
+}
+
+.category-couture-en {
+  margin-top: 6px;
+  color: color-mix(in srgb, var(--category-accent) 72%, #FBF8F3);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.category-couture-lead {
+  max-width: 24em;
+  margin: 0;
+  color: rgba(251, 248, 243, 0.84);
+  font-size: 12px;
+  line-height: 1.72;
+  font-weight: 700;
+}
+
+.category-couture-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.category-couture-tags span {
+  border: 1px solid rgba(251, 248, 243, 0.18);
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: rgba(251, 248, 243, 0.12);
+  color: rgba(251, 248, 243, 0.84);
+  backdrop-filter: blur(12px);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.category-couture-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(251, 248, 243, 0.16);
+  color: rgba(251, 248, 243, 0.68);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.category-couture-footer .tap-card-hint {
+  flex-shrink: 0;
+  color: color-mix(in srgb, var(--category-accent) 82%, #FBF8F3);
+  font-weight: 900;
+}
+
 .micro-label {
   font-family: ui-monospace, monospace;
   font-size: 10px;
@@ -1028,6 +1217,22 @@ textarea:focus-visible {
 
   .grid-cols-1-mobile {
     grid-template-columns: 1fr !important;
+  }
+
+  .category-couture-grid {
+    gap: 10px;
+  }
+
+  .category-couture-card {
+    min-height: 238px;
+  }
+
+  .category-couture-content {
+    padding: 18px;
+  }
+
+  .category-couture-title {
+    font-size: 30px;
   }
 
   .admin-status-row {
