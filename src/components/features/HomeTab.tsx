@@ -12,6 +12,8 @@ import type { PersonalPreferences, UserProfile, Product, Category } from "@/type
 
 interface Props {
   profile: UserProfile;
+  displayName: string;
+  isGuest: boolean;
   isPro: boolean;
   preferences?: PersonalPreferences | null;
   onUpgrade: (sourceArea?: string, product?: Product) => void;
@@ -120,7 +122,7 @@ const CATEGORY_VISUALS: Record<Category, { image: string; mood: string; mark: st
   },
 };
 
-export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct, onGoKarte, onGoAnalyze, onGoSaved, onGoLog, onGoGuide }: Props) {
+export default function HomeTab({ profile, displayName, isGuest, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct, onGoKarte, onGoAnalyze, onGoSaved, onGoLog, onGoGuide }: Props) {
   const [videos, setVideos] = useState<YoutubeVideo[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
   const [activeVideoCategory, setActiveVideoCategory] = useState("全体");
@@ -178,6 +180,11 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
   const heroMeta = heroProduct ? CAT_META[heroProduct.cat] : null;
   const heroMatch = heroProduct ? getPersonalMatch(heroProduct, profile, isPro ? preferences : null) : null;
   const recommendationProducts = aiPicks.length > 0 ? aiPicks : editorsPicks.slice(0, 6);
+  const concernText = profile.concerns.slice(0, 3).join("・") || "今日の悩み";
+  const conditionText = profile.currentState.slice(0, 2).join("・") || concernText;
+  const personalHeroCopy = isGuest
+    ? "ゲスト用カルテのサンプルで、検索・ランキング・おすすめの流れを体験できます。登録すると保存やログがあなた専用に育ちます。"
+    : `${profile.skinType || "肌質"}・${conditionText}を起点に、楽天商品、保存、ログから${displayName}さん向けの候補を整えています。`;
 
   return (
     <div className="motion-fade-scale" style={{ background: "linear-gradient(180deg,#FBF8F3 0%,#F8F4EF 42%,#F5EFE7 100%)" }}>
@@ -236,22 +243,20 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
 
         <div className="motion-reveal" style={{ position: "absolute", top: 22, left: 32, right: 32, display: "flex", justifyContent: "space-between", fontSize: 10, letterSpacing: "0.3em", color: "rgba(251,248,243,.45)", fontFamily: "ui-monospace,monospace" }}>
           <span>カバーストーリー · ISSUE 04</span>
-          <span className="hidden md:block">━━ AI が {profile.skinType || "あなた"} のために編集</span>
+          <span className="hidden md:block">━━ {isGuest ? "ゲスト体験用に編集" : `${displayName}さんのために編集`}</span>
           <span>{new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long" })}</span>
         </div>
 
         <div className="home-hero-content motion-reveal-slow" style={{ position: "absolute", bottom: 34, left: 32, right: 32, maxWidth: 660 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.2em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 14 }}>
-            PERSONAL EDITION · {isPro && preferences?.confidence ? `CONFIDENCE ${preferences.confidence}` : "PROFILE BASED"}
+            {isGuest ? "GUEST PREVIEW" : "WELCOME BACK"} · {isPro && preferences?.confidence ? `CONFIDENCE ${preferences.confidence}` : "PROFILE BASED"}
           </div>
           <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: "clamp(42px,7vw,76px)", lineHeight: 1.08, margin: 0, fontWeight: 400, color: "#FBF8F3", letterSpacing: "0.02em" }}>
-            {profile.skinType || "今日の肌"}に、<br/>
-            <span style={{ color: "#D4A853", fontStyle: "italic" }}>似合う一品</span>から。
+            {isGuest ? "あなたに合う美容選びを、" : `${displayName}さんの今日に、`}<br/>
+            <span style={{ color: "#D4A853", fontStyle: "italic" }}>迷わず買う理由</span>まで。
           </h1>
           <p style={{ fontSize: 13, lineHeight: 1.85, color: "rgba(251,248,243,.72)", margin: "18px 0 22px", maxWidth: 440 }}>
-            {heroProduct
-              ? `${heroProduct.sub}・${heroProduct.cat}を起点に、楽天商品とログ学習から今日の候補を並べています。`
-              : `${profile.skinType || "肌質"}と気になる悩みに合わせて、今日の候補を準備しています。`}
+            {personalHeroCopy}
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button className="motion-cta" onClick={onGoGuide} style={{ padding: "12px 20px", background: "#F8F4EF", border: "1px solid rgba(248,244,239,.9)", color: "#1A0E08", fontSize: 12, letterSpacing: "0.1em", fontWeight: 900, cursor: "pointer", borderRadius: 6 }}>
@@ -273,13 +278,53 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
       <div style={{ background: "#F1EADE", borderBottom: "1px solid #EDE5DC" }}>
         <div className="section-shell mobile-tight motion-reveal-slow" style={{ padding: "14px 32px", display: "flex", gap: 20, alignItems: "center", overflowX: "auto", fontSize: 11, letterSpacing: "0.12em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace", whiteSpace: "nowrap" }}>
           <span style={{ color: "#D4A853", fontWeight: 600, flexShrink: 0 }}>{isPro && preferences?.confidence ? "LOG 学習済み" : "AI 解析済み"}</span>
-          <span>━━ {profile.skinType || "肌質未設定"}</span>
+          <span>━━ {isGuest ? "ゲストカルテ" : `${displayName}さんのカルテ`}</span>
+          <span>{profile.skinType || "肌質未設定"}</span>
           {isPro && preferences?.positiveSignals.slice(0, 2).map(signal => <span key={signal}>/ {signal}</span>)}
           {profile.hairType && <span>{profile.hairType}</span>}
           {profile.concerns.slice(0, 3).map(c => <span key={c}>/ {c}</span>)}
           <span style={{ marginLeft: "auto", color: "#150B00", flexShrink: 0 }}>更新 {new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</span>
         </div>
       </div>
+
+      {!isGuest && (
+        <section className="mobile-tight motion-reveal" style={{ padding: "20px 32px", borderBottom: "1px solid #EDE5DC", background: "#FBF8F3" }}>
+          <div
+            className="section-shell home-personal-desk"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.1fr .9fr",
+              gap: 16,
+              alignItems: "stretch",
+            }}
+          >
+            <div style={{ border: "1px solid #E8D7BE", borderRadius: 16, padding: "18px 18px 16px", background: "linear-gradient(135deg,#fffaf0,#fff)", boxShadow: "0 12px 34px rgba(21,11,0,.05)" }}>
+              <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 8 }}>YOUR BEAUTY DESK</div>
+              <h2 style={{ margin: "0 0 8px", fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, lineHeight: 1.2, color: "#150B00", fontWeight: 500 }}>
+                おかえりなさい、{displayName}さん。
+              </h2>
+              <p style={{ margin: 0, fontSize: 13, lineHeight: 1.8, color: "#5F4A3D" }}>
+                今日は「{conditionText}」を優先して、相性の高い商品・使い方・動画の入口をまとめています。
+              </p>
+            </div>
+            <div style={{ border: "1px solid #EDE5DC", borderRadius: 16, padding: 16, background: "#fff", display: "grid", gap: 10 }}>
+              {[
+                ["肌・髪", [profile.skinType, profile.hairType].filter(Boolean).join(" / ") || "未設定"],
+                ["気になること", concernText],
+                ["次の精度UP", profile.currentProducts.length > 0 ? "使用中アイテムをもとに比較" : "使っている製品を登録"],
+              ].map(([label, value]) => (
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 12, borderBottom: "1px solid #F1EADE", paddingBottom: 8 }}>
+                  <span style={{ fontSize: 11, color: "#A8722A", fontWeight: 900 }}>{label}</span>
+                  <span style={{ fontSize: 12, color: "#3A281C", fontWeight: 800, textAlign: "right" }}>{value}</span>
+                </div>
+              ))}
+              <button className="motion-nav-button" onClick={onGoKarte} style={{ border: "none", borderRadius: 999, padding: "10px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
+                カルテを育てる →
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       <TutorialGuide
         isPro={isPro}

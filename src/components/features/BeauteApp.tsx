@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import type { User } from "@supabase/supabase-js";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { usePersonalPreferences } from "@/hooks/usePersonalPreferences";
@@ -51,6 +52,7 @@ function getInitialTab(): Tab {
 }
 
 const GUEST_PROFILE: UserProfile = {
+  nickname: "ゲスト",
   age: "",
   gender: "回答しない",
   skinType: "\u6df7\u5408\u808c",
@@ -63,10 +65,68 @@ const GUEST_PROFILE: UserProfile = {
   goals: ["毛穴を目立たせない", "透明感"],
 };
 
+function cleanDisplayValue(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function getDisplayName(user: User | null, profile?: UserProfile) {
+  const nickname = cleanDisplayValue(profile?.nickname);
+  if (nickname) return nickname.slice(0, 18);
+
+  const meta = user?.user_metadata ?? {};
+  const metadataName =
+    cleanDisplayValue(meta.nickname) ||
+    cleanDisplayValue(meta.name) ||
+    cleanDisplayValue(meta.full_name);
+  if (metadataName) return metadataName.slice(0, 18);
+
+  const emailName = cleanDisplayValue(user?.email?.split("@")[0]);
+  if (!emailName) return "あなた";
+  return emailName.replace(/[._-]+/g, " ").trim().slice(0, 18) || "あなた";
+}
+
+function getDisplayInitial(name: string) {
+  return name.trim().charAt(0).toUpperCase() || "U";
+}
+
 function TabLoading() {
   return (
     <div className="motion-fade-scale" style={{ minHeight: "45vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#A8722A", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 26 }}>
       beauté
+    </div>
+  );
+}
+
+function WelcomeBackLoading({ displayName }: { displayName?: string }) {
+  return (
+    <div
+      className="motion-fade-scale"
+      style={{
+        minHeight: "100vh",
+        background: "radial-gradient(circle at 50% 28%, rgba(212,168,83,.15), transparent 34%), #F8F4EF",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#150B00",
+      }}
+    >
+      <div style={{ textAlign: "center", padding: 24 }}>
+        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 36, color: "#A8722A", marginBottom: 12 }}>
+          beauté
+        </div>
+        {displayName ? (
+          <>
+            <div style={{ fontSize: 12, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>
+              WELCOME BACK
+            </div>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "#3A281C" }}>
+              {displayName}さんの美容カルテを準備しています
+            </p>
+          </>
+        ) : (
+          <p style={{ margin: 0, fontSize: 13, color: "#8A7A6E" }}>読み込み中...</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -84,6 +144,7 @@ export default function BeauteApp() {
   const isGuest = !user;
   const effectiveProfile = isGuest ? GUEST_PROFILE : profile;
   const effectiveIsPro = !isGuest && isPro;
+  const displayName = isGuest ? "ゲスト" : getDisplayName(user, profile);
 
   // PWAインストールプロンプトの捕捉
   useEffect(() => {
@@ -151,11 +212,7 @@ export default function BeauteApp() {
 
   // 認証・プロフィール読み込み中
   if (authLoading || (user && profileLoading)) {
-    return (
-      <div className="motion-fade-scale" style={{ minHeight: "100vh", background: "#F8F4EF", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 32, color: "#A8722A" }}>beauté</div>
-      </div>
-    );
+    return <WelcomeBackLoading displayName={user ? getDisplayName(user, profile) : undefined} />;
   }
 
   if (isGuest && showAuth) {
@@ -228,10 +285,10 @@ export default function BeauteApp() {
 
         <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(212,168,83,.15)", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#E8D7BE,#C89E6A)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, color: "#1A0E08", fontWeight: 700, flexShrink: 0 }}>
-            {isGuest ? "G" : user.email?.[0]?.toUpperCase() || "U"}
+            {isGuest ? "G" : getDisplayInitial(displayName)}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11, color: "#FBF8F3", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{isGuest ? "\u30b2\u30b9\u30c8\u95b2\u89a7\u4e2d" : user.email}</div>
+            <div style={{ fontSize: 11, color: "#FBF8F3", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{isGuest ? "\u30b2\u30b9\u30c8\u95b2\u89a7\u4e2d" : `${displayName}さん`}</div>
             <div style={{ fontSize: 9, letterSpacing: "0.2em", color: effectiveIsPro ? "#D4A853" : "rgba(251,248,243,.4)", fontFamily: "ui-monospace,monospace" }}>{isGuest ? "GUEST" : effectiveIsPro ? "PRO MEMBER" : "FREE PLAN"}</div>
           </div>
           <button
@@ -258,7 +315,7 @@ export default function BeauteApp() {
         {/* Desktop top bar */}
         <header className="hidden md:flex" style={{ height: 52, padding: "0 40px", alignItems: "center", justifyContent: "space-between", background: "#F8F4EF", borderBottom: "1px solid #EDE5DC", position: "sticky", top: 0, zIndex: 20 }}>
           <div style={{ fontSize: 10, letterSpacing: "0.25em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace" }}>
-            beauté ✦ {NAV.find(n => n.key === tab)?.en} — {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}
+            {isGuest ? "beauté ✦ Guest Preview" : `おかえりなさい、${displayName}さん`} — {NAV.find(n => n.key === tab)?.en} — {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button className="motion-nav-button" onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "6px 14px", background: tab === "ranking" ? "#1A0E08" : "#fff", color: tab === "ranking" ? "#D4A853" : "#8A7A6E", border: "1px solid #EDE5DC", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>ランキング</button>
@@ -271,7 +328,12 @@ export default function BeauteApp() {
 
         {/* Mobile header */}
         <header className="flex md:hidden" style={{ height: 52, padding: "0 16px", alignItems: "center", justifyContent: "space-between", background: "#1A0E08", position: "sticky", top: 0, zIndex: 20 }}>
-          <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>beauté</div>
+          <div>
+            <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500, lineHeight: 1 }}>beauté</div>
+            <div style={{ fontSize: 8, letterSpacing: "0.14em", color: "rgba(212,168,83,.72)", fontFamily: "ui-monospace,monospace", marginTop: 3 }}>
+              {isGuest ? "GUEST" : "FOR YOU"}
+            </div>
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button className="motion-nav-button" onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "5px 10px", background: tab === "ranking" ? "#D4A853" : "transparent", color: tab === "ranking" ? "#1A0E08" : "#D4A853", border: "1px solid #D4A853", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>ランキング</button>
             {!effectiveIsPro && <button className="motion-cta" onClick={() => isGuest ? setShowAuth(true) : upgrade("mobile_header")} style={{ fontSize: 11, padding: "5px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer" }}>{isGuest ? "\u767b\u9332" : "PRO"}</button>}
@@ -300,7 +362,7 @@ export default function BeauteApp() {
         )}
 
         <main style={{ flex: 1, overflowY: "auto" }} className="app-main">
-          {tab === "home"    && <HomeTab    profile={effectiveProfile} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")} onGoGuide={() => setTab("guide")}/>}
+          {tab === "home"    && <HomeTab    profile={effectiveProfile} displayName={displayName} isGuest={isGuest} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")} onGoGuide={() => setTab("guide")}/>}
           {tab === "guide"   && <GuideTab   isGuest={isGuest} isPro={effectiveIsPro} onAuth={() => setShowAuth(true)} onUpgrade={upgrade} onGoSearch={() => setTab("search")} onGoRanking={() => setTab("ranking")} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
           {tab === "search"  && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
           {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}

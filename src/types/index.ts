@@ -39,6 +39,7 @@ export interface Product {
 }
 
 export interface UserProfile {
+  nickname: string;
   age: string;
   gender: string;
   skinType: string;

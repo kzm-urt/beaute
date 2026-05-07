@@ -6,6 +6,7 @@ import { resolveIsPro } from "@/lib/plan";
 import type { UserProfile } from "@/types";
 
 const DEFAULT: UserProfile = {
+  nickname: "",
   age: "",
   gender: "",
   skinType: "",
@@ -20,6 +21,7 @@ const DEFAULT: UserProfile = {
 
 const BASE_PROFILE_SELECT = "age, skin_type, hair_type, concerns, is_pro";
 const FULL_PROFILE_SELECT = [
+  "nickname",
   "age",
   "gender",
   "skin_type",
@@ -34,6 +36,7 @@ const FULL_PROFILE_SELECT = [
 ].join(",");
 
 type ProfileRow = {
+  nickname?: string | null;
   age?: string | null;
   gender?: string | null;
   skin_type?: string | null;
@@ -49,6 +52,7 @@ type ProfileRow = {
 
 function fromRow(data: ProfileRow): UserProfile {
   return {
+    nickname: data.nickname ?? "",
     age: data.age ?? "",
     gender: data.gender ?? "",
     skinType: data.skin_type ?? "",
@@ -67,45 +71,68 @@ export function useProfile(user: User | null) {
   const [profileDone, setProfileDone] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [isPro, setIsPro] = useState(false);
+  const [loadedUserId, setLoadedUserId] = useState<string | null>(null);
+  const userId = user?.id ?? null;
+  const userEmail = user?.email ?? null;
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setProfile(DEFAULT);
       setProfileDone(false);
       setProfileLoading(false);
       setIsPro(false);
+      setLoadedUserId(null);
       return;
     }
 
+    let ignore = false;
+    setProfileLoading(true);
+    setLoadedUserId(null);
+
     const loadProfile = async () => {
       let profileData: ProfileRow | null = null;
-      const fullResult = await supabase
-        .from("profiles")
-        .select(FULL_PROFILE_SELECT)
-        .eq("id", user.id)
-        .single();
-      profileData = fullResult.data as ProfileRow | null;
+      let nextProfile = DEFAULT;
+      let nextProfileDone = false;
+      let nextIsPro = resolveIsPro(false, userEmail);
 
-      if (!profileData) {
-        const fallback = await supabase
+      try {
+        const fullResult = await supabase
           .from("profiles")
-          .select(BASE_PROFILE_SELECT)
-          .eq("id", user.id)
+          .select(FULL_PROFILE_SELECT)
+          .eq("id", userId)
           .single();
-        profileData = fallback.data as ProfileRow | null;
-      }
+        profileData = fullResult.data as ProfileRow | null;
 
-      if (profileData) {
-        const p = fromRow(profileData);
-        setProfile(p);
-        setIsPro(resolveIsPro(profileData.is_pro, user.email));
-        if (p.age || p.skinType) setProfileDone(true);
+        if (!profileData) {
+          const fallback = await supabase
+            .from("profiles")
+            .select(BASE_PROFILE_SELECT)
+            .eq("id", userId)
+            .single();
+          profileData = fallback.data as ProfileRow | null;
+        }
+
+        if (profileData) {
+          nextProfile = fromRow(profileData);
+          nextIsPro = resolveIsPro(profileData.is_pro, userEmail);
+          nextProfileDone = Boolean(nextProfile.age || nextProfile.skinType);
+        }
+      } finally {
+        if (!ignore) {
+          setProfile(nextProfile);
+          setIsPro(nextIsPro);
+          setProfileDone(nextProfileDone);
+          setLoadedUserId(userId);
+          setProfileLoading(false);
+        }
       }
-      setProfileLoading(false);
     };
 
     void loadProfile();
-  }, [user]);
+    return () => {
+      ignore = true;
+    };
+  }, [userId, userEmail]);
 
   const saveProfile = async (next: UserProfile) => {
     if (!user) return;
@@ -119,6 +146,7 @@ export function useProfile(user: User | null) {
     };
     const { error } = await supabase.from("profiles").upsert({
       ...basePayload,
+      nickname: next.nickname,
       gender: next.gender,
       current_products: next.currentProducts,
       current_state: next.currentState,
@@ -161,9 +189,14 @@ export function useProfile(user: User | null) {
     }
     if (profileData) {
       setIsPro(resolveIsPro(profileData.is_pro, user.email));
-      setProfile(fromRow(profileData));
+      const nextProfile = fromRow(profileData);
+      setProfile(nextProfile);
+      setProfileDone(Boolean(nextProfile.age || nextProfile.skinType));
+      setLoadedUserId(user.id);
     }
   };
 
-  return { profile, updateProfile, profileDone, setProfileDone, completeProfile, profileLoading, isPro, setIsPro, refreshProfile };
+  const effectiveProfileLoading = profileLoading || Boolean(user && loadedUserId !== user.id);
+
+  return { profile, updateProfile, profileDone, setProfileDone, completeProfile, profileLoading: effectiveProfileLoading, isPro, setIsPro, refreshProfile };
 }

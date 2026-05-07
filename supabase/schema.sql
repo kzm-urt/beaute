@@ -6,6 +6,7 @@
 -- ── プロフィール ──────────────────────────────────────────────
 create table if not exists profiles (
     id                uuid references auth.users on delete cascade primary key,
+    nickname          text,
     age               text,
     gender            text,
     skin_type         text,
@@ -26,6 +27,7 @@ create table if not exists profiles (
 );
 
 alter table profiles add column if not exists stripe_subscription_id text;
+alter table profiles add column if not exists nickname text;
 alter table profiles add column if not exists age text;
 alter table profiles add column if not exists gender text;
 alter table profiles add column if not exists skin_type text;

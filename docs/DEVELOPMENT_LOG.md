@@ -700,6 +700,13 @@ Recent checks:
 - Added `docs/BETA_TEST_GUIDE.md` with the share message and feedback links.
 - Verified locally with `npm run typecheck`, `npm run build`, `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`, API submit/cleanup, and mobile Playwright smoke across Home, Guide, Search, Ranking, Premium, legal pages, product drawer, feedback page, and feedback submit. No console errors or horizontal overflow were detected.
 
+2026-05-07 welcome personalization pass:
+
+- Fixed the logged-in transition so the profile setup screen does not flash while Supabase profile data is still resolving.
+- Added optional `profiles.nickname` support with safe fallback when the column has not been applied yet.
+- Home, desktop sidebar, desktop header, mobile header, and the loading screen now use a personal display name and welcome-back language.
+- Home now includes a compact "YOUR BEAUTY DESK" panel that summarizes the user's current skin/hair/concern signals and routes them back to Karte.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

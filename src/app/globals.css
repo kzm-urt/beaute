@@ -793,6 +793,10 @@ textarea:focus-visible {
   margin: 0 auto;
 }
 
+.home-personal-desk {
+  grid-template-columns: 1.1fr .9fr;
+}
+
 .guide-tab {
   min-height: 100%;
   background:
@@ -1910,6 +1914,10 @@ textarea:focus-visible {
   .mobile-tight {
     padding-left: 18px !important;
     padding-right: 18px !important;
+  }
+
+  .home-personal-desk {
+    grid-template-columns: 1fr !important;
   }
 
   .guest-preview-inner {

@@ -180,14 +180,14 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
   };
 
   const signalCount =
-    [profile.age, profile.gender, profile.skinType, profile.hairType].filter(Boolean).length +
+    [profile.nickname, profile.age, profile.gender, profile.skinType, profile.hairType].filter(Boolean).length +
     profile.concerns.length +
     profile.currentProducts.length +
     profile.currentState.length +
     profile.desiredIngredients.length +
     profile.habits.length +
     profile.goals.length;
-  const completion = Math.min(100, Math.round((signalCount / 24) * 100));
+  const completion = Math.min(100, Math.round((signalCount / 25) * 100));
 
   return (
     <div
@@ -230,6 +230,22 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
 
         <main className="rounded-[18px] p-4 md:p-5" style={{ background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.12)", boxShadow: "0 22px 70px rgba(0,0,0,.22)" }}>
           <div className="grid gap-3">
+            <Section label="ニックネーム" note="ホームのおかえり表示と、あなた向けカルテ名に使います。" compact>
+              <input
+                value={profile.nickname}
+                onChange={(e) => set("nickname", e.target.value)}
+                placeholder="例）うらさん"
+                className="w-full rounded-[12px] px-3.5 py-3 text-[13px] outline-none"
+                maxLength={18}
+                style={{
+                  color: "#F5EEE4",
+                  background: "rgba(255,255,255,.07)",
+                  border: "1.5px solid rgba(255,255,255,.16)",
+                  fontFamily: "inherit",
+                }}
+              />
+            </Section>
+
             <div className="grid gap-3 md:grid-cols-3">
               <Section label="年齢" compact>
                 <PillGroup options={AGE_OPTS} value={profile.age} onChange={(v) => set("age", v)} />
