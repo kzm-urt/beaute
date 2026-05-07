@@ -49,6 +49,8 @@ Verification:
   - Product image requests: `18`.
   - Rakuten `320x320` image requests: `18`.
 - Mobile search screenshot verified at `390x844`.
+- Production deployment `dpl_21EuJM45bgr1RZVZSWqXFgdfdi9w` is Ready and aliased to `https://beaute-xi.vercel.app`.
+- `NEXT_PUBLIC_APP_URL=https://beaute-xi.vercel.app npm run preflight` passes.
 
 ## 2026-05-07 Product Conversion Pass
 
