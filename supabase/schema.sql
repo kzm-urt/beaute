@@ -284,3 +284,60 @@ alter table api_usage_events enable row level security;
 
 -- API費用ログは /api/analyze、/api/products、/api/youtube 経由でservice roleが保存する。
 -- 管理者向け集計も service role を使うため、クライアントからの直接insert/selectは許可しない。
+
+-- ── ベータテスト感想アンケート ─────────────────────────────────────
+create table if not exists beta_feedback (
+  id                    uuid primary key default gen_random_uuid(),
+  tester_name           text,
+  contact               text,
+  relation              text,
+  device                text,
+  overall_rating        int check (overall_rating between 1 and 5),
+  clarity_rating        int check (clarity_rating between 1 and 5),
+  recommendation_rating int check (recommendation_rating between 1 and 5),
+  design_rating         int check (design_rating between 1 and 5),
+  paid_value_rating     int check (paid_value_rating between 1 and 5),
+  liked_features        text[] default '{}',
+  confusing_parts       text[] default '{}',
+  would_pay             text,
+  expected_price        text,
+  most_valuable         text,
+  missing_feature       text,
+  mobile_issue          text,
+  referral_idea         text,
+  free_comment          text,
+  permission_to_quote   boolean default false,
+  metadata              jsonb default '{}'::jsonb,
+  created_at            timestamptz default now()
+);
+
+alter table beta_feedback add column if not exists tester_name text;
+alter table beta_feedback add column if not exists contact text;
+alter table beta_feedback add column if not exists relation text;
+alter table beta_feedback add column if not exists device text;
+alter table beta_feedback add column if not exists overall_rating int check (overall_rating between 1 and 5);
+alter table beta_feedback add column if not exists clarity_rating int check (clarity_rating between 1 and 5);
+alter table beta_feedback add column if not exists recommendation_rating int check (recommendation_rating between 1 and 5);
+alter table beta_feedback add column if not exists design_rating int check (design_rating between 1 and 5);
+alter table beta_feedback add column if not exists paid_value_rating int check (paid_value_rating between 1 and 5);
+alter table beta_feedback add column if not exists liked_features text[] default '{}';
+alter table beta_feedback add column if not exists confusing_parts text[] default '{}';
+alter table beta_feedback add column if not exists would_pay text;
+alter table beta_feedback add column if not exists expected_price text;
+alter table beta_feedback add column if not exists most_valuable text;
+alter table beta_feedback add column if not exists missing_feature text;
+alter table beta_feedback add column if not exists mobile_issue text;
+alter table beta_feedback add column if not exists referral_idea text;
+alter table beta_feedback add column if not exists free_comment text;
+alter table beta_feedback add column if not exists permission_to_quote boolean default false;
+alter table beta_feedback add column if not exists metadata jsonb default '{}'::jsonb;
+alter table beta_feedback add column if not exists created_at timestamptz default now();
+
+create index if not exists beta_feedback_created_at_idx on beta_feedback (created_at desc);
+create index if not exists beta_feedback_device_idx on beta_feedback (device);
+create index if not exists beta_feedback_would_pay_idx on beta_feedback (would_pay);
+
+alter table beta_feedback enable row level security;
+
+-- 回答の追加・管理者向け閲覧は /api/feedback 経由。
+-- service roleを使うため、クライアントからの直接insert/selectは許可しない。

@@ -50,25 +50,26 @@ async function fetchText(path, options = {}) {
   return { res, text };
 }
 
-async function checkSupabaseTable(table, select) {
+async function checkSupabaseTable(table, select, required = true) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceKey) {
-    addCheck(`Supabase ${table} schema`, false, "Supabase env vars missing", false);
+    addCheck(`Supabase ${table} schema`, false, "Supabase env vars missing", required);
     return;
   }
 
   const supabase = createClient(supabaseUrl, serviceKey);
   const { error } = await supabase
     .from(table)
-    .select(select, { count: "exact", head: true })
+    .select(select, { count: "exact" })
     .limit(1);
 
   addCheck(
     `Supabase ${table} schema`,
     !error,
-    error ? error.message : "table/columns OK"
+    error ? error.message : "table/columns OK",
+    required
   );
 }
 
@@ -118,9 +119,22 @@ async function run() {
     addCheck("System status auth guard", false, error.message);
   }
 
+  try {
+    const { res } = await fetchJson("/api/feedback");
+    addCheck("Feedback admin auth guard", res.status === 401, `status=${res.status}`);
+  } catch (error) {
+    addCheck("Feedback admin auth guard", false, error.message);
+  }
+
   await checkSupabaseTable(
     "api_usage_events",
     "id,user_id,provider,endpoint,operation,model,request_count,input_tokens,output_tokens,cost_usd,cost_jpy,metadata,created_at"
+  );
+
+  await checkSupabaseTable(
+    "beta_feedback",
+    "id,tester_name,contact,relation,device,overall_rating,clarity_rating,recommendation_rating,design_rating,paid_value_rating,liked_features,confusing_parts,would_pay,expected_price,most_valuable,missing_feature,mobile_issue,referral_idea,free_comment,permission_to_quote,metadata,created_at",
+    false
   );
 
   try {
@@ -137,7 +151,15 @@ async function run() {
     addCheck("Admin analytics page", false, error.message);
   }
 
+  try {
+    const { res, text } = await fetchText("/admin/feedback", adminRequestOptions);
+    addCheck("Admin feedback page", res.ok && text.includes("Feedback Inbox"), `status=${res.status} / bytes=${text.length}`);
+  } catch (error) {
+    addCheck("Admin feedback page", false, error.message);
+  }
+
   for (const [path, needle] of [
+    ["/feedback", "BETA TEST FEEDBACK"],
     ["/terms", "利用規約"],
     ["/privacy", "プライバシーポリシー"],
     ["/commercial", "特定商取引法"],

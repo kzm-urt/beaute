@@ -60,6 +60,13 @@ const TABLE_CHECKS = [
     label: "API費用ログ",
     select: "id,user_id,provider,endpoint,operation,model,request_count,input_tokens,output_tokens,cost_usd,cost_jpy,metadata,created_at",
   },
+  {
+    table: "beta_feedback",
+    label: "ベータ感想アンケート",
+    select:
+      "id,tester_name,contact,relation,device,overall_rating,clarity_rating,recommendation_rating,design_rating,paid_value_rating,liked_features,confusing_parts,would_pay,expected_price,most_valuable,missing_feature,mobile_issue,referral_idea,free_comment,permission_to_quote,metadata,created_at",
+    required: false,
+  },
 ] as const;
 
 function getAccessToken(req: NextRequest) {
@@ -251,7 +258,8 @@ async function checkSupabaseTables(): Promise<StatusGroup> {
   const supabase = createClient(supabaseUrl, serviceKey);
 
   for (const tableCheck of TABLE_CHECKS) {
-    checks.push(await checkTable(supabase, tableCheck.table, tableCheck.label, tableCheck.select));
+    const required = "required" in tableCheck ? tableCheck.required !== false : true;
+    checks.push(await checkTable(supabase, tableCheck.table, tableCheck.label, tableCheck.select, required));
   }
 
   return { key: "database", title: "Supabase", checks };
@@ -261,7 +269,8 @@ async function checkTable(
   supabase: SupabaseClient,
   table: string,
   label: string,
-  select: string
+  select: string,
+  required = true
 ): Promise<StatusCheck> {
   const { error } = await supabase.from(table).select(select, { count: "exact", head: true }).limit(1);
 
@@ -269,9 +278,11 @@ async function checkTable(
     return {
       key: `supabase:${table}`,
       label,
-      status: "fail",
+      status: required ? "fail" : "warn",
       detail: error.message,
-      action: "Supabase SQL Editorで supabase/schema.sql を再実行してください。",
+      action: required
+        ? "Supabase SQL Editorで supabase/schema.sql を再実行してください。"
+        : "正式なアンケート保存に切り替える場合は、Supabase SQL Editorで supabase/schema.sql を再実行してください。一時保存はAPIログへフォールバックします。",
     };
   }
 

@@ -691,6 +691,15 @@ Recent checks:
 - Product detail on mobile now keeps the image cleaner and moves long product names into a readable body summary.
 - Verified locally with `npm run typecheck`, `npm run build`, `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`, and 390px Playwright screenshots for Home, Guide, Search, Ranking, Premium, and product drawer. No horizontal overflow was detected.
 
+2026-05-07 beta feedback pass:
+
+- Added public `/feedback` for beta testers, with 5-point ratings, feature/confusion chips, paid-value questions, mobile issue notes, referral ideas, and anonymous quote permission.
+- Added `/api/feedback` for saving responses. It writes to `beta_feedback` when the table exists and falls back to `api_usage_events` with `operation = beta_feedback` until the Supabase schema is applied.
+- Added admin-only `/admin/feedback` to review response averages, paid intent, top liked/confusing areas, and free-text comments.
+- Added `beta_feedback` to `supabase/schema.sql`, sitemap, admin status checks, and preflight.
+- Added `docs/BETA_TEST_GUIDE.md` with the share message and feedback links.
+- Verified locally with `npm run typecheck`, `npm run build`, `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`, API submit/cleanup, and mobile Playwright smoke across Home, Guide, Search, Ranking, Premium, legal pages, product drawer, feedback page, and feedback submit. No console errors or horizontal overflow were detected.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:
