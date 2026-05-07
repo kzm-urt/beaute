@@ -43,6 +43,8 @@ Verification:
   - `/?tab=search` desktop and mobile product result screenshots.
   - Desktop product drawer purchase verdict and CTA screenshot.
   - Mobile product drawer opens as a visible bottom sheet after tapping a product.
+- Production deployment `dpl_DoxqhazydV9Du9sN123HxjSf5mJo` was aliased to `https://beaute-xi.vercel.app`.
+- `NEXT_PUBLIC_APP_URL=https://beaute-xi.vercel.app npm run preflight` passes.
 
 ## 2026-05-07 Motion Polish Pass
 
