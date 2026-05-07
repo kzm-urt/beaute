@@ -27,14 +27,14 @@ interface Props {
 }
 
 const CATEGORY_GUIDES: Record<Category, { lead: string; route: string; tags: string[] }> = {
-  スキンケア: { lead: "肌状態・成分・使用タイミングから選ぶ", route: "化粧水 / 美容液 / 洗顔 / パック", tags: ["毛穴", "保湿", "敏感"] },
-  ヘアケア: { lead: "髪質・ダメージ・仕上がりで絞り込む", route: "シャンプー / オイル / マスク", tags: ["うねり", "補修", "艶"] },
-  メイク: { lead: "肌悩みと仕上がりから失敗を減らす", route: "下地 / ファンデ / リップ / アイ", tags: ["崩れ", "色味", "カバー"] },
-  ボディ: { lead: "保湿・香り・質感で毎日のケアを選ぶ", route: "クリーム / 入浴剤 / スクラブ", tags: ["乾燥", "香り", "ギフト"] },
-  UVケア: { lead: "SPFだけでなく肌質と下地相性まで見る", route: "日焼け止め / UV下地 / トーンアップ", tags: ["皮脂", "白浮き", "敏感"] },
-  フレグランス: { lead: "香調・シーン・持続感で探す", route: "香水 / ミスト / ルーム", tags: ["甘め", "清潔感", "夜"] },
-  ネイル: { lead: "色・持ち・爪悩みに合わせる", route: "カラー / ケア / ジェル", tags: ["速乾", "補強", "血色"] },
-  サプリ: { lead: "目的と続けやすさで候補を分ける", route: "ビタミン / 鉄分 / プロテイン", tags: ["肌荒れ", "疲れ", "髪"] },
+  スキンケア: { lead: "肌状態から選ぶ", route: "化粧水 / 美容液 / 洗顔", tags: ["毛穴", "保湿", "敏感"] },
+  ヘアケア: { lead: "髪質で絞る", route: "シャンプー / オイル / マスク", tags: ["うねり", "補修", "艶"] },
+  メイク: { lead: "仕上がりで探す", route: "下地 / ファンデ / リップ", tags: ["崩れ", "色味", "カバー"] },
+  ボディ: { lead: "質感で選ぶ", route: "クリーム / 入浴剤 / スクラブ", tags: ["乾燥", "香り", "ギフト"] },
+  UVケア: { lead: "肌相性で選ぶ", route: "日焼け止め / UV下地", tags: ["皮脂", "白浮き", "敏感"] },
+  フレグランス: { lead: "シーンで探す", route: "香水 / ミスト / ルーム", tags: ["甘め", "清潔感", "夜"] },
+  ネイル: { lead: "色と持ちで選ぶ", route: "カラー / ケア / ジェル", tags: ["速乾", "補強", "血色"] },
+  サプリ: { lead: "目的で分ける", route: "ビタミン / 鉄分 / プロテイン", tags: ["肌荒れ", "疲れ", "髪"] },
 };
 
 type CategoryArtVariant = "skincare" | "haircare" | "makeup" | "body" | "uv" | "fragrance" | "nail" | "supplement";
@@ -183,8 +183,8 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
   const concernText = profile.concerns.slice(0, 3).join("・") || "今日の悩み";
   const conditionText = profile.currentState.slice(0, 2).join("・") || concernText;
   const personalHeroCopy = isGuest
-    ? "ゲスト用カルテのサンプルで、検索・ランキング・おすすめの流れを体験できます。登録すると保存やログがあなた専用に育ちます。"
-    : `${profile.skinType || "肌質"}・${conditionText}を起点に、楽天商品、保存、ログから${displayName}さん向けの候補を整えています。`;
+    ? "検索、ランキング、今日の一品をまず体験。"
+    : `${profile.skinType || "肌質"}・${conditionText}から今日の候補を編集。`;
 
   return (
     <div className="motion-fade-scale" style={{ background: "linear-gradient(180deg,#FBF8F3 0%,#F8F4EF 42%,#F5EFE7 100%)" }}>
@@ -252,8 +252,8 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
             {isGuest ? "GUEST PREVIEW" : "WELCOME BACK"} · {isPro && preferences?.confidence ? `CONFIDENCE ${preferences.confidence}` : "PROFILE BASED"}
           </div>
           <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: "clamp(42px,7vw,76px)", lineHeight: 1.08, margin: 0, fontWeight: 400, color: "#FBF8F3", letterSpacing: "0.02em" }}>
-            {isGuest ? "あなたに合う美容選びを、" : `${displayName}さんの今日に、`}<br/>
-            <span style={{ color: "#D4A853", fontStyle: "italic" }}>迷わず買う理由</span>まで。
+            {isGuest ? "美容選びを、" : `${displayName}さんの今日を、`}<br/>
+            <span style={{ color: "#D4A853", fontStyle: "italic" }}>迷いなく。</span>
           </h1>
           <p style={{ fontSize: 13, lineHeight: 1.85, color: "rgba(251,248,243,.72)", margin: "18px 0 22px", maxWidth: 440 }}>
             {personalHeroCopy}
@@ -304,14 +304,14 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
                 おかえりなさい、{displayName}さん。
               </h2>
               <p style={{ margin: 0, fontSize: 13, lineHeight: 1.8, color: "#5F4A3D" }}>
-                今日は「{conditionText}」を優先して、相性の高い商品・使い方・動画の入口をまとめています。
+                今日は「{conditionText}」を優先。
               </p>
             </div>
             <div style={{ border: "1px solid #EDE5DC", borderRadius: 16, padding: 16, background: "#fff", display: "grid", gap: 10 }}>
               {[
                 ["肌・髪", [profile.skinType, profile.hairType].filter(Boolean).join(" / ") || "未設定"],
                 ["気になること", concernText],
-                ["次の精度UP", profile.currentProducts.length > 0 ? "使用中アイテムをもとに比較" : "使っている製品を登録"],
+                ["次の一手", profile.currentProducts.length > 0 ? "比較する" : "使用中を登録"],
               ].map(([label, value]) => (
                 <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 12, borderBottom: "1px solid #F1EADE", paddingBottom: 8 }}>
                   <span style={{ fontSize: 11, color: "#A8722A", fontWeight: 900 }}>{label}</span>
@@ -343,7 +343,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRO PERSONAL FIT</div>
             <p style={{ fontSize: 13, lineHeight: 1.7, color: "#4A3728", margin: 0 }}>
-              {profileSignals.slice(0, 3).join("・")}に合わせたスコア表示と全楽天商品の詳細はPROで使えます。
+              {profileSignals.slice(0, 3).join("・")}の相性スコアを開放。
             </p>
           </div>
           <button className="motion-cta" onClick={() => onUpgrade("home_personal_fit_teaser")} style={{ padding: "10px 16px", border: "none", borderRadius: 999, background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 12, fontWeight: 800, cursor: "pointer", flexShrink: 0 }}>
@@ -359,7 +359,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>LEARNING FROM YOUR LOG</div>
             <p style={{ fontSize: 13, lineHeight: 1.7, color: "#4A3728", margin: 0 }}>
-              {preferences.summary}。ログ{preferences.logCount}件・保存{preferences.savedCount}件からおすすめを調整しています。
+              {preferences.summary}。ログ{preferences.logCount}件 / 保存{preferences.savedCount}件。
             </p>
           </div>
           <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#1A0E08", color: "#D4A853", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 20, fontWeight: 700 }}>
@@ -377,7 +377,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
             <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 01</div>
             <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, margin: 0, fontWeight: 400, color: "#150B00" }}>目的から探す</h2>
             <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.7, color: "#7A6A5D" }}>
-              大きなカテゴリだけで終わらせず、悩み・質感・使う場面まで分解して候補を出します。
+              悩み、質感、使う場面で選ぶ。
             </p>
           </div>
           <button className="motion-nav-button" onClick={() => onUpgrade("home_category_precision")} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#A8722A", fontSize: 11, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
@@ -435,7 +435,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
             <div style={{ flex: "1 1 420px" }}>
               <div style={{ fontSize: 10, letterSpacing: "0.2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRECISION LOCKED</div>
               <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
-                無料ではカテゴリと基本悩みまで。PROでは「朝/夜・予算・避けたい成分・ログの相性」まで使って候補を並べ替えます。
+                朝/夜・予算・避けたい成分まで。
               </p>
             </div>
             <button className="motion-cta" onClick={() => onUpgrade("home_precision_locked")} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
@@ -450,7 +450,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
       <ProductRail
         number="02"
         title={`今週の ${profile.skinType || "あなた"} 向け候補`}
-        eyebrow={aiPicks.length > 0 ? (isPro && preferences?.confidence ? "ログ評価・保存商品・プロフィールによる提案" : "AI × 編集部によるパーソナル提案") : "まずは編集部ピックから表示中。ログと保存が増えるほど精度が上がります"}
+        eyebrow={aiPicks.length > 0 ? (isPro && preferences?.confidence ? "ログから更新" : "AI PICK") : "EDITOR PICK"}
         products={recommendationProducts}
         onOpen={onOpenProduct}
         isPro={isPro}
@@ -550,7 +550,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
               アトリエの扉を、<br/>そっと開ける。
             </h2>
             <p style={{ fontSize: 13, lineHeight: 1.9, color: "rgba(251,248,243,.65)", margin: "0 0 24px", maxWidth: 380 }}>
-              月額{PLAN_RULES.pro.priceLabel}で、無制限の成分解析・全製品フルアクセス・AIパーソナル診断。
+              月額{PLAN_RULES.pro.priceLabel}。解析、詳細、購入リンクを開放。
             </p>
             <button className="motion-cta" onClick={() => onUpgrade("home_pro_teaser")} style={{ padding: "13px 28px", background: "linear-gradient(135deg,#D4A853,#A8722A)", border: "none", color: "#1A0E08", fontSize: 13, letterSpacing: "0.1em", fontWeight: 700, cursor: "pointer", borderRadius: 6 }}>
               PRO へアップグレード →
@@ -582,7 +582,7 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
     {
       no: "01",
       title: "カルテを整える",
-      body: "肌・髪・予算・避けたいものを入れるほど、検索結果と商品理由が自分用になります。",
+      body: "肌・髪・予算を登録。",
       action: "カルテを見る",
       onClick: onGoKarte,
       badge: "最初にやる",
@@ -590,7 +590,7 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
     {
       no: "02",
       title: "商品を保存・比較",
-      body: "気になる楽天商品を残すと、あとで比較できて、PROのおすすめ学習にも使われます。",
+      body: "気になる商品を残す。",
       action: "保存リスト",
       onClick: onGoSaved,
       badge: "無料でOK",
@@ -598,7 +598,7 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
     {
       no: "03",
       title: "成分を確認",
-      body: "成分表や説明文を解析して、合う理由・注意点・避けたい傾向を見ます。",
+      body: "合う理由を確認。",
       action: "成分分析",
       onClick: onGoAnalyze,
       badge: "月3回無料",
@@ -606,7 +606,7 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
     {
       no: "04",
       title: "使った感想をログ",
-      body: "合った/合わなかったを残すと、次の候補がかなり鋭くなります。",
+      body: "次の候補を育てる。",
       action: "ログを書く",
       onClick: onGoLog,
       badge: "精度UP",
@@ -620,10 +620,10 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.24em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>3 MINUTE GUIDE</div>
             <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, lineHeight: 1.15, fontWeight: 500 }}>
-              初めてなら、<br/>まず使い方を。
+              迷ったら、<br/>使い方へ。
             </h2>
             <p style={{ margin: "12px 0 0", fontSize: 12, lineHeight: 1.85, color: "rgba(251,248,243,.7)" }}>
-              検索、保存、カルテ、成分分析、ログ。何から触ればいいかを先に見ると、beauteの良さがかなり掴みやすくなります。
+              詳しい説明はここに集約。
             </p>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -654,7 +654,7 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
                 background: "#FBF8F3",
                 textAlign: "left",
                 cursor: "pointer",
-                minHeight: 170,
+                minHeight: 132,
                 display: "flex",
                 flexDirection: "column",
                 gap: 9,

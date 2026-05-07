@@ -272,8 +272,8 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
               </div>
               <p style={{ fontSize: 12, lineHeight: 1.6, color: isPro ? "rgba(251,248,243,.78)" : "#6B5B4A", margin: 0 }}>
                 {isPro
-                  ? `${profileSignals.slice(0, 3).join("・")}を優先して、楽天商品を並べています。${preferences?.summary ? ` ${preferences.summary}。` : ""}`
-                  : `${profileSignals.slice(0, 3).join("・")}に合わせた精密おすすめはPROで解放されます。`}
+                  ? `${profileSignals.slice(0, 3).join("・")}を優先中。`
+                  : `${profileSignals.slice(0, 3).join("・")}の精密表示はPRO。`}
               </p>
             </div>
             {!isPro && (
@@ -299,7 +299,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
             lineHeight: 1.6,
           }}>
             <strong style={{ color: "#150B00" }}>{"\u4eba\u6c17\u5546\u54c1\u304b\u3089\u8868\u793a\u4e2d\u3002"}</strong>
-            {" \u30ad\u30fc\u30ef\u30fc\u30c9\u3084\u30bf\u30b0\u3092\u5165\u308c\u308b\u3068\u3001\u60a9\u307f\u30fb\u30ab\u30c6\u30b4\u30ea\u306b\u5408\u308f\u305b\u3066\u691c\u7d22\u3057\u307e\u3059\u3002"}
+            {" \u30ad\u30fc\u30ef\u30fc\u30c9\u3067\u7d5e\u308a\u8fbc\u3081\u307e\u3059\u3002"}
           </div>
         )}
         {productsLoading ? (
@@ -319,7 +319,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
           <div className="motion-reveal" style={{ textAlign: "center", padding: "60px 20px", color: "#8A7A6E" }}>
             <p style={{ fontSize: 40, marginBottom: 12 }}>🔍</p>
             <p style={{ fontSize: 15, color: "#150B00", fontWeight: 700 }}>{"\u6761\u4ef6\u306b\u5408\u3046\u5546\u54c1\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093"}</p>
-            <p style={{ fontSize: 12, marginTop: 6 }}>{"\u691c\u7d22\u6761\u4ef6\u3092\u5c11\u3057\u5e83\u3052\u308b\u304b\u3001\u4eba\u6c17\u9806\u304b\u3089\u898b\u76f4\u3057\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002"}</p>
+            <p style={{ fontSize: 12, marginTop: 6 }}>{"\u6761\u4ef6\u3092\u5e83\u3052\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002"}</p>
             <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 18 }}>
               <button className="motion-cta" onClick={resetFilters} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#150B00", color: "#FBF8F3", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
                 {"\u4eba\u6c17\u9806\u3067\u898b\u308b"}

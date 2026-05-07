@@ -84,7 +84,7 @@ export default function SavedTab({ isPro, onUpgrade, onOpenProduct }: Props) {
         <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 32, fontWeight: 400, color: "#150B00", margin: 0 }}>
           保存した商品
         </h1>
-        <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6 }}>気になる楽天商品を残して、あとで比較できます</p>
+        <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6 }}>あとで比較。</p>
       </div>
 
       {!isPro && (
@@ -135,7 +135,7 @@ export default function SavedTab({ isPro, onUpgrade, onOpenProduct }: Props) {
           <p style={{ fontSize: 14, fontWeight: 700, color: "#150B00", marginBottom: 4 }}>
             {mode === "favorite" ? "お気に入りはまだありません" : "比較リストはまだありません"}
           </p>
-          <p style={{ fontSize: 12, color: "#8A7A6E" }}>商品詳細から追加できます。</p>
+          <p style={{ fontSize: 12, color: "#8A7A6E" }}>商品詳細から追加。</p>
         </div>
       ) : mode === "favorite" ? (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 14 }}>

@@ -102,7 +102,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
         成分解析
       </h2>
       <p className="text-[13px] mb-4" style={{ color: "#8A7A6E" }}>
-        製品の成分表を撮影 → AIが瞬時に解析
+        成分表をAI解析
       </p>
 
       {/* ── FREE NOTICE ── */}
@@ -113,7 +113,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
             <p className="text-[13px] font-bold" style={{ color: "#150B00" }}>
               無料プラン: 今月あと{remainingCount ?? "…"}回
             </p>
-            <p className="text-[11px]" style={{ color: "#8A7A6E" }}>PROで無制限解析・履歴50件保存</p>
+            <p className="text-[11px]" style={{ color: "#8A7A6E" }}>PRO: 無制限・履歴50件</p>
           </div>
           <GoldButton small onClick={onUpgrade}>PRO へ</GoldButton>
         </div>
@@ -155,7 +155,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
           style={{ background: "linear-gradient(135deg,#FEF9F0,#FDF3E3)", borderColor: "#D4A853" }}>
           <p className="text-[18px] mb-2">👑</p>
           <p className="text-[14px] font-bold mb-1" style={{ color: "#150B00" }}>今月の無料回数（{PLAN_RULES.free.monthlyAnalyzeLimit}回）を使い切りました</p>
-          <p className="text-[12px] mb-3" style={{ color: "#8A7A6E" }}>PROで無制限に解析できます</p>
+          <p className="text-[12px] mb-3" style={{ color: "#8A7A6E" }}>PROは無制限。</p>
           <GoldButton onClick={onUpgrade}>PROにアップグレード</GoldButton>
         </div>
       )}
@@ -164,7 +164,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
       {error && (
         <div className="mt-5 rounded-[14px] p-4 text-center border-[1.5px]"
           style={{ background: "#FFF5F5", borderColor: "#FFCDD2", color: "#C62828" }}>
-          解析に失敗しました。より鮮明な画像でお試しください。
+          画像を鮮明にして再試行。
         </div>
       )}
 

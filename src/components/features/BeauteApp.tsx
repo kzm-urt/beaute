@@ -348,7 +348,7 @@ export default function BeauteApp() {
                   {"GUEST PREVIEW"}
                 </div>
                 <p className="guest-preview-text" style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
-                  {"\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u306f\u767b\u9332\u306a\u3057\u3067\u898b\u3089\u308c\u307e\u3059\u3002\u7121\u6599\u767b\u9332\u3067\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u7f8e\u5bb9\u30ed\u30b0\u3001PRO\u3067\u7121\u5236\u9650\u89e3\u6790\u3068\u8cfc\u5165\u30ea\u30f3\u30af\u304c\u958b\u653e\u3055\u308c\u307e\u3059\u3002"}
+                  {"\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u306f\u30b2\u30b9\u30c8\u3067OK\u3002\u4fdd\u5b58\u30fb\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u304b\u3089\u3002"}
                 </p>
                 <p className="guest-preview-text-mobile" style={{ display: "none", margin: 0, fontSize: 11, lineHeight: 1.55, color: "#5F4A3D", fontWeight: 800 }}>
                   {"保存・比較・ログは無料登録で使えます。"}
@@ -366,10 +366,10 @@ export default function BeauteApp() {
           {tab === "guide"   && <GuideTab   isGuest={isGuest} isPro={effectiveIsPro} onAuth={() => setShowAuth(true)} onUpgrade={upgrade} onGoSearch={() => setTab("search")} onGoRanking={() => setTab("ranking")} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
           {tab === "search"  && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
           {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}
-          {tab === "analyze" && (isGuest ? <GuestGate title={"\u6210\u5206\u89e3\u6790\u306f\u7121\u6599\u767b\u9332\u3067\u4f7f\u3048\u307e\u3059"} body={"\u5546\u54c1\u306e\u6210\u5206\u8868\u3092\u64ae\u3063\u3066AI\u89e3\u6790\u3002\u5c65\u6b74\u3092\u6b8b\u305b\u308b\u306e\u3067\u3001\u6bd4\u8f03\u3084\u898b\u76f4\u3057\u304c\u697d\u306b\u306a\u308a\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
-          {tab === "karte"   && (isGuest ? <GuestGate title={"\u30ab\u30eb\u30c6\u306f\u3042\u306a\u305f\u5c02\u7528\u306e\u7f8e\u5bb9OS\u3067\u3059"} body={"\u808c\u8cea\u30fb\u9aea\u8cea\u30fb\u60a9\u307f\u30fb\u4fdd\u5b58\u30fb\u6210\u5206\u5206\u6790\u30fb\u7f8e\u5bb9\u30ed\u30b0\u3092\u3064\u306a\u3052\u3066\u3001\u6b21\u306b\u898b\u308b\u5546\u54c1\u3001\u8cb7\u3046\u524d\u306e\u30c1\u30a7\u30c3\u30af\u3001PRO\u306e\u76f8\u6027\u30b9\u30b3\u30a2\u3092\u80b2\u3066\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}
-          {tab === "saved"   && (isGuest ? <GuestGate title={"\u4fdd\u5b58\u30ea\u30b9\u30c8\u306f\u7121\u6599\u767b\u9332\u3067\u4f7f\u3048\u307e\u3059"} body={"\u6c17\u306b\u306a\u308b\u697d\u5929\u5546\u54c1\u3092\u304a\u6c17\u306b\u5165\u308a\u3068\u6bd4\u8f03\u30ea\u30b9\u30c8\u306b\u5206\u3051\u3066\u6b8b\u305b\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <SavedTab isPro={effectiveIsPro} onUpgrade={upgrade} onOpenProduct={setDrawer}/>)}
-          {tab === "log"     && (isGuest ? <GuestGate title={"\u7f8e\u5bb9\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u3067\u8a18\u9332\u3067\u304d\u307e\u3059"} body={"\u4f7f\u7528\u4e2d\u306e\u5546\u54c1\u3068\u611f\u60f3\u3092\u6b8b\u3059\u3068\u3001PRO\u306e\u304a\u3059\u3059\u3081\u7cbe\u5ea6\u304c\u80b2\u3061\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <LogTab userId={user.id} isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
+          {tab === "analyze" && (isGuest ? <GuestGate title={"\u6210\u5206\u89e3\u6790\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6210\u5206\u306e\u8981\u70b9\u3068\u6ce8\u610f\u70b9\u3092\u6b8b\u305b\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
+          {tab === "karte"   && (isGuest ? <GuestGate title={"\u30ab\u30eb\u30c6\u306f\u3042\u306a\u305f\u5c02\u7528"} body={"\u808c\u30fb\u9aea\u30fb\u4fdd\u5b58\u30fb\u30ed\u30b0\u3092\u3072\u3068\u3064\u306b\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}
+          {tab === "saved"   && (isGuest ? <GuestGate title={"\u4fdd\u5b58\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6c17\u306b\u306a\u308b\u5546\u54c1\u3092\u6bd4\u8f03\u3067\u304d\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <SavedTab isPro={effectiveIsPro} onUpgrade={upgrade} onOpenProduct={setDrawer}/>)}
+          {tab === "log"     && (isGuest ? <GuestGate title={"\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u4f7f\u3063\u305f\u611f\u60f3\u304c\u6b21\u306e\u63d0\u6848\u3092\u80b2\u3066\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <LogTab userId={user.id} isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
           {tab === "premium" && <PremiumTab isPro={effectiveIsPro} onUpgrade={() => isGuest ? setShowAuth(true) : setIsPro(true)} user={user}/>}
         </main>
       </div>
@@ -711,7 +711,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
               ))}
             </div>
             <p style={{ fontSize: 11, lineHeight: 1.6, color: "#8A7A6E", margin: "10px 0 0" }}>
-              価格・レビュー・商品情報を見ながら、買う前の候補として比較できます。
+              価格・レビュー・在庫感を比較。
             </p>
           </div>
 
@@ -719,7 +719,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
             <div className="product-drawer-pro-teaser">
               <div>
                 <div className="product-drawer-micro">PRO PRECISION</div>
-                <p>肌質・悩み・ログを使うと「あなたに合う理由」「避けたい条件」「買う順番」まで出せます。</p>
+                <p>相性・注意点・買う順番まで。</p>
               </div>
               <button className="motion-cta" onClick={() => onUpgrade("product_drawer_precision_teaser", p)}>
                 精度を上げる
@@ -778,7 +778,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
             <div className="product-drawer-section-card" style={{ background: "#F8F4EF" }}>
               <div style={{ fontSize: 11, letterSpacing: "0.12em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>LOCKED DETAILS</div>
               <p style={{ fontSize: 12, lineHeight: 1.7, color: "#6B5B4A", margin: 0 }}>
-                買う前メモ、タグ全文、関連レビュー動画、楽天購入リンクはPROで表示されます。保存・比較しながら、買う前の迷いを潰せます。
+                メモ・動画・購入リンクはPROで表示。
               </p>
             </div>
           )}
@@ -788,9 +788,9 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
               <div className="product-drawer-section-card" style={{ borderColor: "#D4A85366" }}>
                 <p style={{ fontSize: 13, fontWeight: 800, color: "#150B00", margin: "0 0 5px" }}>この商品はPRO詳細枠です</p>
                 <p style={{ fontSize: 12, lineHeight: 1.7, color: "#8A7A6E", margin: "0 0 12px" }}>
-                  PROで楽天購入リンク、あなた向けスコア、比較リスト、レビュー動画を解放できます。高い買い物ほど、買う前に一気に絞り込めます。
+                  スコア、動画、購入リンクを解放。
                 </p>
-                <GoldButton onClick={handleLockedUpgrade}>PROで購入判断を解放する</GoldButton>
+                <GoldButton onClick={handleLockedUpgrade}>PROで開放</GoldButton>
               </div>
             )
             : (

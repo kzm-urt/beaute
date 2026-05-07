@@ -1,12 +1,41 @@
 # beaute Development Log
 
-Last updated: 2026-05-07
+Last updated: 2026-05-08
 
 ## Current Direction
 
 beaute is a beauty product discovery app with auth, profile-based recommendations, ingredient analysis, usage logs, Rakuten product search/ranking, and a FREE/PRO plan split.
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
+
+## 2026-05-08 Copy Reduction Pass
+
+Scope:
+
+- Reduced on-screen copy outside the Guide tab so the app feels calmer and faster to scan.
+- Kept the Guide tab as the main explanation surface.
+- Shortened conversion copy without removing the guest/free/PRO value path.
+
+Changes:
+
+- `src/components/features/HomeTab.tsx`
+  - Shortened hero, category, personal desk, tutorial, and PRO teaser copy.
+  - Changed the hero headline away from repeated "buying reason" language.
+- `src/components/features/BeauteApp.tsx`
+  - Tightened guest gates and product drawer PRO messages.
+- `src/components/features/ProfileScreen.tsx`
+  - Reduced profile/onboarding helper notes to short labels.
+- `src/components/features/KarteTab.tsx`
+  - Shortened personal engine, history lock, video assist, and routine copy.
+- `src/components/features/PremiumTab.tsx`
+  - Removed the testimonial block and shortened FAQ/value copy.
+- `src/components/features/SearchTab.tsx`, `AnalyzeTab.tsx`, `SavedTab.tsx`, `AuthScreen.tsx`
+  - Trimmed secondary descriptions and empty/limit states.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
 
 ## 2026-05-07 Guide Copy and Home Entry Refinement
 

@@ -13,9 +13,9 @@ interface Props {
 }
 
 const FAQ = [
-  { q: "いつでもキャンセルできますか？", a: "はい。設定画面からいつでも解約できます。解約後も期間終了まではPRO機能をご利用いただけます。" },
-  { q: "支払い方法は？", a: "クレジットカード・デビットカードに対応しています。PRO加入後は契約管理ページから支払い方法を変更できます。" },
-  { q: "無料トライアルはありますか？", a: `はい。PROは${PLAN_RULES.pro.trialDays}日間の無料トライアルから始められます。` },
+  { q: "いつでもキャンセルできますか？", a: "いつでも解約OK。期間終了までPROを使えます。" },
+  { q: "支払い方法は？", a: "カード決済です。変更は契約管理から。" },
+  { q: "無料トライアルはありますか？", a: `${PLAN_RULES.pro.trialDays}日間あります。` },
 ];
 
 interface SubscriptionStatus {
@@ -150,10 +150,6 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
       : statusLabel
         ? `${statusLabel}${periodEndLabel ? ` \u30fb \u6b21\u56de\u66f4\u65b0 ${periodEndLabel}` : ""}`
         : "\u3059\u3079\u3066\u306ePRO\u6a5f\u80fd\u3092\u3054\u5229\u7528\u3044\u305f\u3060\u3051\u307e\u3059";
-  const contractManagementCopy = isCancelScheduled
-    ? "\u89e3\u7d04\u4e88\u7d04\u306fStripe\u3067\u53d7\u4ed8\u6e08\u307f\u3067\u3059\u3002\u671f\u9593\u7d42\u4e86\u307e\u3067\u306fPRO\u6a5f\u80fd\u3092\u305d\u306e\u307e\u307e\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-    : "\u652f\u6255\u3044\u65b9\u6cd5\u306e\u5909\u66f4\u3001\u8acb\u6c42\u66f8\u306e\u78ba\u8a8d\u3001\u89e3\u7d04\u306fStripe\u306e\u7ba1\u7406\u30da\u30fc\u30b8\u3067\u884c\u3048\u307e\u3059\u3002";
-
   return (
     <div className="px-4 py-5 pb-10 mobile-tight motion-fade-scale" style={{ maxWidth: 1180, margin: "0 auto" }}>
       {/* HEADER */}
@@ -188,7 +184,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             {"\u30b2\u30b9\u30c8\u3001\u7121\u6599\u4f1a\u54e1\u3001PRO\u306e\u9055\u3044"}
           </h3>
           <p className="text-[12px] mt-1 leading-[1.7]" style={{ color: "#8A7A6E" }}>
-            {"\u307e\u305a\u306f\u5546\u54c1\u3092\u898b\u3066\u3001\u6c17\u306b\u306a\u3063\u305f\u3089\u4fdd\u5b58\u3002\u672c\u6c17\u3067\u9078\u3076\u3068\u304d\u306bPRO\u3067\u7cbe\u5ea6\u3068\u4e0a\u9650\u3092\u89e3\u653e\u3057\u307e\u3059\u3002"}
+            {"\u898b\u308b\u3001\u6b8b\u3059\u3001\u6df1\u304f\u9078\u3076\u3002"}
           </p>
         </div>
         <div className="grid gap-2 md:grid-cols-3 motion-stagger">
@@ -196,17 +192,17 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             {
               label: "\u30b2\u30b9\u30c8",
               price: "\u767b\u9332\u306a\u3057",
-              body: "\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u30fb\u4eba\u6c17\u5546\u54c1\u3092\u3059\u3050\u898b\u3089\u308c\u307e\u3059\u3002",
+              body: "\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0",
             },
             {
               label: "\u7121\u6599\u4f1a\u54e1",
               price: "\u00a50",
-              body: "\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u7f8e\u5bb9\u30ed\u30b0\u30fb\u6210\u5206\u89e3\u67903\u56de/\u6708\u304c\u4f7f\u3048\u307e\u3059\u3002",
+              body: "\u4fdd\u5b58\u30fb\u6bd4\u8f03\u30fb\u30ed\u30b0",
             },
             {
               label: "PRO",
               price: `${PLAN_RULES.pro.priceLabel}/\u6708`,
-              body: "\u5168\u5546\u54c1\u8a73\u7d30\u3001\u8cfc\u5165\u30ea\u30f3\u30af\u3001\u7121\u5236\u9650\u89e3\u6790\u3001\u30ed\u30b0\u5b66\u7fd2\u306e\u7cbe\u5ea6\u3092\u89e3\u653e\u3002",
+              body: "\u7121\u5236\u9650\u89e3\u6790\u30fb\u8cfc\u5165\u30ea\u30f3\u30af",
             },
           ].map((plan) => (
             <div key={plan.label} className="rounded-[14px] border p-3 motion-card" style={{ borderColor: plan.label === "PRO" ? "#D4A85388" : "#EDE5DC", background: plan.label === "PRO" ? "#FEF9F0" : "#F8F4EF" }}>
@@ -255,7 +251,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             <div>
               <p className="text-[12px] font-bold" style={{ color: "#150B00" }}>契約管理</p>
               <p className="text-[11px] mt-1 leading-[1.6]" style={{ color: "#8A7A6E" }}>
-                {contractManagementCopy}
+                {isCancelScheduled ? "\u671f\u9593\u7d42\u4e86\u307e\u3067PRO\u5229\u7528OK\u3002" : "\u652f\u6255\u3044\u30fb\u89e3\u7d04\u306fStripe\u3067\u7ba1\u7406\u3002"}
               </p>
             </div>
             <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold"
@@ -363,23 +359,6 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
           </div>
         </div>
       )}
-
-      {/* TESTIMONIALS */}
-      <div className="mb-5">
-        <p className="text-[12px] font-bold mb-3 tracking-wide" style={{ color: "#150B00" }}>💬 ユーザーの声</p>
-        <div className="space-y-2.5">
-          {[
-            { text: "成分解析が無制限になって、新製品を買う前に必ずチェックするようになった！", user: "田中 A." },
-            { text: "全製品のレビューが見られて、比較がめちゃくちゃ楽になりました。", user: "中島 M." },
-            { text: "ランキングから気になる商品を全部見られるので、買う前の迷いがかなり減りました。", user: "近藤 Y." },
-          ].map((t, i) => (
-            <div key={i} className="bg-white rounded-[14px] border border-[#EDE5DC] p-3.5 motion-card">
-              <p className="text-[12px] leading-[1.6] italic mb-2" style={{ color: "#444" }}>「{t.text}」</p>
-              <p className="text-[10px] font-semibold" style={{ color: "#A8722A" }}>— {t.user}</p>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* FAQ */}
       <div>

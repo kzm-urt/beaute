@@ -67,8 +67,7 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset, on
           <p className="auth-eyebrow">楽天市場の商品情報をもとに</p>
           <h1>肌・髪・悩みに合う美容アイテムを、選ぶ理由まで。</h1>
           <p>
-            商品検索、ランキング、成分分析、保存リストをひとつにまとめて、
-            毎日の美容選びを迷いにくくします。
+            楽天商品を探して、保存・解析。
           </p>
         </div>
 
@@ -216,7 +215,7 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset, on
           <span>
             {mode === "signup"
               ? "商品購入は楽天市場などの外部ECで行われます。"
-              : "ログイン後にプラン管理・保存リスト・分析履歴を確認できます。"}
+              : "ログイン後にプラン・保存・履歴を確認。"}
           </span>
         </div>
 

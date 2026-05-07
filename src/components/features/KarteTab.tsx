@@ -157,28 +157,28 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
   const nextActions = [
     {
       label: profile.currentProducts.length === 0 ? "使用中アイテムを登録" : signalCount < 14 ? "カルテを細かくする" : "カルテを見直す",
-      body: profile.currentProducts.length === 0 ? "今使っている商品名を入れると、買い替え・足すべき成分・避ける候補を出しやすくなります。" : signalCount < 14 ? "性別・今の状態・欲しい成分・習慣を足すと候補の精度が上がります。" : "季節や肌状態が変わったら、条件を更新します。",
+      body: profile.currentProducts.length === 0 ? "買い替え判断の基準に。" : signalCount < 14 ? "精度UP。" : "季節に合わせて更新。",
       action: "編集",
       onClick: onEditProfile,
       tone: "profile",
     },
     {
       label: latestAnalysis ? "次の商品も成分チェック" : "まず1つ成分分析",
-      body: latestAnalysis ? "気になる商品を解析して、合う理由と注意点を比較します。" : "成分分析を1回入れると、Karteの判断材料が増えます。",
+      body: latestAnalysis ? "合う理由を比較。" : "判断材料を追加。",
       action: "分析する",
       onClick: onGoAnalyze,
       tone: "analyze",
     },
     {
       label: topProduct ? "候補を見て購入判断" : "楽天商品を探す",
-      body: topProduct ? `${topProduct.brand} の候補があります。価格・レビュー・相性・動画レビューを合わせて判断できます。` : "楽天の商品を検索して、保存と比較リストに候補を集めます。",
+      body: topProduct ? `${topProduct.brand} をチェック。` : "候補を集める。",
       action: topProduct ? "商品を見る" : "検索へ",
       onClick: topProduct ? () => onOpenProduct(topProduct) : onGoSearch,
       tone: "buy",
     },
     {
       label: videos.length > 0 ? "動画で使い方を見る" : "使ったらログに残す",
-      body: videos.length > 0 ? "美容系YouTuberやレビュー動画を見て、使い方と購入前の違和感を減らします。" : "合った/合わなかったを残すほど、PROのおすすめが売れる商品選びに近づきます。",
+      body: videos.length > 0 ? "使い方を確認。" : "次の提案を育てる。",
       action: videos.length > 0 ? "動画" : "ログ",
       onClick: videos.length > 0 ? () => window.open(videos[0].url, "_blank", "noopener,noreferrer") : onGoLog,
       tone: "log",
@@ -195,7 +195,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
           <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 36, fontWeight: 400, color: "#150B00", margin: 0 }}>
             あなた専用の美容OS
           </h1>
-          <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6, lineHeight: 1.8 }}>カルテはプロフィールではなく、検索・成分分析・保存・ログをつなぐ判断エンジンです。</p>
+          <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6, lineHeight: 1.8 }}>記録から、次の一手へ。</p>
         </div>
         <div className="soft-card motion-card motion-status-pulse" style={{ padding: "14px 16px", display: "grid", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
@@ -214,9 +214,6 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
               </div>
             ))}
           </div>
-          <p style={{ margin: 0, fontSize: 11, lineHeight: 1.65, color: "#6B5B4A" }}>
-            入力と行動ログが増えるほど、買う理由・避ける理由が具体化します。
-          </p>
         </div>
       </div>
 
@@ -236,7 +233,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                   {signalCount >= 10 ? "かなり細かく見れています" : "あと少しで精度が上がります"}
                 </h2>
                 <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.7, color: "rgba(251,248,243,.68)" }}>
-                  回答{signalCount}個・分析{analysisTotal}件・{isPro ? "PRO学習あり" : "FREE学習中"}。次にやることを下に並べています。
+                  回答{signalCount} / 分析{analysisTotal} / {isPro ? "PRO" : "FREE"}
                 </p>
               </div>
             </div>
@@ -244,7 +241,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
               <div style={{ border: "1px solid rgba(212,168,83,.28)", borderRadius: 14, padding: 12, background: "rgba(212,168,83,.08)" }}>
                 <div style={{ fontSize: 10, color: "#D4A853", letterSpacing: ".16em", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRO REVENUE HOOK</div>
                 <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "rgba(251,248,243,.72)" }}>
-                  PROでは保存・ログ・成分分析をまとめて、商品ごとに「買う理由」「避ける理由」「購入リンク」を出します。
+                  買う理由・避ける理由を表示。
                 </p>
                 <button className="motion-cta" onClick={onUpgrade} style={{ marginTop: 10, border: "none", borderRadius: 999, padding: "9px 13px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
                   購入判断をPRO化
@@ -339,10 +336,10 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
         </div>
         <div className="grid-cols-1-mobile motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10 }}>
           {[
-            ["使用中", listText(profile.currentProducts), "買い替え・足し算の基準"],
-            ["今の状態", listText(profile.currentState, listText(profile.concerns)), "今日のコンディション"],
-            ["欲しい成分", listText(profile.desiredIngredients), "商品と動画の検索軸"],
-            ["習慣", listText(profile.habits), "続けられる提案の材料"],
+            ["使用中", listText(profile.currentProducts), "基準"],
+            ["今の状態", listText(profile.currentState, listText(profile.concerns)), "今日"],
+            ["欲しい成分", listText(profile.desiredIngredients), "検索軸"],
+            ["習慣", listText(profile.habits), "続け方"],
           ].map(([label, value, caption]) => (
             <div key={label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 14, padding: 13, background: "#FBF8F3", minHeight: 116 }}>
               <div style={{ fontSize: 10, letterSpacing: ".16em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 8 }}>{label}</div>
@@ -465,8 +462,8 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
             {!isPro && hiddenAnalysisCount > 0 && (
               <div style={{ background: "#fff", border: "1px solid #D4A85366", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#150B00" }}>過去{hiddenAnalysisCount}件の解析履歴を保存中</div>
-                  <div style={{ fontSize: 11, color: "#8A7A6E", marginTop: 2 }}>PROで履歴50件まで見返せます。</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#150B00" }}>履歴{hiddenAnalysisCount}件を保存中</div>
+                  <div style={{ fontSize: 11, color: "#8A7A6E", marginTop: 2 }}>PROは50件まで。</div>
                 </div>
                 <button className="motion-cta" onClick={onUpgrade} style={{ border: "none", borderRadius: 999, padding: "8px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
                   解放
@@ -549,7 +546,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
           <div style={{ background: "linear-gradient(135deg,#1A0E08,#3A1D0D)", border: "1px solid rgba(212,168,83,.26)", borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
             <div style={{ fontSize: 10, letterSpacing: ".18em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>INFLUENCER ASSIST</div>
             <p style={{ margin: 0, color: "rgba(251,248,243,.72)", fontSize: 12, lineHeight: 1.75 }}>
-              商品の成分だけでなく、実際の使い方・レビュー・比較動画も購入前チェックに入れます。PROでは保存/ログと合わせて、あなたに近い使い方の動画を優先します。
+              動画も購入前チェックに。PROはログに近い動画を優先。
             </p>
           </div>
           <div className="motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 12 }}>
@@ -573,7 +570,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
 
       {/* ── 美容習慣アドバイス ── */}
       <section>
-        <SectionHeader label="04" title={`${profile.skinType || "あなた"}のおすすめ習慣`} sub="毎日のルーティンに取り入れよう" />
+        <SectionHeader label="04" title={`${profile.skinType || "あなた"}のおすすめ習慣`} sub="毎日のルーティンへ" />
         <div style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 16, overflow: "hidden" }}>
           <div style={{ background: "linear-gradient(135deg,#1A0E08,#2C1A0E)", padding: "16px 20px", display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 24 }}>{habits.icon}</span>

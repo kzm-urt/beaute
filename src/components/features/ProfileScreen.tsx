@@ -21,31 +21,31 @@ const GOAL_OPTS = ["毛穴を目立たせない", "肌荒れを減らす", "透�
 const DETAIL_GROUPS = [
   {
     label: "今日の肌状態",
-    note: "同じ肌タイプでも、今日のコンディションで候補を変えます。",
+    note: "今日で変える。",
     options: ["朝は乾く", "夕方テカる", "赤みが出る", "ざらつく", "メイクが浮く", "毛穴落ちする"],
     multi: true,
   },
   {
     label: "好きな仕上がり",
-    note: "質感の好みまで入れると、買った後の違和感を減らせます。",
+    note: "質感で絞る。",
     options: ["さっぱり", "しっとり", "ツヤ", "セミマット", "カバー重視", "軽さ重視"],
     multi: false,
   },
   {
     label: "使うタイミング",
-    note: "朝向け・夜向け・持ち歩きでおすすめを分けます。",
+    note: "朝/夜で分ける。",
     options: ["朝用", "夜用", "メイク前", "外出先", "週末ケア"],
     multi: false,
   },
   {
     label: "予算感",
-    note: "無料では参考情報、PROでは価格帯とレビュー密度で並び替えます。",
+    note: "価格も反映。",
     options: ["〜1,500円", "〜3,000円", "〜5,000円", "5,000円以上", "コスパ重視"],
     multi: false,
   },
   {
     label: "避けたいもの",
-    note: "苦手な使用感や成分傾向を外して、候補のノイズを減らします。",
+    note: "苦手を外す。",
     options: ["香り強めNG", "ベタつきNG", "アルコール感NG", "白浮きNG", "刺激感NG"],
     multi: true,
   },
@@ -204,10 +204,10 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
             </h1>
             <p className="text-[12px] tracking-[.24em] font-bold mb-3" style={{ color: "#D4A853" }}>PERSONAL BEAUTY MAP</p>
             <h2 className="text-[28px] md:text-[34px] leading-[1.25] font-black mb-4" style={{ color: "#F5EEE4" }}>
-              細かく答えるほど、<br/>買う理由が見える。
+              答えるほど、<br/>あなた向けに。
             </h2>
             <p className="text-[13px] leading-[1.9]" style={{ color: "rgba(245,238,228,.66)" }}>
-              まずは無料で基本提案。PROでは、ここで選んだ細かい条件と保存・ログを使って、商品ごとの相性スコアと理由を出します。
+              ここでは条件だけ登録。詳しくは使い方へ。
             </p>
           </div>
 
@@ -222,7 +222,7 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
             <div style={{ marginTop: 16, border: "1px solid rgba(212,168,83,.24)", borderRadius: 14, padding: 14, background: "rgba(212,168,83,.08)" }}>
               <p style={{ margin: 0, color: "#D4A853", fontSize: 11, letterSpacing: ".14em", fontWeight: 900 }}>PRO PREVIEW</p>
               <p style={{ margin: "6px 0 0", color: "rgba(245,238,228,.72)", fontSize: 12, lineHeight: 1.75 }}>
-                回答が14個以上あると、PROで「相性スコア」「避けたい条件」「購入前チェック」「動画での使い方」まで細かく表示できます。
+                14個以上で、相性・注意点・動画まで。
               </p>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
 
         <main className="rounded-[18px] p-4 md:p-5" style={{ background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.12)", boxShadow: "0 22px 70px rgba(0,0,0,.22)" }}>
           <div className="grid gap-3">
-            <Section label="ニックネーム" note="ホームのおかえり表示と、あなた向けカルテ名に使います。" compact>
+            <Section label="ニックネーム" note="表示名に使います。" compact>
               <input
                 value={profile.nickname}
                 onChange={(e) => set("nickname", e.target.value)}
@@ -262,11 +262,11 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
               <PillGroup options={HAIR_OPTS} value={profile.hairType} onChange={(v) => set("hairType", v)} />
             </Section>
 
-            <Section label="いま気になる悩み" note="複数選択できます。無料提案でもここは強く効きます。">
+            <Section label="いま気になる悩み" note="複数OK。">
               <PillGroup options={CONCERNS} value={profile.concerns} onChange={toggleConcern} multi />
             </Section>
 
-            <Section label="使っている製品" note="商品名・ブランド名を入れると、買い替え候補や相性の比較に使えます。1行に1つずつ入力できます。">
+            <Section label="使っている製品" note="1行に1つ。">
               <TextListEditor
                 value={profile.currentProducts}
                 onChange={(items) => setList("currentProducts", items)}
@@ -275,16 +275,16 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
             </Section>
 
             <div className="grid gap-3 md:grid-cols-2">
-              <Section label="今の状態" note="今日〜最近の状態を入れると、次にやるケアが具体的になります。" compact>
+              <Section label="今の状態" note="最近の変化。" compact>
                 <PillGroup options={CURRENT_STATE_OPTS} value={profile.currentState} onChange={(v) => toggleList("currentState", v)} multi />
               </Section>
-              <Section label="欲しい成分" note="成分名から商品と動画を引っ張ります。" compact>
+              <Section label="欲しい成分" note="検索軸。" compact>
                 <PillGroup options={DESIRED_INGREDIENT_OPTS} value={profile.desiredIngredients} onChange={(v) => toggleList("desiredIngredients", v)} multi />
               </Section>
-              <Section label="習慣" note="使い方・生活リズムまで見ると、現実的な提案になります。" compact>
+              <Section label="習慣" note="続け方。" compact>
                 <PillGroup options={HABIT_OPTS} value={profile.habits} onChange={(v) => toggleList("habits", v)} multi />
               </Section>
-              <Section label="目標" note="最終的にどう見せたいかをおすすめに反映します。" compact>
+              <Section label="目標" note="ゴール。" compact>
                 <PillGroup options={GOAL_OPTS} value={profile.goals} onChange={(v) => toggleList("goals", v)} multi />
               </Section>
             </div>
