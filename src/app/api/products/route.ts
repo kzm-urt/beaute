@@ -305,15 +305,18 @@ async function getRakutenProducts({
 
 async function getRakutenRankingProducts({
   cat,
+  limit,
   page,
 }: {
   cat: string;
+  limit: number;
   page: number;
 }) {
   const items = await getRakutenRanking({ category: cat, page });
   return items
     .map((item, index) => toProduct(item, index, { cat, tags: ["ランキング"] }))
-    .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999));
+    .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999))
+    .slice(0, limit);
 }
 
 function getLocalProducts({
@@ -362,7 +365,7 @@ export async function GET(req: NextRequest) {
   try {
     const products =
       mode === "ranking"
-        ? await getRakutenRankingProducts({ cat, page: normalizedPage })
+        ? await getRakutenRankingProducts({ cat, limit: normalizedLimit, page: normalizedPage })
         : await getRakutenProducts({
             cat,
             q,
@@ -390,7 +393,7 @@ export async function GET(req: NextRequest) {
         },
       });
       return NextResponse.json(
-        { products, source: "rakuten", mode, page: normalizedPage, hasMore: products.length >= 30 },
+        { products, source: "rakuten", mode, page: normalizedPage, hasMore: products.length >= Math.min(Math.max(normalizedLimit, 1), 30) },
         { headers: { "Cache-Control": "s-maxage=900, stale-while-revalidate=3600" } }
       );
     }

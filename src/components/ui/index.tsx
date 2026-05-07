@@ -165,11 +165,11 @@ export function Card({ children, className }: { children: React.ReactNode; class
 import { useProductImage } from "@/hooks/useProductImage";
 
 export function ProductImage({
-  id, name, brand, sub, src, alt, catColor, catIcon, style, className,
+  id, name, brand, sub, src, alt, catColor, catIcon, style, className, imageSize = 512,
 }: {
   id: number; name: string; brand: string; sub?: string;
   src: string; alt: string; catColor: string; catIcon: string;
-  style?: React.CSSProperties; className?: string;
+  style?: React.CSSProperties; className?: string; imageSize?: number;
 }) {
   const resolvedSrc = useProductImage(id, name, brand, sub ?? "", src);
   const [failed, setFailed] = React.useState(false);
@@ -184,12 +184,14 @@ export function ProductImage({
   }
 
   const isRakutenImage = /rakuten\.co\.jp|r10s\.jp/i.test(resolvedSrc);
+  const displaySrc = resizeRakutenImage(resolvedSrc, imageSize);
 
   return (
     <img
-      src={resolvedSrc}
+      src={displaySrc}
       alt={alt}
       onError={() => setFailed(true)}
+      decoding="async"
       style={{
         width: "100%",
         height: "100%",
@@ -201,6 +203,17 @@ export function ProductImage({
       loading="lazy"
     />
   );
+}
+
+function resizeRakutenImage(src: string, size: number) {
+  if (!/rakuten\.co\.jp|r10s\.jp/i.test(src)) return src;
+  try {
+    const url = new URL(src);
+    url.searchParams.set("_ex", `${size}x${size}`);
+    return url.toString();
+  } catch {
+    return src;
+  }
 }
 
 // 必要なReactインポート

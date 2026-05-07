@@ -8,6 +8,48 @@ beaute is a beauty product discovery app with auth, profile-based recommendation
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
 
+## 2026-05-07 Performance Pass
+
+Scope:
+
+- Reduced the initial app payload and the heaviest search-page work before the public test release.
+- Kept the product experience intact while making the first useful search view faster and cheaper to render.
+- Focused on low-risk improvements: code splitting, smaller initial product batches, request cancellation, image sizing, and offscreen rendering containment.
+
+Changes:
+
+- `src/components/features/BeauteApp.tsx`
+  - Dynamic-imported the major tab screens so the root bundle no longer ships every feature tab up front.
+  - Reduced the `/` route build size from about `54.5 kB / 212 kB First Load JS` to `23.8 kB / 182 kB First Load JS`.
+- `src/components/features/SearchTab.tsx`
+  - Reduced the first search result batch from `30` products to `18`, with load-more preserved.
+  - Added stale request cancellation for fast query/category changes.
+  - Memoized client-side sorting and precomputed personal match scores instead of recomputing inside the sort comparator.
+  - Removed result-grid stagger animation from every product card to cut unnecessary startup paint work.
+- `src/app/api/products/route.ts`
+  - Honored the requested limit for Rakuten ranking responses and aligned `hasMore` with the normalized limit.
+- `src/hooks/useProductImage.ts` and `src/components/ui/index.tsx`
+  - Added an in-memory product image cache to avoid repeated `localStorage` parsing.
+  - Deferred image-cache writes with idle callbacks and skipped cache writes for direct Rakuten image URLs.
+  - Added Rakuten image-size parameters for real product images: `320` for cards, `360` for editor tiles, `640` for drawers, and `720` for hero images.
+  - Added async image decoding.
+- `src/app/globals.css`
+  - Added `content-visibility: auto` and intrinsic sizing for product cards.
+  - Removed mobile backdrop blur from the sticky search filter bar.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight` passes.
+- Local production search measurement on `http://localhost:3006/?tab=search`:
+  - First product card visible: `1425ms`.
+  - Network idle: `1913ms`.
+  - Initial product cards: `18`.
+  - Product image requests: `18`.
+  - Rakuten `320x320` image requests: `18`.
+- Mobile search screenshot verified at `390x844`.
+
 ## 2026-05-07 Product Conversion Pass
 
 Scope:

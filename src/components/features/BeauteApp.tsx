@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { usePersonalPreferences } from "@/hooks/usePersonalPreferences";
@@ -10,16 +11,17 @@ import { getProductInsight } from "@/lib/productInsights";
 import { trackProductEvent } from "@/lib/productEvents";
 import { supabase } from "@/lib/supabase";
 import { Icon, Stars, FreeBadge, ProBadge, GoldButton, ProductImage } from "@/components/ui";
-import AuthScreen from "./AuthScreen";
-import ProfileScreen from "./ProfileScreen";
-import HomeTab from "./HomeTab";
-import SearchTab from "./SearchTab";
-import AnalyzeTab from "./AnalyzeTab";
-import LogTab from "./LogTab";
-import PremiumTab from "./PremiumTab";
-import KarteTab from "./KarteTab";
-import SavedTab from "./SavedTab";
 import type { PersonalPreferences, Product, UserProfile } from "@/types";
+
+const AuthScreen = dynamic(() => import("./AuthScreen"), { loading: () => <TabLoading /> });
+const ProfileScreen = dynamic(() => import("./ProfileScreen"), { loading: () => <TabLoading /> });
+const HomeTab = dynamic(() => import("./HomeTab"), { loading: () => <TabLoading /> });
+const SearchTab = dynamic(() => import("./SearchTab"), { loading: () => <TabLoading /> });
+const AnalyzeTab = dynamic(() => import("./AnalyzeTab"), { loading: () => <TabLoading /> });
+const LogTab = dynamic(() => import("./LogTab"), { loading: () => <TabLoading /> });
+const PremiumTab = dynamic(() => import("./PremiumTab"), { loading: () => <TabLoading /> });
+const KarteTab = dynamic(() => import("./KarteTab"), { loading: () => <TabLoading /> });
+const SavedTab = dynamic(() => import("./SavedTab"), { loading: () => <TabLoading /> });
 
 type Tab = "home" | "search" | "ranking" | "analyze" | "karte" | "saved" | "log" | "premium";
 
@@ -58,6 +60,14 @@ const GUEST_PROFILE: UserProfile = {
   habits: ["毎日UV", "メイク前"],
   goals: ["毛穴を目立たせない", "透明感"],
 };
+
+function TabLoading() {
+  return (
+    <div className="motion-fade-scale" style={{ minHeight: "45vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#A8722A", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 26 }}>
+      beauté
+    </div>
+  );
+}
 
 export default function BeauteApp() {
   const { user, loading: authLoading, signIn, signUp, signOut, sendPasswordReset } = useAuth();
@@ -554,7 +564,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
 
         {/* Image */}
         <div className="product-drawer-hero" style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden", background: m.color }}>
-          <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} className="product-drawer-image" style={{ position: "absolute", inset: 0 }}/>
+          <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} className="product-drawer-image" style={{ position: "absolute", inset: 0 }} imageSize={640}/>
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(21,11,0,.5) 0%, transparent 55%)" }}/>
           {locked && <div style={{ position: "absolute", inset: 0, background: "rgba(21,11,0,.18)" }}/>}
           <button aria-label="商品詳細を閉じる" className="product-drawer-close" onClick={onClose} style={{ position: "absolute", top: 14, right: 14, width: 36, height: 36, borderRadius: "50%", background: "rgba(251,248,243,.92)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>

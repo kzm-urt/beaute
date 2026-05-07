@@ -496,6 +496,8 @@ textarea:focus-visible {
   --product-accent: #D4A853;
   --product-soft: #F8F4EF;
   min-height: 100%;
+  content-visibility: auto;
+  contain-intrinsic-size: 430px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--product-accent) 22%, #EDE5DC);
   border-radius: 14px;
@@ -747,6 +749,10 @@ textarea:focus-visible {
   font-size: 11px;
   font-weight: 900;
   white-space: nowrap;
+}
+
+.search-results-grid {
+  align-items: stretch;
 }
 
 .app-main {
@@ -1825,6 +1831,10 @@ textarea:focus-visible {
 
   .product-drawer-signal-grid > div:last-child {
     grid-column: 1 / -1;
+  }
+
+  .search-filter-bar {
+    backdrop-filter: none !important;
   }
 }
 

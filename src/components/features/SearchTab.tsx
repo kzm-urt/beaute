@@ -22,6 +22,7 @@ type BrowseMode = "search" | "ranking";
 
 const ALL_CATEGORY = "\u3059\u3079\u3066";
 const DEFAULT_CATEGORY = Object.keys(CAT_META)[0] as Category;
+const RESULTS_PAGE_SIZE = 18;
 
 export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct, initialMode = "search", profile }: Props) {
   const [query, setQuery] = useState("");
@@ -59,6 +60,8 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
   // 製品データをAPIから取得（フィルタ変更のたびにfetch）
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    const controller = new AbortController();
+    let ignore = false;
 
     const filterKey = JSON.stringify({ query: query.trim(), activeCat, activeTags, mode, profileSignals: isPro ? profileSignals : [] });
     const resetPage = filterKey !== filterKeyRef.current;
@@ -75,7 +78,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
       const requestMode = showRankingAsDefault ? "ranking" : mode;
       const params = new URLSearchParams();
       params.set("mode", requestMode);
-      params.set("limit", "30");
+      params.set("limit", String(RESULTS_PAGE_SIZE));
       params.set("page", String(requestPage));
       if (activeCat !== ALL_CATEGORY) params.set("cat", activeCat);
       if (!showRankingAsDefault && mode === "search" && trimmedQuery) params.set("q", trimmedQuery);
@@ -83,9 +86,10 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         params.set("tags", activeTags.join(","));
       }
 
-      fetch(`/api/products?${params}`)
+      fetch(`/api/products?${params}`, { signal: controller.signal })
         .then(r => r.json())
         .then(d => {
+          if (ignore) return;
           const nextProducts: Product[] = d.products ?? [];
           setHasMore(Boolean(d.hasMore));
           setProducts((prev) => {
@@ -94,11 +98,21 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
             return [...prev, ...nextProducts.filter((p) => !seen.has(p.id))];
           });
         })
+        .catch((error) => {
+          if (!ignore && error?.name !== "AbortError") setHasMore(false);
+        })
         .finally(() => {
+          if (ignore) return;
           setProductsLoading(false);
           setLoadingMore(false);
         });
-    }, 300);
+    }, requestPage === 1 ? 180 : 0);
+
+    return () => {
+      ignore = true;
+      controller.abort();
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [query, activeCat, activeTags, mode, page, isPro, profileSignals]);
 
   useEffect(() => {
@@ -126,18 +140,27 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
   };
 
   // クライアント側ソートのみ（フィルタリングはAPI側）。ランキングは順位順を維持。
-  const filtered = [...products].sort((a, b) =>
-    mode === "ranking" ? (a.rank ?? 9999) - (b.rank ?? 9999) :
-    sortBy === "personal" ? (getPersonalMatch(b, profile, preferences)?.score ?? 0) - (getPersonalMatch(a, profile, preferences)?.score ?? 0) :
-    sortBy === "rating" ? b.rating - a.rating :
-    sortBy === "rev"    ? b.rev - a.rev :
-                          a.price - b.price
-  );
+  const filtered = useMemo(() => {
+    const scores = new Map<number, number>();
+    if (sortBy === "personal") {
+      for (const product of products) {
+        scores.set(product.id, getPersonalMatch(product, profile, preferences)?.score ?? 0);
+      }
+    }
+
+    return [...products].sort((a, b) =>
+      mode === "ranking" ? (a.rank ?? 9999) - (b.rank ?? 9999) :
+      sortBy === "personal" ? (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0) :
+      sortBy === "rating" ? b.rating - a.rating :
+      sortBy === "rev"    ? b.rev - a.rev :
+                            a.price - b.price
+    );
+  }, [products, mode, sortBy, profile, preferences]);
 
   return (
     <div className="motion-fade-scale">
       {/* ── SEARCH / FILTER BAR ── */}
-      <div style={{ position: "sticky", top: 52, zIndex: 15, background: "rgba(248,244,239,.97)", backdropFilter: "blur(10px)", borderBottom: "1px solid #EDE5DC", padding: "12px 24px 10px" }} className="top-[52px] md:top-[52px] top-[52px] motion-reveal">
+      <div style={{ position: "sticky", top: 52, zIndex: 15, background: "rgba(248,244,239,.97)", backdropFilter: "blur(10px)", borderBottom: "1px solid #EDE5DC", padding: "12px 24px 10px" }} className="search-filter-bar top-[52px] md:top-[52px] top-[52px] motion-reveal">
         <Input
           value={query}
           onChange={setQuery}
@@ -280,7 +303,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
           </div>
         )}
         {productsLoading ? (
-          <div className="motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
+          <div className="search-results-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} style={{ borderRadius: 12, overflow: "hidden", background: "#F1EADE" }}>
                 <div style={{ height: 160, background: "#EDE5DC" }}/>
@@ -373,7 +396,7 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
       style={{ "--product-accent": m.accent, "--product-soft": m.color } as CSSProperties}
     >
       <div className="search-product-hero">
-        <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} />
+        <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} imageSize={320} />
         <div className="search-product-hero-shade" />
         <div className="search-product-badges">
           {p.free ? <FreeBadge/> : <ProBadge/>}

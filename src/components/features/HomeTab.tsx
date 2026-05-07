@@ -212,6 +212,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
               catIcon={heroMeta.icon}
               className="home-hero-image"
               style={{ opacity: 0.96 }}
+              imageSize={720}
             />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(26,14,8,.96) 0%, rgba(26,14,8,.6) 36%, rgba(26,14,8,.04) 100%)" }} />
             <div className="home-hero-product-note motion-reveal" style={{ position: "absolute", right: 30, bottom: 28, maxWidth: 310, textAlign: "right", color: "#FBF8F3" }}>
@@ -677,7 +678,7 @@ function RailCard({ product: p, onOpen, isPro, onUpgrade, profile, preferences }
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(21,11,0,.12)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(21,11,0,.06)"; }}>
       <div style={{ position: "relative", height: 140, overflow: "hidden", background: m.color }}>
-        <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon}/>
+        <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} imageSize={320}/>
         {locked && <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top,rgba(21,11,0,.55),rgba(248,244,239,.15))", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 10 }}><span style={{ fontSize: 10, color: "#F5EEE4", background: "rgba(26,14,8,.9)", borderRadius: 999, padding: "5px 9px", fontWeight: 800 }}>PROで詳細</span></div>}
         <div style={{ position: "absolute", top: 8, left: 8 }}>{p.free ? <FreeBadge/> : <ProBadge/>}</div>
         {isPro && match && (
@@ -717,7 +718,7 @@ function EditorCard({ product: p, onOpen, isPro, profile, preferences }: {
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
       <div style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", background: m.color }}>
-        <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon}/>
+        <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} imageSize={360}/>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(21,11,0,.55) 0%, transparent 50%)" }}/>
         {locked && <div style={{ position: "absolute", inset: 0, background: "rgba(21,11,0,.2)" }}/>}
         <div style={{ position: "absolute", top: 8, left: 8 }}>
