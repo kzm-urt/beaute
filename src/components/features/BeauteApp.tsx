@@ -297,7 +297,7 @@ export default function BeauteApp() {
         )}
 
         <main style={{ flex: 1, overflowY: "auto" }} className="app-main">
-          {tab === "home"    && <HomeTab    profile={effectiveProfile} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
+          {tab === "home"    && <HomeTab    profile={effectiveProfile} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")} onGoGuide={() => setTab("guide")}/>}
           {tab === "guide"   && <GuideTab   isGuest={isGuest} isPro={effectiveIsPro} onAuth={() => setShowAuth(true)} onUpgrade={upgrade} onGoSearch={() => setTab("search")} onGoRanking={() => setTab("ranking")} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
           {tab === "search"  && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
           {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}

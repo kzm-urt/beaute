@@ -33,14 +33,14 @@ const steps = [
   {
     no: "03",
     title: "カルテを育てる",
-    body: "性別、肌・髪、悩み、使っている製品、欲しい成分、習慣を入れるほど提案が鋭くなります。",
+    body: "肌や髪のこと、今使っているもの、気になっている成分を少しずつ足していきます。",
     cta: "カルテを見る",
     action: "karte",
   },
   {
     no: "04",
-    title: "買う前に判定する",
-    body: "成分解析、レビュー量、価格、動画、あなた向けの理由を合わせて買うか決めます。",
+    title: "最後に、納得して選ぶ",
+    body: "成分、レビュー、価格、動画、あなたとの相性を並べて、今買うか・あとで見るかを決めます。",
     cta: "成分解析へ",
     action: "analyze",
   },
@@ -58,8 +58,8 @@ const signals = ["性別", "年代", "肌タイプ", "髪タイプ", "悩み", "
 
 const routines = [
   { label: "初日", body: "ランキングを見て、3つ保存。カルテに肌・髪・悩みを登録。" },
-  { label: "買う前", body: "商品詳細で相性理由、注意点、レビュー量、動画を確認。" },
-  { label: "週1回", body: "美容ログに使用感を残して、合わない理由と良かった理由を蓄積。" },
+  { label: "選ぶ前", body: "商品詳細で相性、注意点、レビュー量、動画を軽く確認。" },
+  { label: "週1回", body: "美容ログに使用感を残して、また使いたい理由・やめたい理由をメモ。" },
   { label: "月1回", body: "成分解析と保存リストを見直して、次に買う候補を整理。" },
 ] as const;
 
@@ -87,9 +87,9 @@ export default function GuideTab({
       <section className="guide-hero section-shell mobile-tight">
         <div className="guide-hero-copy motion-reveal">
           <p className="guide-eyebrow">BEAUTE START GUIDE</p>
-          <h1>使い方が分かると、買う理由まで見えてくる。</h1>
+          <h1>まずは、beauteの歩き方から。</h1>
           <p className="guide-lead">
-            beauteは、楽天の商品情報をただ並べるだけではなく、あなたのカルテ・成分解析・保存リスト・美容ログをつないで「次に何を選ぶか」を決めるための美容サーチです。
+            beauteは、楽天の商品を探しながら、気になるものを保存し、成分や使用感を少しずつ自分の記録にしていく美容サーチです。最初に流れを見ておくと、どこから触ればいいか迷いにくくなります。
           </p>
           <div className="guide-hero-actions">
             <button className="guide-primary motion-cta" onClick={isGuest ? onAuth : onGoKarte}>
@@ -104,7 +104,7 @@ export default function GuideTab({
           <div>
             <span>今やること</span>
             <strong>{isPro ? "ログを残して精度を上げる" : isGuest ? "まず3商品を見てみる" : "保存と解析をつなげる"}</strong>
-            <p>{isPro ? "買った後の使用感まで残すと、次のおすすめがさらにパーソナルになります。" : "最初はランキングから入り、気になる商品を保存するだけで十分です。"}</p>
+            <p>{isPro ? "使ってみた感想を残すほど、次の候補があなたの好みに近づきます。" : "最初はランキングから入り、気になる商品を保存するだけで十分です。"}</p>
           </div>
           <div className="guide-mini-metrics">
             <div><b>3</b><span>分で開始</span></div>
@@ -140,9 +140,9 @@ export default function GuideTab({
       <section className="guide-section guide-personal-section section-shell mobile-tight">
         <div className="guide-personal-copy">
           <p className="guide-eyebrow">PERSONAL ENGINE</p>
-          <h2>カルテは、あなた専用の美容OS。</h2>
+          <h2>カルテは、あなたの肌と棚のメモ。</h2>
           <p>
-            性別や肌質だけでは弱いので、beauteでは「今使っている製品」「どんな状態か」「欲しい成分」「続けられる習慣」まで見ます。商品を保存し、解析し、ログに残すほど、買う前の判定が自分向けになります。
+            「最近乾きやすい」「この化粧水は合った」「朝は時間がない」みたいな小さな情報を残しておく場所です。性別や肌質だけで決めるより、今の状態と手元のアイテムまで見たほうが、次に選ぶものが自然に絞れます。
           </p>
           <div className="guide-hero-actions">
             <button className="guide-primary motion-cta" onClick={isGuest ? onAuth : onGoKarte}>
@@ -188,7 +188,7 @@ export default function GuideTab({
       <section className="guide-section section-shell mobile-tight">
         <div className="guide-section-head">
           <p className="guide-eyebrow">ROUTINE</p>
-          <h2>売上につながる使い方</h2>
+          <h2>続けるほど、選びやすくなる使い方</h2>
         </div>
         <div className="guide-routine-grid">
           {routines.map((routine) => (
@@ -204,8 +204,8 @@ export default function GuideTab({
         <section className="guide-pro-cta section-shell mobile-tight motion-reveal">
           <div>
             <p className="guide-eyebrow">PRO PRECISION</p>
-            <h2>本気で選ぶ日は、PROで全商品を開放。</h2>
-            <p>無制限の成分解析、全商品の購入リンク、保存・ログから育つおすすめ精度で、迷う時間を減らして購入判断を強くします。</p>
+            <h2>ちゃんと選びたい日は、PROで深く見る。</h2>
+            <p>無制限の成分解析、全商品の購入リンク、保存・ログから育つおすすめ精度で、候補をもう一段細かく見られます。</p>
           </div>
           <button className="guide-primary motion-cta" onClick={() => isGuest ? onAuth() : onUpgrade("guide_bottom_cta")}>
             {isGuest ? "無料登録して7日トライアルへ" : "PROを試す"}

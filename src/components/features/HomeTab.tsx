@@ -21,6 +21,7 @@ interface Props {
   onGoAnalyze: () => void;
   onGoSaved: () => void;
   onGoLog: () => void;
+  onGoGuide: () => void;
 }
 
 const CATEGORY_GUIDES: Record<Category, { lead: string; route: string; tags: string[] }> = {
@@ -119,7 +120,7 @@ const CATEGORY_VISUALS: Record<Category, { image: string; mood: string; mark: st
   },
 };
 
-export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct, onGoKarte, onGoAnalyze, onGoSaved, onGoLog }: Props) {
+export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSearch, onOpenProduct, onGoKarte, onGoAnalyze, onGoSaved, onGoLog, onGoGuide }: Props) {
   const [videos, setVideos] = useState<YoutubeVideo[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
   const [activeVideoCategory, setActiveVideoCategory] = useState("全体");
@@ -253,6 +254,9 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
               : `${profile.skinType || "肌質"}と気になる悩みに合わせて、今日の候補を準備しています。`}
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button className="motion-cta" onClick={onGoGuide} style={{ padding: "12px 20px", background: "#F8F4EF", border: "1px solid rgba(248,244,239,.9)", color: "#1A0E08", fontSize: 12, letterSpacing: "0.1em", fontWeight: 900, cursor: "pointer", borderRadius: 6 }}>
+              使い方を見る
+            </button>
             {heroProduct && (
               <button className="motion-cta" onClick={() => onOpenProduct(heroProduct)} style={{ padding: "12px 20px", background: "#D4A853", border: "1px solid #D4A853", color: "#1A0E08", fontSize: 12, letterSpacing: "0.1em", fontWeight: 800, cursor: "pointer", borderRadius: 6 }}>
                 今日の一品を見る
@@ -284,6 +288,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
         onGoSearch={() => onGoSearch()}
         onGoSaved={onGoSaved}
         onGoLog={onGoLog}
+        onGoGuide={onGoGuide}
         onUpgrade={() => onUpgrade("home_tutorial")}
       />
 
@@ -518,13 +523,14 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
   );
 }
 
-function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, onGoLog, onUpgrade }: {
+function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, onGoLog, onGoGuide, onUpgrade }: {
   isPro: boolean;
   onGoKarte: () => void;
   onGoAnalyze: () => void;
   onGoSearch: () => void;
   onGoSaved: () => void;
   onGoLog: () => void;
+  onGoGuide: () => void;
   onUpgrade: () => void;
 }) {
   const steps = [
@@ -569,18 +575,21 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
           <div>
             <div style={{ fontSize: 10, letterSpacing: "0.24em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>3 MINUTE GUIDE</div>
             <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, lineHeight: 1.15, fontWeight: 500 }}>
-              迷わず、<br/>買う理由まで。
+              初めてなら、<br/>まず使い方を。
             </h2>
             <p style={{ margin: "12px 0 0", fontSize: 12, lineHeight: 1.85, color: "rgba(251,248,243,.7)" }}>
-              beautéは「検索する」だけではなく、カルテ、保存、成分分析、ログをつなげて候補を育てるアプリです。
+              検索、保存、カルテ、成分分析、ログ。何から触ればいいかを先に見ると、beauteの良さがかなり掴みやすくなります。
             </p>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button className="motion-cta" onClick={onGoGuide} style={{ border: "none", borderRadius: 999, padding: "9px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+              使い方を見る
+            </button>
             <button className="motion-nav-button" onClick={onGoSearch} style={{ border: "1px solid rgba(212,168,83,.45)", borderRadius: 999, padding: "9px 12px", background: "rgba(212,168,83,.12)", color: "#D4A853", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
               商品を探す
             </button>
             {!isPro && (
-              <button className="motion-cta" onClick={onUpgrade} style={{ border: "none", borderRadius: 999, padding: "9px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+              <button className="motion-nav-button" onClick={onUpgrade} style={{ border: "1px solid rgba(212,168,83,.35)", borderRadius: 999, padding: "9px 12px", background: "transparent", color: "rgba(251,248,243,.78)", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
                 PROで精度を上げる
               </button>
             )}

@@ -8,6 +8,36 @@ beaute is a beauty product discovery app with auth, profile-based recommendation
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
 
+## 2026-05-07 Guide Copy and Home Entry Refinement
+
+Scope:
+
+- Removed repeated "buying reason" wording between the home tutorial and guide hero.
+- Made the guide copy feel less mechanical and more like a gentle onboarding path.
+- Added a stronger home entry point for first-time users to open the guide before searching.
+
+Changes:
+
+- `src/components/features/HomeTab.tsx`
+  - Added `onGoGuide` support.
+  - Added a `使い方を見る` CTA to the home hero so mobile users see it in the first viewport.
+  - Reworked the home tutorial card from "迷わず、買う理由まで。" to "初めてなら、まず使い方を。".
+- `src/components/features/GuideTab.tsx`
+  - Changed the guide hero to "まずは、beauteの歩き方から。".
+  - Softened the personal/karte copy to describe real daily notes like current condition, owned products, habits, and usage impressions.
+  - Reworded the purchase-decision and routine sections to feel less like a sales dashboard.
+- `src/components/features/BeauteApp.tsx`
+  - Wired the home guide CTA into the existing `guide` tab.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local production build on port `3006` verified:
+  - Mobile home first viewport shows `使い方を見る`.
+  - Hero guide CTA routes from `/` to `/?tab=guide`.
+  - Guide tab renders after the transition.
+
 ## 2026-05-07 Guide Tab Pass
 
 Scope:
