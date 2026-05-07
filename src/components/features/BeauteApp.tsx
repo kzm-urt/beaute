@@ -525,20 +525,21 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
   };
 
   return (
-        <div className="product-drawer-backdrop" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(21,11,0,.55)", display: "flex", justifyContent: "flex-end" }}>
+    <div className="product-drawer-backdrop" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(21,11,0,.55)", display: "flex", justifyContent: "flex-end" }}>
       <div className="product-drawer-panel" onClick={e => e.stopPropagation()} style={{ width: "min(520px,100vw)", background: "#FBF8F3", height: "100%", overflowY: "auto", animation: "slideInRight 0.28s ease" }}>
+        <div className="product-drawer-grip" />
 
         {/* Image */}
         <div className="product-drawer-hero" style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden", background: m.color }}>
           <ProductImage id={p.id} name={p.name} brand={p.brand} sub={p.sub} src={p.image} alt={p.name} catColor={m.color} catIcon={m.icon} className="product-drawer-image" style={{ position: "absolute", inset: 0 }}/>
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(21,11,0,.5) 0%, transparent 55%)" }}/>
           {locked && <div style={{ position: "absolute", inset: 0, background: "rgba(21,11,0,.18)" }}/>}
-          <button onClick={onClose} style={{ position: "absolute", top: 14, right: 14, width: 36, height: 36, borderRadius: "50%", background: "rgba(251,248,243,.92)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <button aria-label="商品詳細を閉じる" className="product-drawer-close" onClick={onClose} style={{ position: "absolute", top: 14, right: 14, width: 36, height: 36, borderRadius: "50%", background: "rgba(251,248,243,.92)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Icon name="close" size={16} stroke="#150B00" sw={2}/>
           </button>
           <div style={{ position: "absolute", bottom: 16, left: 20 }}>
             <div style={{ fontSize: 10, color: "rgba(251,248,243,.7)", fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em" }}>{productSourceLabel} / {p.brand}</div>
-            <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>{p.name}</div>
+            <div className="product-drawer-title" style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>{p.name}</div>
           </div>
         </div>
 
@@ -559,14 +560,14 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
             <span style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace" }}>{p.rev.toLocaleString()} reviews</span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: "14px 0", borderTop: "1px solid #EDE5DC", borderBottom: "1px solid #EDE5DC", marginBottom: 16 }}>
+          <div className="product-drawer-price-row">
             <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, color: "#150B00", fontWeight: 500 }}>{formatPrice(p.price)}</span>
             <span style={{ fontSize: 10, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", letterSpacing: "0.1em" }}>税込</span>
           </div>
 
           <p style={{ fontSize: 14, lineHeight: 1.8, color: "#6B5B4A", marginBottom: 16 }}>{p.desc}</p>
 
-          <div style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 14, padding: 14, marginBottom: 16 }}>
+          <div className="product-drawer-section-card">
             <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>BUYING SIGNALS</div>
             <div className="product-drawer-signal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
               {trustSignals.map((signal) => (
@@ -582,7 +583,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
           </div>
 
           {isPro && match && (
-            <div style={{ background: "#fff", border: "1px solid #D4A85366", borderRadius: 14, padding: "13px 15px", marginBottom: 16 }}>
+            <div className="product-drawer-section-card" style={{ borderColor: "#D4A85366" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
                 <div>
                   <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PERSONAL FIT</div>
@@ -618,7 +619,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
               </div>
 
               {/* Video */}
-              <a href={p.video.url} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: "#1A0E08", borderRadius: 12, textDecoration: "none", marginBottom: 20 }}>
+              <a className="tap-card" href={p.video.url} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: "#1A0E08", borderRadius: 12, textDecoration: "none", marginBottom: 20 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 8, background: `linear-gradient(135deg,${m.dark},${m.accent})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Icon name="play" size={14} stroke="#fff"/>
                 </div>
@@ -629,7 +630,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
               </a>
             </>
           ) : (
-            <div style={{ background: "#F8F4EF", border: "1px solid #EDE5DC", borderRadius: 14, padding: 14, marginBottom: 20 }}>
+            <div className="product-drawer-section-card" style={{ background: "#F8F4EF" }}>
               <div style={{ fontSize: 11, letterSpacing: "0.12em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>LOCKED DETAILS</div>
               <p style={{ fontSize: 12, lineHeight: 1.7, color: "#6B5B4A", margin: 0 }}>
                 買う前メモ、タグ全文、関連レビュー動画、楽天購入リンクはPROで表示されます。
@@ -639,7 +640,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
 
           {locked
             ? (
-              <div style={{ background: "#fff", border: "1px solid #D4A85366", borderRadius: 16, padding: 16 }}>
+              <div className="product-drawer-section-card" style={{ borderColor: "#D4A85366" }}>
                 <p style={{ fontSize: 13, fontWeight: 800, color: "#150B00", margin: "0 0 5px" }}>この商品はPRO詳細枠です</p>
                 <p style={{ fontSize: 12, lineHeight: 1.7, color: "#8A7A6E", margin: "0 0 12px" }}>
                   PROで楽天購入リンク、あなた向けスコア、比較リストを解放できます。気になる商品を買う前に一気に絞り込めます。
@@ -651,6 +652,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
               <div className="product-drawer-actions" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 <div className="product-drawer-save-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                   <button
+                    className="product-action-button"
                     onClick={() => updateProductSave("favorite")}
                     disabled={saveLoading !== null}
                     style={{ width: "100%", padding: "12px", background: savedFavorite ? "#1A0E08" : "#fff", color: savedFavorite ? "#D4A853" : "#150B00", border: "1px solid #EDE5DC", borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: saveLoading ? "default" : "pointer" }}
@@ -658,6 +660,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
                     {saveLoading === "favorite" ? "保存中..." : savedFavorite ? "♡ 保存済み" : "♡ お気に入り"}
                   </button>
                   <button
+                    className="product-action-button"
                     onClick={() => updateProductSave("compare")}
                     disabled={saveLoading !== null}
                     style={{ width: "100%", padding: "12px", background: savedCompare ? "#1A0E08" : "#fff", color: savedCompare ? "#D4A853" : "#150B00", border: "1px solid #EDE5DC", borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: saveLoading ? "default" : "pointer" }}
@@ -671,7 +674,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
                   </p>
                 )}
                 <a
-                  className="motion-cta"
+                  className="motion-cta product-purchase-button"
                   href={purchaseUrl}
                   target="_blank"
                   rel="noopener noreferrer"

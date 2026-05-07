@@ -518,6 +518,14 @@ Recent checks:
 - `/api/products` returns Rakuten products with real Rakuten image URLs when Rakuten env vars are present.
 - `/api/products?mode=ranking&page=1` returns ranking items with ranks.
 
+2026-05-07 mobile interaction pass:
+
+- Product cards on Home, Search, Karte, and the Home hero product now use shared tap feedback so clicks feel more immediate on desktop and mobile.
+- Product cards are keyboard reachable with `role="button"`, `tabIndex`, and Enter/Space activation.
+- Mobile product detail now behaves more like a bottom sheet: drag grip, shorter hero, rounded sheet, denser body, and sticky save/compare/purchase actions.
+- Product detail CTA copy now keeps users in the product drawer first, then sends them to Rakuten from the detail action.
+- Verified locally with `npm run typecheck`, `npm run build`, browser product-click QA on `http://localhost:3006`, and `NEXT_PUBLIC_APP_URL=http://localhost:3006 npm run preflight`.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

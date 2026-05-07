@@ -444,7 +444,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                 const locked = !p.free && !isPro;
                 const match = getPersonalMatch(p, profile, isPro ? preferences : null);
                 return (
-                  <div key={p.id} className="motion-card" onClick={() => locked ? onUpgrade() : onOpenProduct(p)} style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 14, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s", boxShadow: "0 2px 10px rgba(21,11,0,.05)" }}
+                  <div key={p.id} className="motion-card tap-card" role="button" tabIndex={0} onClick={() => locked ? onUpgrade() : onOpenProduct(p)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); locked ? onUpgrade() : onOpenProduct(p); } }} style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 14, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s", boxShadow: "0 2px 10px rgba(21,11,0,.05)" }}
                     onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
                     <div style={{ background: m.color, padding: "6px 12px", display: "flex", justifyContent: "space-between" }}>
@@ -458,10 +458,10 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                       <div style={{ marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 16, color: "#A8722A" }}>{formatPrice(p.price)}</span>
                         {isPro && match ? (
-                          <span style={{ fontSize: 10, color: "#A8722A", fontWeight: 800 }}>{match.score}% MATCH</span>
+                          <span className="tap-card-hint" style={{ fontSize: 10, color: "#A8722A", fontWeight: 800 }}>{match.score}% MATCH</span>
                         ) : locked ? (
-                          <span style={{ fontSize: 10, color: "#8A7A6E" }}>🔒 PRO</span>
-                        ) : null}
+                          <span className="tap-card-hint" style={{ fontSize: 10, color: "#8A7A6E" }}>🔒 PRO</span>
+                        ) : <span className="tap-card-hint" style={{ fontSize: 10, color: "#A8722A", fontWeight: 800 }}>詳細 →</span>}
                       </div>
                     </div>
                   </div>

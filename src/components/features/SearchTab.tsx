@@ -362,7 +362,7 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
   };
 
   return (
-    <div className="motion-card" onClick={handleOpen}
+    <div className="motion-card tap-card" role="button" tabIndex={0} onClick={handleOpen} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleOpen(); } }}
       style={{ background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 20px rgba(21,11,0,.1)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(21,11,0,.05)"; }}>
@@ -420,8 +420,8 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 18, fontWeight: 500, color: "#A8722A" }}>{formatPrice(p.price)}</span>
           {locked
-            ? <span style={{ fontSize: 11, color: "#8A7A6E" }}>🔒 PROで見る</span>
-            : <span style={{ fontSize: 11, color: m.dark, fontWeight: 600 }}>{p.url ? "楽天で見る →" : "詳細を見る →"}</span>
+            ? <span className="tap-card-hint" style={{ fontSize: 11, color: "#8A7A6E" }}>🔒 PROで見る</span>
+            : <span className="tap-card-hint" style={{ fontSize: 11, color: m.dark, fontWeight: 600 }}>{p.url ? "詳細を見る →" : "詳細を見る →"}</span>
           }
         </div>
       </div>

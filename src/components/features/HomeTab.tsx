@@ -100,7 +100,7 @@ export default function HomeTab({ profile, isPro, preferences, onUpgrade, onGoSe
           <button
             type="button"
             onClick={() => onOpenProduct(heroProduct)}
-            className="home-hero-product"
+            className="home-hero-product tap-card"
             style={{
               position: "absolute",
               top: 0,
@@ -580,7 +580,7 @@ function RailCard({ product: p, onOpen, isPro, onUpgrade, profile, preferences }
     onOpen(p);
   };
   return (
-    <div className="lift-card motion-card" onClick={handleOpen} style={{ flexShrink: 0, width: 220, cursor: "pointer", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.06)" }}
+    <div className="lift-card motion-card tap-card" role="button" tabIndex={0} onClick={handleOpen} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleOpen(); } }} style={{ flexShrink: 0, width: 220, cursor: "pointer", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, overflow: "hidden", transition: "transform 0.2s ease, box-shadow 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.06)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(21,11,0,.12)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(21,11,0,.06)"; }}>
       <div style={{ position: "relative", height: 140, overflow: "hidden", background: m.color }}>
@@ -599,7 +599,7 @@ function RailCard({ product: p, onOpen, isPro, onUpgrade, profile, preferences }
         <Stars rating={p.rating} size={11}/>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
           <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 17, fontWeight: 500, color: "#150B00" }}>{formatPrice(p.price)}</span>
-          <span style={{ fontSize: 9, padding: "3px 8px", borderRadius: 20, background: m.color, color: m.dark }}>{p.cat}</span>
+          <span className="tap-card-hint" style={{ fontSize: 9, padding: "3px 8px", borderRadius: 20, background: m.color, color: m.dark }}>詳細 →</span>
         </div>
       </div>
     </div>
@@ -610,7 +610,7 @@ function EditorCard({ product: p, onOpen, isPro }: { product: Product; onOpen: (
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
   return (
-    <div className="lift-card motion-card" onClick={() => onOpen(p)} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 10, overflow: "hidden", transition: "transform 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
+    <div className="lift-card motion-card tap-card" role="button" tabIndex={0} onClick={() => onOpen(p)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(p); } }} style={{ cursor: "pointer", background: "#fff", border: `1px solid ${m.accent}33`, borderRadius: 10, overflow: "hidden", transition: "transform 0.2s ease", boxShadow: "0 2px 12px rgba(21,11,0,.05)" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
       <div style={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", background: m.color }}>
