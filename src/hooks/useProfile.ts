@@ -20,8 +20,7 @@ const DEFAULT: UserProfile = {
 };
 
 const BASE_PROFILE_SELECT = "age, skin_type, hair_type, concerns, is_pro";
-const FULL_PROFILE_SELECT = [
-  "nickname",
+const COMPAT_PROFILE_SELECT = [
   "age",
   "gender",
   "skin_type",
@@ -34,6 +33,7 @@ const FULL_PROFILE_SELECT = [
   "beauty_goals",
   "is_pro",
 ].join(",");
+const FULL_PROFILE_SELECT = `nickname,${COMPAT_PROFILE_SELECT}`;
 
 type ProfileRow = {
   nickname?: string | null;
@@ -104,6 +104,15 @@ export function useProfile(user: User | null) {
         profileData = fullResult.data as ProfileRow | null;
 
         if (!profileData) {
+          const compat = await supabase
+            .from("profiles")
+            .select(COMPAT_PROFILE_SELECT)
+            .eq("id", userId)
+            .single();
+          profileData = compat.data as ProfileRow | null;
+        }
+
+        if (!profileData) {
           const fallback = await supabase
             .from("profiles")
             .select(BASE_PROFILE_SELECT)
@@ -144,19 +153,25 @@ export function useProfile(user: User | null) {
       concerns: next.concerns,
       updated_at: new Date().toISOString(),
     };
-    const { error } = await supabase.from("profiles").upsert({
+    const richPayload = {
       ...basePayload,
-      nickname: next.nickname,
       gender: next.gender,
       current_products: next.currentProducts,
       current_state: next.currentState,
       desired_ingredients: next.desiredIngredients,
       beauty_habits: next.habits,
       beauty_goals: next.goals,
+    };
+    const { error } = await supabase.from("profiles").upsert({
+      ...richPayload,
+      nickname: next.nickname,
     });
 
     if (error) {
-      await supabase.from("profiles").upsert(basePayload);
+      const compat = await supabase.from("profiles").upsert(richPayload);
+      if (compat.error) {
+        await supabase.from("profiles").upsert(basePayload);
+      }
     }
   };
 
@@ -179,6 +194,14 @@ export function useProfile(user: User | null) {
       .eq("id", user.id)
       .single();
     profileData = fullResult.data as ProfileRow | null;
+    if (!profileData) {
+      const compat = await supabase
+        .from("profiles")
+        .select(COMPAT_PROFILE_SELECT)
+        .eq("id", user.id)
+        .single();
+      profileData = compat.data as ProfileRow | null;
+    }
     if (!profileData) {
       const fallback = await supabase
         .from("profiles")
