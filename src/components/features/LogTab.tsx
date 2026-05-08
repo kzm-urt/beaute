@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { CAT_META } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { PLAN_RULES, getRemaining, isWithinLimit } from "@/lib/plan";
+import { getLogGrowthXp } from "@/lib/beautyGrowth";
 import { GoldButton, Input, Select } from "@/components/ui";
 import type { Category, LogEntry } from "@/types";
 
@@ -39,6 +40,7 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
+  const [growthToast, setGrowthToast] = useState<{ xp: number; label: string } | null>(null);
   const [form, setForm] = useState({ prod: "", cat: "スキンケア" as Category, rating: 5, memo: "" });
 
   useEffect(() => {
@@ -89,9 +91,11 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
       return;
     }
     setLog((prev) => [data.entry as LogEntry, ...prev]);
+    setGrowthToast({ xp: getLogGrowthXp(form.rating), label: form.cat });
     setForm({ prod: "", cat: "スキンケア", rating: 5, memo: "" });
     setShowForm(false);
     setSaving(false);
+    setTimeout(() => setGrowthToast(null), 4800);
   };
 
   const validRatings = log.map((e) => Number(e.rating)).filter((rating) => Number.isFinite(rating));
@@ -102,13 +106,14 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
   const logLimit = isPro ? null : PLAN_RULES.free.logLimit;
   const remainingLogCount = getRemaining(log.length, logLimit);
   const canAddLog = isWithinLimit(log.length, logLimit);
+  const totalGrowthXp = log.reduce((sum, item) => sum + getLogGrowthXp(item.rating), 0);
 
   return (
     <div className="px-4 py-5">
       {/* ── HEADER ── */}
       <div className="flex justify-between items-center mb-1">
         <h2 className="text-[24px] italic" style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", color: "#150B00" }}>
-          My Beauty Log
+          美容ログ
         </h2>
         <button
           onClick={() => {
@@ -125,6 +130,22 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
         </button>
       </div>
       <p className="text-[13px] mb-5" style={{ color: "#8A7A6E" }}>使用中アイテムの記録と振り返り</p>
+
+      <div className="beauty-log-growth-card motion-reveal">
+        <div>
+          <span>記録ポイント</span>
+          <strong>{loading ? "…" : totalGrowthXp.toLocaleString()}</strong>
+        </div>
+        <p>ログを書くほど、カルテの判断に反映されます。</p>
+      </div>
+
+      {growthToast && (
+        <div className="beauty-growth-toast motion-fade-scale">
+          <span>ログを反映</span>
+          <strong>+{growthToast.xp} pt</strong>
+          <p>{growthToast.label}の使用感を美容ログに反映しました。</p>
+        </div>
+      )}
 
       {!isPro && (
         <div className="rounded-[14px] border px-4 py-3 mb-4 flex items-center gap-3"
@@ -229,7 +250,10 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
                     style={{ background: m.color }}>{m.icon}</div>
                   <div>
                     <p className="text-[11px] font-semibold" style={{ color: m.accent }}>{displayCategory}</p>
-                    <p className="text-[14px] font-bold" style={{ color: "#150B00" }}>{productName}</p>
+                <p className="text-[14px] font-bold" style={{ color: "#150B00" }}>{productName}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "#A8722A", fontWeight: 900 }}>
+                      +{getLogGrowthXp(rating)} XP
+                    </p>
                   </div>
                 </div>
                 <p className="text-[10px]" style={{ color: "#C4B4A8" }}>{startedAt}</p>

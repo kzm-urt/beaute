@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
     }}>
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 48, fontWeight: 500, color: "#150B00" }}>
-          beauté
+          beautia
         </div>
         <div style={{ fontSize: 9, letterSpacing: "0.4em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginTop: 6 }}>
           — EST. MMXXV —

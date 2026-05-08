@@ -1,4 +1,4 @@
-# Claude Code × beauté 開発ガイド
+# Claude Code × beautia 開発ガイド
 
 ---
 
@@ -82,7 +82,7 @@ claude
 
 ---
 
-## STEP 4｜beauté プロジェクトのセットアップ
+## STEP 4｜beautia プロジェクトのセットアップ
 
 ```bash
 # 1. ZIPを解凍してフォルダに入る

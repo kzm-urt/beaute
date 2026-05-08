@@ -1,12 +1,194 @@
-# beaute Development Log
+# beautia Development Log
 
 Last updated: 2026-05-08
 
 ## Current Direction
 
-beaute is a beauty product discovery app with auth, profile-based recommendations, ingredient analysis, usage logs, Rakuten product search/ranking, and a FREE/PRO plan split.
+beautia is a beauty product discovery app with auth, profile-based recommendations, ingredient analysis, usage logs, Rakuten product search/ranking, and a FREE/PRO plan split.
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
+
+## 2026-05-08 Brand Rename Pass
+
+Scope:
+
+- Renamed the product-facing app brand from `beauté` / `beaute` to `beautia`.
+- Kept existing production URLs, Vercel project names, source component names, localStorage keys, and Rakuten origin fallback unchanged for compatibility.
+
+Changes:
+
+- Updated Next metadata, Open Graph/Twitter titles, PWA manifest name/short name, package name, and visible app shell brand text.
+- Updated auth, profile, guide, feedback, legal, reset password, admin headings, README, and current working docs to use `beautia`.
+- Updated feedback analytics provider and Basic auth realm naming to `beautia`.
+
+Verification:
+
+- `npm run typecheck` passes.
+
+## 2026-05-08 Global App Benchmark Pass
+
+Scope:
+
+- Reviewed global beauty, skincare, commerce, health tracking, and habit/gamification apps to calibrate beautia's UI density.
+- Added `docs/GLOBAL_APP_BENCHMARK.md` as a working reference for the next declutter pass.
+
+Key conclusion:
+
+- beautia's concept is strong, but the current UI still stacks too many jobs in one viewport.
+- The next product direction should be a calmer "Today / Beauty Growth cockpit" with one primary action per screen.
+- Search should show products earlier and move filters, plan education, and PRO nudges behind progressive disclosure.
+- Product detail should answer "will this help my beauty score grow?" before showing detailed buying signals or long Rakuten copy.
+
+## 2026-05-08 Chrome First-Use UX Playtest
+
+Scope:
+
+- Played through the local production build in Google Chrome as a first-time guest.
+- Focused on whether the new "AI beauty growth visualization" direction is visible to someone who does not already know the product concept.
+- Covered mobile Home, Search, locked product tap, product detail drawer, Karte gate, Premium, and desktop Search.
+
+Artifacts:
+
+- Added `docs/UX_PLAYTEST_LOG.md`.
+- Saved local QA screenshots under `tmp/ux-playtest/`.
+
+Key Findings:
+
+- Guest Home still reads more like premium product discovery than growth visualization because score, level, XP, trend, and mission cues are not visible in the first viewport.
+- Mobile Search can show a locked PRO product as the first visible card, and tapping it routes directly to Premium before the user sees product value.
+- Search mobile controls consume a lot of vertical space before products appear.
+- Product detail has good purchase basics, but the Beauty Equipment / growth benefit appears below the first fold.
+- Product drawer needs title clamping and more bottom padding so the sticky purchase actions do not cover reading content.
+- Karte and Premium should sell the growth loop more directly.
+
+## 2026-05-08 First-Use UX Fix Pass
+
+Scope:
+
+- Implemented the highest-impact fixes from the Chrome first-use playtest.
+- Kept the app's reduced-copy direction, but made the "AIで成長を見える化" concept visible earlier.
+- Focused on guest conversion, mobile search/product detail, Karte gate, and PRO value framing.
+
+Changes:
+
+- `src/components/features/HomeTab.tsx`
+  - Added a guest-visible Growth Preview in the Home hero with score, level, next mission, and product growth stat hints.
+  - Reframed the guest hero support copy around AI score, missions, and previous comparison.
+- `src/components/features/SearchTab.tsx`
+  - Guest/FREE default Search now requests openable FREE products first with `free=true`.
+  - Locked cards now open a preview drawer when possible instead of immediately routing to Premium.
+  - Shortened the Guest/FREE/PRO path labels so they do not clip on mobile.
+- `src/app/api/products/route.ts`
+  - Added support for filtering Rakuten products to FREE items when `free=true` is requested.
+- `src/components/features/BeauteApp.tsx`
+  - Added Growth preview cards to the guest Karte gate.
+  - Moved product growth chips into the first product drawer fold, directly under the price.
+  - Reduced mobile bottom navigation to the six primary actions: Home, Guide, Search, Ranking, Karte, and Plan.
+  - Added `mobile-web-app-capable` metadata through `src/app/layout.tsx`.
+- `src/components/features/PremiumTab.tsx`
+  - Added a `GROWTH ENGINE` section that sells future prediction, log XP, product equipment, and previous comparison.
+- `src/app/globals.css`
+  - Added responsive styling for Home growth preview, product growth chips, Karte gate growth preview, compact plan path, drawer padding, title clamp, and mobile nav fitting.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Real Chrome extension flow on `http://localhost:3001` verified Home growth preview, Search, product drawer, and console errors/warnings.
+- Chrome mobile CDP screenshots saved under `tmp/ux-playtest-post/` and `tmp/ux-playtest-final/`.
+  - Mobile Search has no horizontal overflow, shows 12 FREE products first, and the first product card remains visible.
+  - Mobile product drawer shows growth chips in the first fold and the Rakuten purchase CTA.
+  - Mobile Karte gate shows the sample growth dashboard.
+  - Mobile Premium shows the Growth Engine section.
+  - Mobile bottom nav uses six fitted actions with no clipped labels.
+- `NEXT_PUBLIC_APP_URL=http://localhost:3001 npm run preflight` passes required checks.
+  - `beta_feedback` table is still missing in the active Supabase schema cache, but preflight treats it as non-blocking with the existing fallback.
+
+## 2026-05-08 Beauty Growth MVP Pass
+
+Scope:
+
+- Started shifting beaute from "beauty record/product discovery" toward "AI beauty growth visualization."
+- Added a lightweight growth system that uses existing profile, analysis, log, saved, preference, and product signals without introducing a new database table yet.
+- Made products feel like growth equipment and logs feel like XP, while keeping the tone premium and utility-focused.
+
+Changes:
+
+- `src/lib/beautyGrowth.ts`
+  - Added shared Beauty Growth scoring, level, XP, progress, reasons, and mission generation.
+  - Added log XP calculation.
+  - Added product growth stat generation, e.g. status boosts for skincare, haircare, UV, fragrance, etc.
+- `src/components/features/HomeTab.tsx`
+  - Added a Beauty Growth mini panel to the logged-in Beauty Desk.
+  - Shows score, delta, level name, XP progress, and a mission CTA into Karte.
+- `src/components/features/KarteTab.tsx`
+  - Added a full Beauty Growth panel with score, level, XP, growth reasons, and clickable missions.
+  - Missions route to profile editing, analysis, log, search/save, or PRO upgrade depending on the mission type.
+  - Reuses growth and product insight signals alongside the existing personal axis snapshot.
+- `src/components/features/BeauteApp.tsx`
+  - Added a "Beauty Equipment" section to product detail.
+  - Shows which beauty status a product can help grow and positions saved/compare/log as part of the growth loop.
+- `src/components/features/LogTab.tsx`
+  - Added Beauty XP summary.
+  - Saving a log now shows a short growth updated message with XP gained.
+  - Timeline entries show XP gained from each usage log.
+- `src/app/globals.css`
+  - Added responsive styling for Growth panels, missions, XP bars, product equipment cards, and log XP cards.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local production build on `http://localhost:3001` verified with Edge headless CDP:
+  - Mobile search shows 18 product cards.
+  - Mobile search has no horizontal overflow and still shows the Guest/FREE/PRO path.
+  - Mobile product drawer opens for a FREE product.
+  - Product drawer includes `BEAUTY EQUIPMENT` and `RAKUTEN CHECKOUT`.
+  - Product drawer has no horizontal overflow.
+- `NEXT_PUBLIC_APP_URL=http://localhost:3001 npm run preflight` passes required checks.
+  - `beta_feedback` table is still missing in the active Supabase schema cache, but this remains non-blocking because the fallback path is active.
+
+## 2026-05-08 Conversion, Karte, and Mobile Polish Pass
+
+Scope:
+
+- Improved the Guest / FREE / PRO path inside product discovery instead of relying only on the guide and plan page.
+- Made Karte feel more personal by surfacing the user's current decision axis before the generic engine/dashboard blocks.
+- Strengthened product detail as a purchase-prep surface with plan access state and Rakuten checkout checks.
+- Reduced mobile friction by keeping product search/detail free from the PWA install banner overlay.
+
+Changes:
+
+- `src/components/features/SearchTab.tsx`
+  - Added a compact Guest / FREE / PRO path strip below search filters.
+  - Guest users now see a direct "free registration to save" cue from search cards.
+  - The path strip adapts for guest, free, and PRO states.
+- `src/components/features/BeauteApp.tsx`
+  - Passed guest/auth context into Search.
+  - Passed the display name into Karte.
+  - Added plan access states and Rakuten checkout checks to the product drawer.
+  - Hid the PWA install banner outside Home and while a product drawer is open so mobile CTAs stay visible.
+- `src/components/features/KarteTab.tsx`
+  - Personalized the Karte heading with the display name.
+  - Added a "today's personal axis" snapshot using current state, current products, desired ingredients/goals, and top product candidate.
+  - Reused product insight copy for the top Karte recommendation.
+- `src/app/globals.css`
+  - Added responsive styles for the plan path strip, product drawer access path, Rakuten checkout card, and Karte personal snapshot.
+  - Tightened mobile plan path layout so the first product card remains visible.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Local production build on `http://localhost:3001` verified with Edge headless CDP:
+  - Mobile search shows 18 product cards.
+  - Mobile search has no horizontal overflow.
+  - Mobile search plan path height is 132px and the first product card remains visible.
+  - Mobile product drawer opens for a FREE product.
+  - Product drawer includes the plan access path and Rakuten checkout card.
+  - Product drawer has no horizontal overflow and no PWA install banner overlap.
+- `NEXT_PUBLIC_APP_URL=http://localhost:3001 npm run preflight` passes required checks.
+  - `beta_feedback` table is still missing in the active Supabase schema cache, but preflight treats it as non-blocking with the existing fallback.
 
 ## 2026-05-08 Copy Reduction Pass
 
@@ -736,6 +918,57 @@ Recent checks:
 - Home, desktop sidebar, desktop header, mobile header, and the loading screen now use a personal display name and welcome-back language.
 - Home now includes a compact "YOUR BEAUTY DESK" panel that summarizes the user's current skin/hair/concern signals and routes them back to Karte.
 
+2026-05-08 site quality focus:
+
+- Current product direction: beautia should feel less like a generic beauty record app and more like an AI beauty growth cockpit.
+- Screen goal for this pass: one primary job per screen. Home starts with today's growth mission, Search gets products on screen faster, and Product Detail starts with purchase/growth judgment before secondary information.
+- Benchmark takeaway to preserve: diagnosis is not enough. The loop should be record -> AI analysis -> suggestion -> comparison -> visible growth -> repeat.
+- Deferred for later, not forgotten: operator/contact details, AdSense readiness, `/commercial` real-world details, privacy/terms wording, and paid public launch compliance checks.
+
+2026-05-08 site quality implementation pass:
+
+- Home hero now leads with today's Beauty Growth score, next mission, XP reward, and a single primary mission CTA.
+- Search now keeps categories, tags, sorting, and Guest/FREE/PRO education behind compact toggles so product cards appear earlier on mobile.
+- Product drawer now starts with a purchase/growth decision card showing price, proof, growth stats, and the main purchase cue before secondary details.
+- Mobile product drawer sticky actions now use an opaque background so body text does not visually bleed through.
+- Verified with `npm run build`, `npm run typecheck`, and Chrome CDP mobile screenshots on `http://localhost:3008`.
+- Screenshot artifact folder: `tmp/site-quality-final-1778248957672`.
+
+2026-05-09 tone and finish pass:
+
+- App name is now treated as `beautia` in the main auth/profile surfaces.
+- Benchmark direction checked against Skin Bliss, Yuka, Finch, YouCam/Perfect Corp, LIPS, and MyFitnessPal: keep the loop short, show why a product/action matters, and make progress feel concrete without turning every label into AI jargon.
+- Site copy was softened across Home, Search, Product Detail, Karte, Log, Guide, Saved, Profile, Auth, and Premium. Examples: `AI`, `PERSONAL FIT`, `PRECISION`, `BUY REASON`, and `GUEST PREVIEW` visible labels were replaced with everyday Japanese.
+- Background direction was kept, but the palette was warmed and slightly lightened through the shared color variables. The dark coffee/gold base still carries the brand, while surfaces read less heavy on mobile.
+- Home hero product text was reduced to brand/category so long Rakuten names no longer compete with the main headline.
+- Product detail keeps the purchase path stronger: price, rating, review count, fit/check chips, buy-before memo, save/compare, and Rakuten purchase CTA are visible early on mobile.
+- Verified with `npm run build` and final `npm run typecheck`.
+- Browser QA on `http://localhost:3008`: desktop Home, 390px mobile Home, Search, Product Drawer, guest Karte gate, and Premium. No visible occurrences of `AI`, `PERSONAL`, `PRECISION`, `GUEST PREVIEW`, `BUY REASON`, `精度`, or `見える化` in those checked screens.
+- Screenshot artifacts: `tmp/beautia-polish-desktop-after.png`, `tmp/beautia-polish-mobile-home.png`, `tmp/beautia-polish-mobile-search.png`, `tmp/beautia-polish-mobile-product.png`, `tmp/beautia-polish-mobile-karte-gate.png`, `tmp/beautia-polish-mobile-pro.png`.
+
+2026-05-09 hero message rotation pass:
+
+- Home hero now has 30 message variants.
+- Message selection uses time of day, season/month, guest/free/PRO state, growth score/delta, saved/log counts, current profile signals, and the current primary mission.
+- Selection is stable for the day/profile state rather than random on every render.
+- Image/logo work was intentionally deferred; this pass only changed text behavior.
+- Verified with `npm run build`, final `npm run typecheck`, and browser QA on `http://localhost:3008`.
+
+2026-05-09 buddy tone pass:
+
+- Direction locked: keep the premium visual base, but make the first voice feel like a slightly casual beauty companion rather than generated advice.
+- Home hero copy now uses short conversational prompts and a small `beautia` buddy bubble instead of the previous polished/poetic advice paragraph.
+- Home mission labels were softened from operational wording into "first this much" language, with banned machine-like labels removed from Home/Karte target surfaces.
+- Karte top copy now speaks more like a companion checking today's condition, with a small buddy note and softer "what to look at today" wording.
+- Mascot artwork remains deferred; this pass intentionally uses only a small round buddy mark plus copy.
+
+2026-05-09 hero image swap:
+
+- Home hero artwork was replaced with a warm dark still-life image that leaves copy space on the left and keeps skincare objects on the right.
+- Added separate desktop and mobile project assets at `public/images/beautia-hero-still-life-wide.png` and `public/images/beautia-hero-still-life-mobile.png`.
+- Home now renders the hero art as an ambient background, so the buddy voice and CTAs stay in front while the visual carries the premium mood.
+- Verified with `npm run build`, `npm run typecheck`, and screenshots on `http://localhost:3010`.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:
@@ -753,3 +986,4 @@ $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 - Run a logged-in FREE and PRO QA pass on `http://localhost:3001`.
 - Run Stripe test checkout and customer portal QA.
 - Replace `/commercial` placeholders with the real operator/contact details before paid public launch.
+- Before AdSense or a wider paid launch, finalize representative/operator display policy, contact method, legal pages, privacy wording, and ad/affiliate disclosure.

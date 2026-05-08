@@ -6,6 +6,8 @@ import { CAT_META } from "@/lib/constants";
 import { PLAN_RULES } from "@/lib/plan";
 import { supabase } from "@/lib/supabase";
 import { getPersonalMatch } from "@/lib/personalization";
+import { getProductInsight } from "@/lib/productInsights";
+import { getBeautyGrowth, type BeautyGrowth } from "@/lib/beautyGrowth";
 import type { UserProfile, Product, AnalyzeResult, AnalysisEntry, PersonalPreferences } from "@/types";
 import type { YoutubeVideo } from "@/app/api/youtube/route";
 
@@ -17,6 +19,7 @@ interface SavedAnalysis {
 
 interface Props {
   profile: UserProfile;
+  displayName: string;
   isPro: boolean;
   preferences?: PersonalPreferences | null;
   onOpenProduct: (p: Product) => void;
@@ -66,7 +69,7 @@ function listText(items: string[], fallback = "未登録") {
   return items.length > 0 ? items.slice(0, 4).join("・") : fallback;
 }
 
-export default function KarteTab({ profile, isPro, preferences, onOpenProduct, onEditProfile, onGoAnalyze, onGoSearch, onGoLog, onUpgrade }: Props) {
+export default function KarteTab({ profile, displayName, isPro, preferences, onOpenProduct, onEditProfile, onGoAnalyze, onGoSearch, onGoLog, onUpgrade }: Props) {
   const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [hiddenAnalysisCount, setHiddenAnalysisCount] = useState(0);
@@ -154,23 +157,44 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
   const precisionScore = Math.min(98, 28 + signalCount * 3 + Math.min(analysisTotal, 5) * 4 + Math.min(products.length, 8) + (preferences?.confidence ?? 0));
   const topProduct = products[0] ?? null;
   const topMatch = topProduct ? getPersonalMatch(topProduct, profile, isPro ? preferences : null) : null;
+  const topProductInsight = topProduct ? getProductInsight(topProduct, profile, topMatch?.reasons ?? []) : null;
+  const growth = getBeautyGrowth({
+    profile,
+    preferences: isPro ? preferences : null,
+    isPro,
+    analysisCount: analysisTotal,
+    logCount: preferences?.logCount ?? 0,
+    savedCount: preferences?.savedCount ?? 0,
+    productCount: products.length,
+    topProduct,
+  });
+  const currentMoodText = listText(profile.currentState, listText(profile.concerns, "今の状態"));
+  const karteBuddyText = profile.currentState.length > 0
+    ? `${displayName}さん、今日は「${currentMoodText}」を見ながらでよさそうです。全部変えなくて大丈夫。`
+    : `${displayName}さん、まず今の肌か髪をひとことだけ残しましょう。そこからで大丈夫です。`;
+  const personalFocusCards = [
+    ["今の状態", listText(profile.currentState, listText(profile.concerns, "未登録")), "今日見るところ"],
+    ["使っているもの", listText(profile.currentProducts), "買い替えの目安"],
+    ["欲しい成分", listText(profile.desiredIngredients, listText(profile.goals, "未登録")), "探すときの目印"],
+    ["次の候補", topProduct ? `${topProduct.cat} / ${topProduct.brand}` : "商品を探す", "買う前に見る"],
+  ];
   const nextActions = [
     {
       label: profile.currentProducts.length === 0 ? "使用中アイテムを登録" : signalCount < 14 ? "カルテを細かくする" : "カルテを見直す",
-      body: profile.currentProducts.length === 0 ? "買い替え判断の基準に。" : signalCount < 14 ? "精度UP。" : "季節に合わせて更新。",
+      body: profile.currentProducts.length === 0 ? "買い替えの目安に。" : signalCount < 14 ? "選びやすく。" : "季節に合わせて見直し。",
       action: "編集",
       onClick: onEditProfile,
       tone: "profile",
     },
     {
       label: latestAnalysis ? "次の商品も成分チェック" : "まず1つ成分分析",
-      body: latestAnalysis ? "合う理由を比較。" : "判断材料を追加。",
+      body: latestAnalysis ? "合う理由を比べる。" : "見る材料を増やす。",
       action: "分析する",
       onClick: onGoAnalyze,
       tone: "analyze",
     },
     {
-      label: topProduct ? "候補を見て購入判断" : "楽天商品を探す",
+      label: topProduct ? "候補を見てから決める" : "楽天商品を探す",
       body: topProduct ? `${topProduct.brand} をチェック。` : "候補を集める。",
       action: topProduct ? "商品を見る" : "検索へ",
       onClick: topProduct ? () => onOpenProduct(topProduct) : onGoSearch,
@@ -178,7 +202,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
     },
     {
       label: videos.length > 0 ? "動画で使い方を見る" : "使ったらログに残す",
-      body: videos.length > 0 ? "使い方を確認。" : "次の提案を育てる。",
+      body: videos.length > 0 ? "使い方を確認。" : "次に選ぶとき助かる。",
       action: videos.length > 0 ? "動画" : "ログ",
       onClick: videos.length > 0 ? () => window.open(videos[0].url, "_blank", "noopener,noreferrer") : onGoLog,
       tone: "log",
@@ -191,22 +215,22 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       {/* ── ヘッダー ── */}
       <div style={{ marginBottom: 26, display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(260px,360px)", gap: 18, alignItems: "end" }} className="grid-cols-1-mobile motion-reveal">
         <div>
-          <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ MY BEAUTY CHART</div>
+          <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ わたしのカルテ</div>
           <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 36, fontWeight: 400, color: "#150B00", margin: 0 }}>
-            あなた専用の美容OS
+            {displayName}さんの美容カルテ
           </h1>
-          <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6, lineHeight: 1.8 }}>記録から、次の一手へ。</p>
+          <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6, lineHeight: 1.8 }}>迷ったら、今日の分だけ見ましょう。</p>
         </div>
         <div className="soft-card motion-card motion-status-pulse" style={{ padding: "14px 16px", display: "grid", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
-            <span className="micro-label">ENGINE STATUS</span>
+            <span className="micro-label">カルテの情報</span>
             <strong style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, color: "#A8722A", lineHeight: 1 }}>{precisionScore}</strong>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
             {[
-              ["SIGNAL", signalCount],
-              ["ANALYZE", analysisTotal],
-              ["PICKS", products.length],
+              ["登録", signalCount],
+              ["解析", analysisTotal],
+              ["候補", products.length],
             ].map(([label, value]) => (
               <div key={label} style={{ borderRadius: 12, background: "#F8F4EF", padding: "9px 8px", textAlign: "center" }}>
                 <div style={{ fontSize: 16, fontWeight: 900, color: "#150B00" }}>{value}</div>
@@ -217,34 +241,65 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
         </div>
       </div>
 
+      <BeautyGrowthPanel
+        growth={growth}
+        isPro={isPro}
+        onEditProfile={onEditProfile}
+        onGoAnalyze={onGoAnalyze}
+        onGoLog={onGoLog}
+        onGoSearch={onGoSearch}
+        onUpgrade={onUpgrade}
+      />
+
+      <section className="karte-personal-snapshot motion-reveal">
+        <div>
+          <div className="micro-label">{"今日見るところ"}</div>
+          <h2>{displayName}さん、今日はここから見ましょう</h2>
+          <p>{topProductInsight && topProduct ? `${topProduct.brand}、気になるなら先に注意点だけ見ておきましょう。` : "カルテを少し書くと、今日見るところがはっきりします。"}</p>
+          <div className="karte-buddy-note">
+            <span aria-hidden="true">b</span>
+            <p>{karteBuddyText}</p>
+          </div>
+        </div>
+        <div className="karte-personal-snapshot-grid motion-stagger">
+          {personalFocusCards.map(([label, value, caption]) => (
+            <div key={label} className="motion-card">
+              <span>{label}</span>
+              <strong>{value}</strong>
+              <small>{caption}</small>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="lift-card motion-card motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.86fr) minmax(0,1.14fr)", gap: 0 }} className="grid-cols-1-mobile">
           <div style={{ padding: "22px 22px 20px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3" }}>
-            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>PERSONAL ENGINE</div>
+            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>カルテの中身</div>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14 }}>
               <div style={{ width: 86, height: 86, borderRadius: "50%", border: "1px solid rgba(212,168,83,.38)", display: "grid", placeItems: "center", background: "rgba(212,168,83,.08)" }}>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, color: "#D4A853", lineHeight: 1 }}>{precisionScore}</div>
-                  <div style={{ fontSize: 9, color: "rgba(251,248,243,.5)", letterSpacing: ".12em" }}>FIT</div>
+                  <div style={{ fontSize: 9, color: "rgba(251,248,243,.5)", letterSpacing: ".12em" }}>相性</div>
                 </div>
               </div>
               <div>
                 <h2 style={{ margin: 0, fontSize: 20, lineHeight: 1.35, color: "#FBF8F3" }}>
-                  {signalCount >= 10 ? "かなり細かく見れています" : "あと少しで精度が上がります"}
+                  {signalCount >= 10 ? "かなり細かく見れています" : "あと少しで選びやすくなります"}
                 </h2>
                 <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.7, color: "rgba(251,248,243,.68)" }}>
-                  回答{signalCount} / 分析{analysisTotal} / {isPro ? "PRO" : "FREE"}
+                  回答{signalCount} / 分析{analysisTotal} / {isPro ? "PRO" : "無料"}
                 </p>
               </div>
             </div>
             {!isPro && (
               <div style={{ border: "1px solid rgba(212,168,83,.28)", borderRadius: 14, padding: 12, background: "rgba(212,168,83,.08)" }}>
-                <div style={{ fontSize: 10, color: "#D4A853", letterSpacing: ".16em", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PRO REVENUE HOOK</div>
+                <div style={{ fontSize: 10, color: "#D4A853", letterSpacing: ".16em", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PROで買う前チェック</div>
                 <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "rgba(251,248,243,.72)" }}>
                   買う理由・避ける理由を表示。
                 </p>
                 <button className="motion-cta" onClick={onUpgrade} style={{ marginTop: 10, border: "none", borderRadius: 999, padding: "9px 13px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
-                  購入判断をPRO化
+                  PROで比較する
                 </button>
               </div>
             )}
@@ -270,7 +325,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 10, letterSpacing: ".18em", fontFamily: "ui-monospace,monospace", color: "#A8722A" }}>NEXT 0{index + 1}</span>
+                  <span style={{ fontSize: 10, letterSpacing: ".18em", fontFamily: "ui-monospace,monospace", color: "#A8722A" }}>次 0{index + 1}</span>
                   <span style={{ width: 22, height: 22, borderRadius: "50%", display: "grid", placeItems: "center", background: index === 2 ? "#1A0E08" : "#EFE6DA", color: index === 2 ? "#D4A853" : "#8A7A6E", fontSize: 12 }}>→</span>
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 900, color: "#150B00", lineHeight: 1.35 }}>{item.label}</div>
@@ -286,7 +341,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       <section className="motion-reveal" style={{ background: "linear-gradient(135deg,#1A0E08,#2C1A0E)", borderRadius: 20, padding: "24px 28px", marginBottom: 24, border: "1px solid rgba(212,168,83,.2)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
           <div>
-            <div style={{ fontSize: 9, letterSpacing: "0.3em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>PROFILE</div>
+            <div style={{ fontSize: 9, letterSpacing: "0.3em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>プロフィール</div>
             <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>
               {profile.skinType || "未設定"} {profile.age ? `· ${profile.age}` : ""} {profile.gender ? `· ${profile.gender}` : ""}
             </div>
@@ -298,27 +353,27 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
           <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>GENDER</div>
+            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>性別</div>
             <div style={{ fontSize: 13, color: "#FBF8F3" }}>{profile.gender || "—"}</div>
           </div>
           <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>SKIN</div>
+            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>肌</div>
             <div style={{ fontSize: 13, color: "#FBF8F3" }}>{profile.skinType || "—"}</div>
           </div>
           <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>HAIR</div>
+            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>髪</div>
             <div style={{ fontSize: 13, color: "#FBF8F3" }}>{profile.hairType || "—"}</div>
           </div>
           <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>CONCERNS</div>
+            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>悩み</div>
             <div style={{ fontSize: 13, color: "#FBF8F3" }}>
               {profile.concerns.length > 0 ? profile.concerns.join("・") : "—"}
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>PLAN</div>
+            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>プラン</div>
             <div style={{ fontSize: 13, color: isPro ? "#D4A853" : "rgba(251,248,243,.6)", fontWeight: isPro ? 700 : 400 }}>
-              {isPro ? "PRO MEMBER" : "FREE"}
+              {isPro ? "PRO" : "無料"}
             </div>
           </div>
         </div>
@@ -327,7 +382,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       <section className="motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: 18, marginBottom: 24, boxShadow: "0 8px 30px rgba(21,11,0,.05)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
           <div>
-            <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 5 }}>PERSONAL CONTEXT</div>
+            <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 5 }}>今の条件</div>
             <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 24, fontWeight: 400, margin: 0, color: "#150B00" }}>今の状態から、次の一手へ。</h2>
           </div>
           <button onClick={onEditProfile} className="motion-nav-button" style={{ border: "1px solid #EDE5DC", borderRadius: 999, background: "#FBF8F3", color: "#A8722A", padding: "8px 12px", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
@@ -338,7 +393,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
           {[
             ["使用中", listText(profile.currentProducts), "基準"],
             ["今の状態", listText(profile.currentState, listText(profile.concerns)), "今日"],
-            ["欲しい成分", listText(profile.desiredIngredients), "検索軸"],
+            ["欲しい成分", listText(profile.desiredIngredients), "探す目印"],
             ["習慣", listText(profile.habits), "続け方"],
           ].map(([label, value, caption]) => (
             <div key={label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 14, padding: 13, background: "#FBF8F3", minHeight: 116 }}>
@@ -354,10 +409,10 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
         <section className="motion-reveal" style={{ background: "#fff", border: "1px solid #D4A85366", borderRadius: 16, padding: "16px 18px", marginBottom: 24 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
             <div>
-              <div style={{ fontSize: 9, letterSpacing: "0.24em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>PERSONAL MEMORY</div>
+              <div style={{ fontSize: 9, letterSpacing: "0.24em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>記録メモ</div>
               <div style={{ fontSize: 14, color: "#150B00", fontWeight: 800 }}>{preferences.summary}</div>
               <div style={{ fontSize: 11, color: "#8A7A6E", marginTop: 4 }}>
-                ログ{preferences.logCount}件・保存{preferences.savedCount}件から学習中
+                ログ{preferences.logCount}件・保存{preferences.savedCount}件を見ています
               </div>
             </div>
             <div style={{ width: 58, height: 58, borderRadius: "50%", background: "#1A0E08", color: "#D4A853", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 20, fontWeight: 700 }}>
@@ -411,7 +466,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                     <div style={{ fontSize: 28, fontFamily: "'Cormorant Garamond',Georgia,serif", color: "#D4A853", fontWeight: 500 }}>
                       {latestAnalysis.result.overallScore}
                     </div>
-                    <div style={{ fontSize: 9, color: "rgba(212,168,83,.6)", letterSpacing: "0.1em" }}>SCORE</div>
+                    <div style={{ fontSize: 9, color: "rgba(212,168,83,.6)", letterSpacing: "0.1em" }}>点</div>
                   </div>
                 </div>
                 <ScoreBar score={latestAnalysis.result.overallScore} />
@@ -486,11 +541,12 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
             {topProduct && (
               <div style={{ background: "linear-gradient(135deg,#FFF9EC,#fff)", border: "1px solid #D4A85366", borderRadius: 16, padding: 16, marginBottom: 12, display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 16, alignItems: "center" }} className="grid-cols-1-mobile motion-reveal">
                 <div>
-                  <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>BUYER RECOMMENDATION</div>
+                  <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>買う前の候補</div>
                   <div style={{ fontSize: 16, lineHeight: 1.45, color: "#150B00", fontWeight: 900 }}>{topProduct.name}</div>
                   <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.7, color: "#6B5B4A" }}>
                     {topProduct.brand} / {formatPrice(topProduct.price)} / レビュー{topProduct.rev.toLocaleString()}件
                     {topMatch ? ` / 相性${topMatch.score}%` : ""}。まずこの候補を購入前チェックに進めます。
+                    {topProductInsight ? ` ${topProductInsight.why}。` : ""}
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -525,7 +581,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
                       <div style={{ marginTop: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 16, color: "#A8722A" }}>{formatPrice(p.price)}</span>
                         {isPro && match ? (
-                          <span className="tap-card-hint" style={{ fontSize: 10, color: "#A8722A", fontWeight: 800 }}>{match.score}% MATCH</span>
+                          <span className="tap-card-hint" style={{ fontSize: 10, color: "#A8722A", fontWeight: 800 }}>{match.score}% 相性</span>
                         ) : locked ? (
                           <span className="tap-card-hint" style={{ fontSize: 10, color: "#8A7A6E" }}>🔒 PRO</span>
                         ) : <span className="tap-card-hint" style={{ fontSize: 10, color: "#A8722A", fontWeight: 800 }}>詳細 →</span>}
@@ -542,9 +598,9 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
       {/* ── おすすめ動画 ── */}
       {videos.length > 0 && (
         <section style={{ marginBottom: 28 }}>
-          <SectionHeader label="03" title="YouTube / Creator Proof" sub={`${getVideoQuery(profile)} から選定`} />
+          <SectionHeader label="03" title="使い方動画" sub={`${getVideoQuery(profile)} から選定`} />
           <div style={{ background: "linear-gradient(135deg,#1A0E08,#3A1D0D)", border: "1px solid rgba(212,168,83,.26)", borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
-            <div style={{ fontSize: 10, letterSpacing: ".18em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>INFLUENCER ASSIST</div>
+            <div style={{ fontSize: 10, letterSpacing: ".18em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>動画で確認</div>
             <p style={{ margin: 0, color: "rgba(251,248,243,.72)", fontSize: 12, lineHeight: 1.75 }}>
               動画も購入前チェックに。PROはログに近い動画を優先。
             </p>
@@ -575,7 +631,7 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
           <div style={{ background: "linear-gradient(135deg,#1A0E08,#2C1A0E)", padding: "16px 20px", display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 24 }}>{habits.icon}</span>
             <div>
-              <div style={{ fontSize: 9, letterSpacing: "0.2em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace" }}>DAILY ROUTINE</div>
+              <div style={{ fontSize: 9, letterSpacing: "0.2em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace" }}>毎日のケア</div>
               <div style={{ fontSize: 15, color: "#FBF8F3", fontWeight: 600, marginTop: 2 }}>{profile.skinType || "普通肌"}向けルーティン</div>
             </div>
           </div>
@@ -590,6 +646,72 @@ export default function KarteTab({ profile, isPro, preferences, onOpenProduct, o
         </div>
       </section>
     </div>
+  );
+}
+
+function BeautyGrowthPanel({ growth, isPro, onEditProfile, onGoAnalyze, onGoLog, onGoSearch, onUpgrade }: {
+  growth: BeautyGrowth;
+  isPro: boolean;
+  onEditProfile: () => void;
+  onGoAnalyze: () => void;
+  onGoLog: () => void;
+  onGoSearch: () => void;
+  onUpgrade: () => void;
+}) {
+  const runMission = (tone: BeautyGrowth["missions"][number]["tone"]) => {
+    if (tone === "profile") onEditProfile();
+    else if (tone === "analyze") onGoAnalyze();
+    else if (tone === "log") onGoLog();
+    else if (tone === "save") onGoSearch();
+    else onUpgrade();
+  };
+
+  return (
+    <section className="beauty-growth-panel motion-reveal">
+      <div className="beauty-growth-score">
+        <div className="beauty-growth-ring">
+          <span>{growth.score}</span>
+          <small>{growth.delta > 0 ? `+${growth.delta}` : "今"}</small>
+        </div>
+        <div>
+          <div className="micro-label">今日の積み上げ</div>
+          <h2>記録して、次に活かす。</h2>
+          <p>{growth.summary}</p>
+        </div>
+      </div>
+
+      <div className="beauty-growth-level">
+        <div className="beauty-growth-level-head">
+          <span>Lv.{growth.level} / {growth.levelName}</span>
+          <strong>{growth.xp.toLocaleString()} XP</strong>
+        </div>
+        <div className="beauty-growth-xp">
+          <i style={{ width: `${growth.progress}%` }} />
+        </div>
+        <div className="beauty-growth-reasons">
+          {(growth.reasons.length > 0 ? growth.reasons : ["今日の記録から次を選べます"]).map((reason) => (
+            <span key={reason}>{reason}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="beauty-growth-missions">
+        {growth.missions.map((mission) => (
+          <button key={mission.label} className={`beauty-growth-mission ${mission.tone}`} onClick={() => runMission(mission.tone)}>
+            <span>{mission.label}</span>
+            <strong>{mission.body}</strong>
+            <small>+{mission.reward} XP</small>
+          </button>
+        ))}
+        {!isPro && (
+          <button className="beauty-growth-mission pro" onClick={onUpgrade}>
+            <span>PROで変化を見る</span>
+            <strong>変化の理由と次の候補を見る</strong>
+            <small>30日</small>
+          </button>
+        )}
+      </div>
+    </section>
   );
 }
 

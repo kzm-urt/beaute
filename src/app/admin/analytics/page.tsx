@@ -181,7 +181,7 @@ export default function AdminAnalyticsPage() {
         <header style={{ display: "flex", justifyContent: "space-between", gap: 18, alignItems: "flex-start", marginBottom: 24 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: ".24em", fontFamily: "ui-monospace, monospace", color: "#A8722A", marginBottom: 8 }}>
-              BEAUTE CONVERSION ANALYTICS
+              BEAUTIA CONVERSION ANALYTICS
             </div>
             <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 38, lineHeight: 1.1, margin: 0, color: "#150B00", fontWeight: 500 }}>
               Product Analytics

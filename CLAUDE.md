@@ -1,4 +1,4 @@
-# beauté — Claude Code 開発ガイド
+# beautia — Claude Code 開発ガイド
 
 ## プロジェクト概要
 AI美容提案Webアプリ。8カテゴリ・30製品、成分写真解析（Claude API）、Stripe課金（月額¥680）。

@@ -3,6 +3,7 @@
 .next/
 node_modules/
 out/
+tmp/
 tsconfig.tsbuildinfo
 .DS_Store
 

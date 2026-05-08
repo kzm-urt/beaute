@@ -1,6 +1,6 @@
 {
-  "name": "beauté — AI美容提案",
-  "short_name": "beauté",
+  "name": "beautia — AI美容提案",
+  "short_name": "beautia",
   "description": "肌・髪・悩みに合わせたAI美容提案。成分解析、楽天商品検索、ランキング、保存リスト、使用ログまで。",
   "start_url": "/",
   "scope": "/",

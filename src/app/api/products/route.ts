@@ -300,7 +300,8 @@ async function getRakutenProducts({
     sort: q || tags.length > 0 ? "standard" : "-reviewCount",
   });
 
-  return items.map((item, index) => toProduct(item, index, { cat, tags }));
+  const products = items.map((item, index) => toProduct(item, index, { cat, tags }));
+  return free === "true" ? products.filter((product) => product.free).slice(0, limit) : products;
 }
 
 async function getRakutenRankingProducts({

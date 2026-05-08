@@ -76,7 +76,7 @@ async function checkSupabaseTable(table, select, required = true) {
 async function run() {
   loadLocalEnv();
   baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || baseUrl;
-  console.log(`beaute preflight: ${baseUrl}`);
+  console.log(`beautia preflight: ${baseUrl}`);
   const adminRequestOptions = { headers: getBasicAuthHeaders() };
 
   try {

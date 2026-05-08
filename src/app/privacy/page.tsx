@@ -3,14 +3,14 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "プライバシーポリシー",
-  description: "beauté のプライバシーポリシーです。",
+  description: "beautia のプライバシーポリシーです。",
 };
 
 export default function PrivacyPage() {
   return (
     <LegalPage title="プライバシーポリシー" updatedAt="2026年5月2日">
       <p>
-        beauté は、ユーザーの美容体験を改善するために必要な範囲で個人情報および利用データを取り扱います。
+        beautia は、ユーザーの美容体験を改善するために必要な範囲で個人情報および利用データを取り扱います。
       </p>
       <h2>1. 取得する情報</h2>
       <p>
@@ -48,7 +48,7 @@ function LegalPage({ title, updatedAt, children }: { title: string; updatedAt: s
   return (
     <main className="legal-page">
       <div className="legal-shell">
-        <Link href="/" className="legal-back">beauté</Link>
+        <Link href="/" className="legal-back">beautia</Link>
         <div className="legal-eyebrow">PRIVACY</div>
         <h1>{title}</h1>
         <div className="legal-date">最終更新: {updatedAt}</div>

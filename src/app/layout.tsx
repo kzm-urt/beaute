@@ -6,14 +6,14 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://beaute-xi.vercel.app"
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
-    default: "beauté | あなただけの美容提案",
-    template: "%s | beauté",
+    default: "beautia | あなただけの美容提案",
+    template: "%s | beautia",
   },
   description: "肌・髪・悩みに合わせたAI美容提案。成分解析、楽天商品検索、ランキング、保存リスト、使用ログまで。",
   manifest: "/manifest.json",
-  applicationName: "beauté",
+  applicationName: "beautia",
   keywords: ["美容", "コスメ", "スキンケア", "ヘアケア", "成分解析", "楽天", "ランキング", "AI"],
-  authors: [{ name: "beauté" }],
+  authors: [{ name: "beautia" }],
   alternates: {
     canonical: "/",
   },
@@ -24,19 +24,19 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "beauté",
+    title: "beautia",
   },
   openGraph: {
-    title: "beauté | あなただけの美容提案",
+    title: "beautia | あなただけの美容提案",
     description: "AIが肌・髪・悩みに合った美容アイテムを提案。成分解析、楽天商品検索、ランキング、使用ログまで。",
     url: appUrl,
-    siteName: "beauté",
+    siteName: "beautia",
     locale: "ja_JP",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "beauté | あなただけの美容提案",
+    title: "beautia | あなただけの美容提案",
     description: "肌・髪・悩みに合わせたAI美容提案。",
   },
   robots: {
@@ -56,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <head>
+        <meta name="mobile-web-app-capable" content="yes" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

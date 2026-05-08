@@ -9,6 +9,7 @@ import { CAT_META } from "@/lib/constants";
 import { formatPrice, getProductKey, toRakutenAffiliateUrl } from "@/lib/utils";
 import { getPersonalMatch } from "@/lib/personalization";
 import { getProductInsight } from "@/lib/productInsights";
+import { getProductGrowthStats } from "@/lib/beautyGrowth";
 import { trackProductEvent } from "@/lib/productEvents";
 import { supabase } from "@/lib/supabase";
 import { Icon, Stars, FreeBadge, ProBadge, GoldButton, ProductImage } from "@/components/ui";
@@ -44,6 +45,9 @@ const NAV: { key: Tab; icon: Parameters<typeof Icon>[0]["name"]; jp: string; en:
   { key: "log",     icon: "note",    jp: "ログ",     en: "Journal" },
   { key: "premium", icon: "crown",   jp: "プラン",   en: "Pro"     },
 ];
+
+const MOBILE_NAV_KEYS = new Set<Tab>(["home", "guide", "search", "ranking", "karte", "premium"]);
+const MOBILE_NAV = NAV.filter(({ key }) => MOBILE_NAV_KEYS.has(key));
 
 function getInitialTab(): Tab {
   if (typeof window === "undefined") return "home";
@@ -92,7 +96,7 @@ function getDisplayInitial(name: string) {
 function TabLoading() {
   return (
     <div className="motion-fade-scale" style={{ minHeight: "45vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#A8722A", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 26 }}>
-      beauté
+      beautia
     </div>
   );
 }
@@ -112,7 +116,7 @@ function WelcomeBackLoading({ displayName }: { displayName?: string }) {
     >
       <div style={{ textAlign: "center", padding: 24 }}>
         <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 36, color: "#A8722A", marginBottom: 12 }}>
-          beauté
+          beautia
         </div>
         {displayName ? (
           <>
@@ -257,7 +261,7 @@ export default function BeauteApp() {
       {/* ── SIDEBAR (desktop) ── */}
       <aside className="hidden md:flex" style={{ width: 220, background: "#1A0E08", color: "#FBF8F3", flexDirection: "column", position: "sticky", top: 0, height: "100vh", flexShrink: 0 }}>
         <div style={{ padding: "28px 28px 24px", borderBottom: "1px solid rgba(212,168,83,.15)" }}>
-          <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 26, fontWeight: 500, color: "#FBF8F3" }}>beauté</div>
+          <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 26, fontWeight: 500, color: "#FBF8F3" }}>beautia</div>
           <div style={{ fontSize: 8, letterSpacing: "0.32em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace", marginTop: 5 }}>— EST. MMXXV</div>
         </div>
 
@@ -289,7 +293,7 @@ export default function BeauteApp() {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 11, color: "#FBF8F3", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{isGuest ? "\u30b2\u30b9\u30c8\u95b2\u89a7\u4e2d" : `${displayName}さん`}</div>
-            <div style={{ fontSize: 9, letterSpacing: "0.2em", color: effectiveIsPro ? "#D4A853" : "rgba(251,248,243,.4)", fontFamily: "ui-monospace,monospace" }}>{isGuest ? "GUEST" : effectiveIsPro ? "PRO MEMBER" : "FREE PLAN"}</div>
+            <div style={{ fontSize: 9, letterSpacing: "0.2em", color: effectiveIsPro ? "#D4A853" : "rgba(251,248,243,.4)", fontFamily: "ui-monospace,monospace" }}>{isGuest ? "ゲスト" : effectiveIsPro ? "PRO" : "無料"}</div>
           </div>
           <button
             onClick={editProfile}
@@ -315,13 +319,13 @@ export default function BeauteApp() {
         {/* Desktop top bar */}
         <header className="hidden md:flex" style={{ height: 52, padding: "0 40px", alignItems: "center", justifyContent: "space-between", background: "#F8F4EF", borderBottom: "1px solid #EDE5DC", position: "sticky", top: 0, zIndex: 20 }}>
           <div style={{ fontSize: 10, letterSpacing: "0.25em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace" }}>
-            {isGuest ? "beauté ✦ Guest Preview" : `おかえりなさい、${displayName}さん`} — {NAV.find(n => n.key === tab)?.en} — {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}
+            {isGuest ? "beautia お試し中" : `おかえりなさい、${displayName}さん`} — {NAV.find(n => n.key === tab)?.jp} — {new Date().toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button className="motion-nav-button" onClick={() => setTab("ranking")} style={{ fontSize: 11, padding: "6px 14px", background: tab === "ranking" ? "#1A0E08" : "#fff", color: tab === "ranking" ? "#D4A853" : "#8A7A6E", border: "1px solid #EDE5DC", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>ランキング</button>
             {!effectiveIsPro
               ? <button className="motion-cta" onClick={() => isGuest ? setShowAuth(true) : upgrade("desktop_header")} style={{ fontSize: 11, padding: "6px 16px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontWeight: 700, cursor: "pointer", letterSpacing: "0.08em" }}>{isGuest ? "\u7121\u6599\u767b\u9332 / \u30ed\u30b0\u30a4\u30f3" : "★ PRO へアップグレード"}</button>
-              : <span style={{ fontSize: 10, fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", color: "#D4A853" }}>★ PRO MEMBER</span>
+              : <span style={{ fontSize: 10, fontFamily: "ui-monospace,monospace", letterSpacing: "0.15em", color: "#D4A853" }}>★ PRO</span>
             }
           </div>
         </header>
@@ -329,9 +333,9 @@ export default function BeauteApp() {
         {/* Mobile header */}
         <header className="flex md:hidden" style={{ height: 52, padding: "0 16px", alignItems: "center", justifyContent: "space-between", background: "#1A0E08", position: "sticky", top: 0, zIndex: 20 }}>
           <div>
-            <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500, lineHeight: 1 }}>beauté</div>
+            <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500, lineHeight: 1 }}>beautia</div>
             <div style={{ fontSize: 8, letterSpacing: "0.14em", color: "rgba(212,168,83,.72)", fontFamily: "ui-monospace,monospace", marginTop: 3 }}>
-              {isGuest ? "GUEST" : "FOR YOU"}
+              {isGuest ? "ゲスト" : "あなた用"}
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -341,11 +345,11 @@ export default function BeauteApp() {
         </header>
 
         {isGuest && (
-          <div className="guest-preview-bar" style={{ background: "#FFF9EC", borderBottom: "1px solid #E8D7BE" }}>
+          <div className="guest-preview-bar" style={{ background: "linear-gradient(90deg,#FFF9EC 0%,#EFF6F1 100%)", borderBottom: "1px solid #DCE7DD" }}>
             <div className="guest-preview-inner section-shell mobile-tight motion-reveal-slow" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", padding: "10px 24px" }}>
               <div className="guest-preview-copy" style={{ flex: "1 1 360px", minWidth: 0 }}>
                 <div className="guest-preview-eyebrow" style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
-                  {"GUEST PREVIEW"}
+                  {"お試し中"}
                 </div>
                 <p className="guest-preview-text" style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: "#5F4A3D", fontWeight: 700 }}>
                   {"\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0\u306f\u30b2\u30b9\u30c8\u3067OK\u3002\u4fdd\u5b58\u30fb\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u304b\u3089\u3002"}
@@ -364,10 +368,10 @@ export default function BeauteApp() {
         <main style={{ flex: 1, overflowY: "auto" }} className="app-main">
           {tab === "home"    && <HomeTab    profile={effectiveProfile} displayName={displayName} isGuest={isGuest} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")} onGoGuide={() => setTab("guide")}/>}
           {tab === "guide"   && <GuideTab   isGuest={isGuest} isPro={effectiveIsPro} onAuth={() => setShowAuth(true)} onUpgrade={upgrade} onGoSearch={() => setTab("search")} onGoRanking={() => setTab("ranking")} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
-          {tab === "search"  && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
-          {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}
+          {tab === "search"  && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
+          {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}
           {tab === "analyze" && (isGuest ? <GuestGate title={"\u6210\u5206\u89e3\u6790\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6210\u5206\u306e\u8981\u70b9\u3068\u6ce8\u610f\u70b9\u3092\u6b8b\u305b\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
-          {tab === "karte"   && (isGuest ? <GuestGate title={"\u30ab\u30eb\u30c6\u306f\u3042\u306a\u305f\u5c02\u7528"} body={"\u808c\u30fb\u9aea\u30fb\u4fdd\u5b58\u30fb\u30ed\u30b0\u3092\u3072\u3068\u3064\u306b\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}
+          {tab === "karte"   && (isGuest ? <GuestGate title={"\u30ab\u30eb\u30c6\u306f\u3042\u306a\u305f\u5c02\u7528"} body={"\u808c\u30fb\u9aea\u30fb\u4fdd\u5b58\u30fb\u30ed\u30b0\u3092\u3072\u3068\u3064\u306b\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} displayName={displayName} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}
           {tab === "saved"   && (isGuest ? <GuestGate title={"\u4fdd\u5b58\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6c17\u306b\u306a\u308b\u5546\u54c1\u3092\u6bd4\u8f03\u3067\u304d\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <SavedTab isPro={effectiveIsPro} onUpgrade={upgrade} onOpenProduct={setDrawer}/>)}
           {tab === "log"     && (isGuest ? <GuestGate title={"\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u4f7f\u3063\u305f\u611f\u60f3\u304c\u6b21\u306e\u63d0\u6848\u3092\u80b2\u3066\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <LogTab userId={user.id} isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
           {tab === "premium" && <PremiumTab isPro={effectiveIsPro} onUpgrade={() => isGuest ? setShowAuth(true) : setIsPro(true)} user={user}/>}
@@ -375,7 +379,7 @@ export default function BeauteApp() {
       </div>
 
       {/* ── MOBILE BOTTOM NAV ── */}
-      <nav className="flex md:hidden hide-scrollbar" style={{
+      <nav className="flex md:hidden hide-scrollbar mobile-bottom-nav" style={{
         position: "fixed",
         bottom: 0,
         left: 0,
@@ -385,20 +389,19 @@ export default function BeauteApp() {
         background: "#1A0E08",
         borderTop: "1px solid rgba(212,168,83,.2)",
         zIndex: 30,
-        overflowX: "auto",
+        overflowX: "hidden",
         overflowY: "hidden",
-        WebkitOverflowScrolling: "touch",
       }}>
-        {NAV.map(({ key, icon, jp }) => {
+        {MOBILE_NAV.map(({ key, icon, jp }) => {
           const active = tab === key;
           return (
             <button key={key} className="motion-nav-button" onClick={() => setTab(key)} style={{
-              flex: "0 0 70px", minWidth: 70, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
+              flex: "1 1 0", minWidth: 0, padding: "8px 2px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3,
               background: "none", border: "none", cursor: "pointer",
               color: active ? "#D4A853" : "rgba(251,248,243,.4)", transition: "color 0.15s",
             }}>
               <Icon name={icon} size={19} stroke="currentColor" sw={active ? 2 : 1.4}/>
-              <span style={{ fontSize: 8, letterSpacing: "0.03em", whiteSpace: "nowrap" }}>{jp}</span>
+              <span style={{ fontSize: 8, letterSpacing: "0.03em", whiteSpace: "nowrap", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis" }}>{jp}</span>
             </button>
           );
         })}
@@ -408,7 +411,7 @@ export default function BeauteApp() {
       {drawer && <ProductDrawer product={drawer} onClose={() => setDrawer(null)} isPro={effectiveIsPro} onUpgrade={upgrade} profile={effectiveProfile} preferences={isGuest ? null : preferences} isGuest={isGuest} onAuthRequired={() => setShowAuth(true)}/>}
 
       {/* ── PWAインストールバナー ── */}
-      {showInstallBanner && (
+      {showInstallBanner && tab === "home" && !drawer && (
         <div style={{
           position: "fixed", bottom: 72, left: 12, right: 12,
           zIndex: 150, borderRadius: 16,
@@ -473,7 +476,7 @@ function GuestGate({ title, body, onAuth, onGoSearch }: {
     <div style={{ minHeight: "calc(100vh - 52px)", display: "grid", placeItems: "center", padding: 24 }}>
       <section className="motion-reveal" style={{ width: "min(640px,100%)", background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: "28px 24px", boxShadow: "0 12px 36px rgba(21,11,0,.08)" }}>
         <div style={{ fontSize: 10, letterSpacing: "0.24em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>
-          {"GUEST PREVIEW"}
+          {"お試し画面"}
         </div>
         <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, lineHeight: 1.25, color: "#150B00", fontWeight: 500, margin: "0 0 10px" }}>
           {title}
@@ -481,11 +484,28 @@ function GuestGate({ title, body, onAuth, onGoSearch }: {
         <p style={{ fontSize: 13, lineHeight: 1.9, color: "#6B5B4A", margin: "0 0 20px" }}>
           {body}
         </p>
+        <div className="guest-gate-growth-preview">
+          <div>
+            <span>今日の調子</span>
+            <strong>64</strong>
+            <small>記録で更新</small>
+          </div>
+          <div>
+            <span>積み上げ</span>
+            <strong>毎日のつや</strong>
+            <small>次は比較ログ</small>
+          </div>
+          <div>
+            <span>次にやること</span>
+            <strong>1つ</strong>
+            <small>今日の状態を残す</small>
+          </div>
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 22 }} className="grid-cols-1-mobile motion-stagger">
           {[
             ["\u30b2\u30b9\u30c8", "\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0"],
             ["\u7121\u6599\u4f1a\u54e1", "\u4fdd\u5b58\u30fb\u30ed\u30b0\u30fb\u67083\u56de\u89e3\u6790"],
-            ["PRO", "\u7121\u5236\u9650\u89e3\u6790\u30fb\u5168\u5546\u54c1\u8a73\u7d30"],
+            ["PRO", "\u7121\u5236\u9650\u89e3\u6790\u30fb\u5168\u5546\u54c1\u3092\u78ba\u8a8d"],
           ].map(([label, value]) => (
             <div key={label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 12, padding: 12, background: "#F8F4EF" }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: "#150B00", marginBottom: 4 }}>{label}</div>
@@ -522,6 +542,12 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
   ];
   const fitReasons = match?.reasons.slice(0, 3) ?? [];
   const insight = getProductInsight(p, profile, fitReasons);
+  const growthStats = getProductGrowthStats(p, profile);
+  const checkoutChecks = [
+    p.rank ? `ランキング #${p.rank}` : `価格 ${formatPrice(p.price)}`,
+    `レビュー ${p.rev.toLocaleString()}件`,
+    isPro && match ? `相性 ${match.score}%` : insight.timing,
+  ];
   const [savedFavorite, setSavedFavorite] = useState(false);
   const [savedCompare, setSavedCompare] = useState(false);
   const [saveLoading, setSaveLoading] = useState<"favorite" | "compare" | null>(null);
@@ -661,27 +687,38 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
             )}
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-            <Stars rating={p.rating}/>
-            <span style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace" }}>{p.rev.toLocaleString()} reviews</span>
+          <div className="product-drawer-decision-card">
+            <div className="product-drawer-decision-top">
+              <div>
+                <span>価格</span>
+                <strong>{formatPrice(p.price)}</strong>
+                <small>税込</small>
+              </div>
+              <div>
+                <span>評価</span>
+                <Stars rating={p.rating}/>
+                <small>{p.rev.toLocaleString()}件</small>
+              </div>
+            </div>
+            <div className="product-drawer-growth-chips" aria-label="この商品で確認したいポイント">
+              {growthStats.map((stat) => (
+                <span key={stat}>{stat}</span>
+              ))}
+            </div>
+            <p>{locked ? "詳しい比較はPROで確認できます。" : insight.purchaseCue}</p>
           </div>
 
-          <div className="product-drawer-price-row">
-            <span style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, color: "#150B00", fontWeight: 500 }}>{formatPrice(p.price)}</span>
-            <span style={{ fontSize: 10, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", letterSpacing: "0.1em" }}>税込</span>
-          </div>
-
-          <p style={{ fontSize: 14, lineHeight: 1.8, color: "#6B5B4A", marginBottom: 16 }}>{p.desc}</p>
+          <p className="product-drawer-short-desc">{p.desc}</p>
 
           <div className="product-drawer-verdict-card">
             <div className="product-drawer-verdict-head">
               <div>
-                <div className="product-drawer-micro">PURCHASE VERDICT</div>
+                <div className="product-drawer-micro">買う前の判断</div>
                 <h3>{insight.verdict}</h3>
               </div>
               <div className="product-drawer-fit-orb">
                 <span>{isPro && match ? match.score : p.rank ? `#${p.rank}` : Math.round(p.rating * 20)}</span>
-                <small>{isPro && match ? "FIT" : p.rank ? "RANK" : "RATE"}</small>
+                <small>{isPro && match ? "相性" : p.rank ? "順位" : "評価"}</small>
               </div>
             </div>
             <div className="product-drawer-check-grid">
@@ -700,29 +737,36 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
             </div>
           </div>
 
-          <div className="product-drawer-section-card">
-            <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>BUYING SIGNALS</div>
-            <div className="product-drawer-signal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
-              {trustSignals.map((signal) => (
-                <div key={signal.label} style={{ background: "#F8F4EF", borderRadius: 12, padding: "10px 8px", textAlign: "center", minWidth: 0 }}>
-                  <div style={{ fontSize: 9, color: "#8A7A6E", marginBottom: 4 }}>{signal.label}</div>
-                  <div style={{ fontSize: 14, color: "#150B00", fontWeight: 900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{signal.value}</div>
+          <details className="product-drawer-details">
+            <summary>購入前チェック</summary>
+            <div className="product-drawer-section-card">
+              <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>確認ポイント</div>
+              <div className="product-drawer-signal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+                {trustSignals.map((signal) => (
+                  <div key={signal.label} style={{ background: "#F8F4EF", borderRadius: 12, padding: "10px 8px", textAlign: "center", minWidth: 0 }}>
+                    <div style={{ fontSize: 9, color: "#8A7A6E", marginBottom: 4 }}>{signal.label}</div>
+                    <div style={{ fontSize: 14, color: "#150B00", fontWeight: 900, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{signal.value}</div>
+                  </div>
+                ))}
+              </div>
+              {!locked && (
+                <div className="product-drawer-check-tags">
+                  {checkoutChecks.map((check) => (
+                    <span key={check}>{check}</span>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-            <p style={{ fontSize: 11, lineHeight: 1.6, color: "#8A7A6E", margin: "10px 0 0" }}>
-              価格・レビュー・在庫感を比較。
-            </p>
-          </div>
+          </details>
 
           {!isPro && !locked && (
             <div className="product-drawer-pro-teaser">
               <div>
-                <div className="product-drawer-micro">PRO PRECISION</div>
+                <div className="product-drawer-micro">PROで詳しく</div>
                 <p>相性・注意点・買う順番まで。</p>
               </div>
               <button className="motion-cta" onClick={() => onUpgrade("product_drawer_precision_teaser", p)}>
-                精度を上げる
+                詳しく見る
               </button>
             </div>
           )}
@@ -731,7 +775,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
             <div className="product-drawer-section-card" style={{ borderColor: "#D4A85366" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
                 <div>
-                  <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PERSONAL FIT</div>
+                  <div style={{ fontSize: 10, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>あなたとの相性</div>
                   <div style={{ fontSize: 13, color: "#150B00", fontWeight: 700 }}>あなたへの相性スコア</div>
                 </div>
                 <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, color: "#A8722A", fontWeight: 600 }}>{match.score}%</div>
@@ -776,9 +820,9 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
             </>
           ) : (
             <div className="product-drawer-section-card" style={{ background: "#F8F4EF" }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.12em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>LOCKED DETAILS</div>
+              <div style={{ fontSize: 11, letterSpacing: "0.12em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>PRO詳細</div>
               <p style={{ fontSize: 12, lineHeight: 1.7, color: "#6B5B4A", margin: 0 }}>
-                メモ・動画・購入リンクはPROで表示。
+                無料では価格と評価まで。PROで相性、注意点、動画、楽天購入リンクまで開きます。
               </p>
             </div>
           )}
@@ -788,7 +832,7 @@ function ProductDrawer({ product: p, onClose, isPro, onUpgrade, profile, prefere
               <div className="product-drawer-section-card" style={{ borderColor: "#D4A85366" }}>
                 <p style={{ fontSize: 13, fontWeight: 800, color: "#150B00", margin: "0 0 5px" }}>この商品はPRO詳細枠です</p>
                 <p style={{ fontSize: 12, lineHeight: 1.7, color: "#8A7A6E", margin: "0 0 12px" }}>
-                  スコア、動画、購入リンクを解放。
+                  購入前チェックを最後まで開いてから楽天へ進めます。
                 </p>
                 <GoldButton onClick={handleLockedUpgrade}>PROで開放</GoldButton>
               </div>

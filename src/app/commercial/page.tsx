@@ -4,7 +4,7 @@ import { PLAN_RULES } from "@/lib/plan";
 
 export const metadata: Metadata = {
   title: "特定商取引法に基づく表記",
-  description: "beauté の特定商取引法に基づく表記です。",
+  description: "beautia の特定商取引法に基づく表記です。",
 };
 
 const rows = [
@@ -25,7 +25,7 @@ export default function CommercialPage() {
   return (
     <main className="legal-page">
       <div className="legal-shell">
-        <Link href="/" className="legal-back">beauté</Link>
+        <Link href="/" className="legal-back">beautia</Link>
         <div className="legal-eyebrow">COMMERCE</div>
         <h1>特定商取引法に基づく表記</h1>
         <div className="legal-date">最終更新: 2026年5月2日</div>

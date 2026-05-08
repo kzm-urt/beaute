@@ -43,7 +43,7 @@ export default function AdminImagesPage() {
       {/* ヘッダー */}
       <div style={{ maxWidth: 960, margin: "0 auto 32px" }}>
         <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 32, color: "#150B00", marginBottom: 8 }}>
-          beauté — 製品画像管理
+          beautia — 製品画像管理
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ fontSize: 13, color: "#6B5B4A" }}>

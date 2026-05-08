@@ -57,10 +57,10 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset, on
 
   return (
     <main className="auth-page">
-      <section className="auth-hero" aria-label="beauté">
+      <section className="auth-hero" aria-label="beautia">
         <div className="auth-brand-block">
-          <div className="auth-logo">beauté</div>
-          <div className="auth-kicker">PERSONAL BEAUTY SEARCH</div>
+          <div className="auth-logo">beautia</div>
+          <div className="auth-kicker">美容アイテム選び</div>
         </div>
 
         <div className="auth-copy">
@@ -71,7 +71,7 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset, on
           </p>
         </div>
 
-        <div className="auth-signal-list" aria-label="beautéでできること">
+        <div className="auth-signal-list" aria-label="beautiaでできること">
           <div>
             <span>01</span>
             楽天商品を検索・比較
@@ -221,7 +221,7 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset, on
 
         {/* フッター */}
         <p className="auth-footer">
-          beauté はあなたの美容データを安全に保護します。
+          beautia はあなたの美容データを安全に保護します。
           <br />
           <a href="/terms">利用規約</a>
           <span> / </span>

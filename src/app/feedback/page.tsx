@@ -144,7 +144,7 @@ export default function FeedbackPage() {
 
   const shareCopy = useMemo(
     () =>
-      "beauteのテスト版を触って、1分くらいの感想アンケートに答えてもらえると嬉しいです。美容アイテム検索とランキング、カルテ、PRO導線まわりを見てほしいです。",
+      "beautiaのテスト版を触って、1分くらいの感想アンケートに答えてもらえると嬉しいです。美容アイテム検索とランキング、カルテ、PRO導線まわりを見てほしいです。",
     []
   );
 
@@ -187,7 +187,7 @@ export default function FeedbackPage() {
             もらった感想をもとに、使い方・カルテ・有料にする理由・スマホの触り心地を詰めていきます。
           </p>
           <div className="feedback-actions">
-            <a href="/">beauteに戻る</a>
+            <a href="/">beautiaに戻る</a>
             <a href="/?tab=guide">使い方を見る</a>
           </div>
         </section>
@@ -198,7 +198,7 @@ export default function FeedbackPage() {
   return (
     <main className="feedback-page">
       <section className="feedback-hero">
-        <a className="feedback-logo" href="/">beaute</a>
+        <a className="feedback-logo" href="/">beautia</a>
         <div>
           <div className="feedback-kicker">BETA TEST FEEDBACK</div>
           <h1>1分だけ、率直な感想をください。</h1>

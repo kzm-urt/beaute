@@ -80,7 +80,7 @@ export default function SavedTab({ isPro, onUpgrade, onOpenProduct }: Props) {
   return (
     <div style={{ padding: "24px 24px 60px", maxWidth: 980, margin: "0 auto" }}>
       <div style={{ marginBottom: 22 }}>
-        <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ SAVED SHELF</div>
+        <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ 保存棚</div>
         <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 32, fontWeight: 400, color: "#150B00", margin: 0 }}>
           保存した商品
         </h1>
@@ -90,7 +90,7 @@ export default function SavedTab({ isPro, onUpgrade, onOpenProduct }: Props) {
       {!isPro && (
         <div style={{ background: "#fff", border: "1px solid #D4A85366", borderRadius: 16, padding: "14px 16px", marginBottom: 18, display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: "#150B00" }}>FREE保存枠</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#150B00" }}>無料の保存枠</div>
             <div style={{ fontSize: 11, color: "#8A7A6E", marginTop: 3 }}>
               お気に入り {favoriteSaves.length}/{favoriteLimit} ・ 比較 {compareSaves.length}/{compareLimit}
             </div>

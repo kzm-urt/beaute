@@ -232,7 +232,7 @@ export default function AdminStatusPage() {
                 marginBottom: 8,
               }}
             >
-              BEAUTE RELEASE CHECK
+              BEAUTIA RELEASE CHECK
             </div>
             <h1
               style={{

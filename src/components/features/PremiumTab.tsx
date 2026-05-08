@@ -18,6 +18,13 @@ const FAQ = [
   { q: "無料トライアルはありますか？", a: `${PLAN_RULES.pro.trialDays}日間あります。` },
 ];
 
+const GROWTH_VALUE_CARDS = [
+  { value: "30日", label: "変化の見通し", body: "続けた時の目安を確認" },
+  { value: "記録", label: "美容ログ", body: "使った感想を次の候補に反映" },
+  { value: "比較", label: "商品詳細", body: "価格・レビュー・注意点を並べる" },
+  { value: "差分", label: "前回比較", body: "合った理由を見返す" },
+];
+
 interface SubscriptionStatus {
   isPro: boolean;
   hasStripeCustomer: boolean;
@@ -162,12 +169,12 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
         <div className="relative">
           <p className="text-[9px] font-semibold tracking-[3px] mb-3"
             style={{ color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace, monospace" }}>
-            ★ PRO PLAN
+            PROプラン
           </p>
           <h2 className="mb-2"
             style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 30, lineHeight: 1.2, color: "#F5EEE4", fontWeight: 500 }}>
-            あなたの美容を、<br/>
-            <span style={{ color: "#D4A853", fontStyle: "italic" }}>もっと賢く。</span>
+            候補選びを、<br/>
+            <span style={{ color: "#D4A853", fontStyle: "italic" }}>もっと迷わず。</span>
           </h2>
           <p className="text-[12px]" style={{ color: "rgba(245,238,228,.55)" }}>
             {PLAN_RULES.pro.trialDays}日無料トライアル、その後月額{PLAN_RULES.pro.priceLabel}（税込）
@@ -178,7 +185,30 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
       <div className="bg-white rounded-[18px] border border-[#EDE5DC] p-4 mb-5 motion-reveal">
         <div className="mb-3">
           <p className="text-[10px] tracking-[0.24em] font-semibold mb-1" style={{ color: "#A8722A", fontFamily: "ui-monospace,monospace" }}>
-            {"VALUE LADDER"}
+            {"続けるための道具"}
+          </p>
+          <h3 className="text-[18px] font-bold" style={{ color: "#150B00" }}>
+            {"選ぶ、使う、見返すをつなげる"}
+          </h3>
+          <p className="text-[12px] mt-1 leading-[1.7]" style={{ color: "#8A7A6E" }}>
+            {"PROは保存、ログ、商品比較をまとめて、次に見るべき候補を絞ります。"}
+          </p>
+        </div>
+        <div className="grid gap-2 md:grid-cols-4 motion-stagger">
+          {GROWTH_VALUE_CARDS.map((item) => (
+            <div key={item.label} className="rounded-[14px] border p-3 motion-card" style={{ borderColor: "#EDE5DC", background: "#F8F4EF" }}>
+              <div className="text-[22px] font-black" style={{ color: "#A8722A", fontFamily: "'Cormorant Garamond',Georgia,serif" }}>{item.value}</div>
+              <div className="text-[12px] font-black mt-1" style={{ color: "#150B00" }}>{item.label}</div>
+              <p className="text-[11px] leading-[1.65] mt-1" style={{ color: "#6B5B4A" }}>{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-[18px] border border-[#EDE5DC] p-4 mb-5 motion-reveal">
+        <div className="mb-3">
+          <p className="text-[10px] tracking-[0.24em] font-semibold mb-1" style={{ color: "#A8722A", fontFamily: "ui-monospace,monospace" }}>
+            {"できること"}
           </p>
           <h3 className="text-[18px] font-bold" style={{ color: "#150B00" }}>
             {"\u30b2\u30b9\u30c8\u3001\u7121\u6599\u4f1a\u54e1\u3001PRO\u306e\u9055\u3044"}
@@ -256,7 +286,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             </div>
             <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold"
               style={{ background: "#F8F4EF", color: "#8A7A6E" }}>
-              {subscriptionStatus?.hasStripeCustomer ? "Stripe" : "Manual"}
+              {subscriptionStatus?.hasStripeCustomer ? "Stripe" : "手動"}
             </span>
           </div>
           {subscriptionStatus?.hasStripeCustomer ? (
@@ -281,7 +311,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
         <div className="bg-white rounded-[16px] border border-[#EDE5DC] p-4 motion-card">
           <div className="flex justify-between items-start mb-3">
             <div>
-              <p className="text-[11px] font-semibold tracking-wide mb-0.5" style={{ color: "#8A7A6E" }}>FREE</p>
+              <p className="text-[11px] font-semibold tracking-wide mb-0.5" style={{ color: "#8A7A6E" }}>無料</p>
               <p className="text-[20px] font-bold" style={{ color: "#150B00" }}>{PLAN_RULES.free.priceLabel}<span className="text-[12px] font-normal ml-1" style={{ color: "#8A7A6E" }}>/ 月</span></p>
             </div>
             <span className="text-[10px] px-2.5 py-1 rounded-full font-semibold border"
@@ -306,7 +336,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             style={{ background: "linear-gradient(90deg,transparent,#D4A853,transparent)" }}/>
           <div className="absolute top-3 right-3 text-[9px] px-2 py-0.5 rounded-full font-bold"
             style={{ background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08" }}>
-            RECOMMENDED
+            おすすめ
           </div>
           <div className="flex justify-between items-start mb-3">
             <div>
@@ -349,7 +379,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             {[
               { value: "∞", label: "解析" },
               { value: "50", label: "履歴" },
-              { value: "ALL", label: "楽天詳細" },
+              { value: "全て", label: "楽天詳細" },
             ].map((item) => (
               <div key={item.label} className="rounded-[12px] py-3 text-center motion-card" style={{ background: "#F8F4EF" }}>
                 <p className="text-[19px] font-bold" style={{ color: "#A8722A" }}>{item.value}</p>

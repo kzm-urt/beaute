@@ -3,18 +3,18 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "利用規約",
-  description: "beauté の利用規約です。",
+  description: "beautia の利用規約です。",
 };
 
 export default function TermsPage() {
   return (
     <LegalPage title="利用規約" updatedAt="2026年5月2日">
       <p>
-        本規約は、beauté が提供する美容レコメンド、成分解析、商品検索、ログ保存、PROプランに関する利用条件を定めるものです。
+        本規約は、beautia が提供する美容レコメンド、成分解析、商品検索、ログ保存、PROプランに関する利用条件を定めるものです。
       </p>
       <h2>1. サービス内容</h2>
       <p>
-        beauté は、ユーザーが入力したプロフィール、使用ログ、保存商品、画像解析結果などをもとに、美容商品の候補や関連情報を表示します。表示内容は参考情報であり、効果や適合性を保証するものではありません。
+        beautia は、ユーザーが入力したプロフィール、使用ログ、保存商品、画像解析結果などをもとに、美容商品の候補や関連情報を表示します。表示内容は参考情報であり、効果や適合性を保証するものではありません。
       </p>
       <h2>2. アカウント</h2>
       <p>
@@ -48,7 +48,7 @@ function LegalPage({ title, updatedAt, children }: { title: string; updatedAt: s
   return (
     <main className="legal-page">
       <div className="legal-shell">
-        <Link href="/" className="legal-back">beauté</Link>
+        <Link href="/" className="legal-back">beautia</Link>
         <div className="legal-eyebrow">LEGAL</div>
         <h1>{title}</h1>
         <div className="legal-date">最終更新: {updatedAt}</div>

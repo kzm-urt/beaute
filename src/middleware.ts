@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const LOCK_AFTER_FAILURES = 10;
 const LOCK_WINDOW_MS = 15 * 60 * 1000;
-const REALM = "beaute admin";
+const REALM = "beautia admin";
 
 type BasicCredentials = {
   username: string;

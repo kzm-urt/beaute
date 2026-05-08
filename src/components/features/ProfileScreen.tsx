@@ -200,9 +200,9 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
         <aside className="flex flex-col justify-between rounded-[18px] p-6" style={{ border: "1px solid rgba(212,168,83,.22)", background: "rgba(21,11,0,.42)" }}>
           <div>
             <h1 className="text-[36px] italic tracking-[4px] mb-5" style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", color: "#F5EEE4" }}>
-              beauté
+              beautia
             </h1>
-            <p className="text-[12px] tracking-[.24em] font-bold mb-3" style={{ color: "#D4A853" }}>PERSONAL BEAUTY MAP</p>
+            <p className="text-[12px] tracking-[.24em] font-bold mb-3" style={{ color: "#D4A853" }}>わたしの美容条件</p>
             <h2 className="text-[28px] md:text-[34px] leading-[1.25] font-black mb-4" style={{ color: "#F5EEE4" }}>
               答えるほど、<br/>あなた向けに。
             </h2>
@@ -213,14 +213,14 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
 
           <div style={{ marginTop: 26 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(245,238,228,.68)", marginBottom: 8 }}>
-              <span>診断シグナル</span>
+              <span>登録した条件</span>
               <strong style={{ color: "#D4A853" }}>{signalCount} / 24</strong>
             </div>
             <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,.1)", overflow: "hidden" }}>
               <div style={{ width: `${completion}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#A8722A,#D4A853)" }} />
             </div>
             <div style={{ marginTop: 16, border: "1px solid rgba(212,168,83,.24)", borderRadius: 14, padding: 14, background: "rgba(212,168,83,.08)" }}>
-              <p style={{ margin: 0, color: "#D4A853", fontSize: 11, letterSpacing: ".14em", fontWeight: 900 }}>PRO PREVIEW</p>
+              <p style={{ margin: 0, color: "#D4A853", fontSize: 11, letterSpacing: ".14em", fontWeight: 900 }}>PROで追加</p>
               <p style={{ margin: "6px 0 0", color: "rgba(245,238,228,.72)", fontSize: 12, lineHeight: 1.75 }}>
                 14個以上で、相性・注意点・動画まで。
               </p>

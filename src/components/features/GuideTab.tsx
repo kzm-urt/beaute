@@ -50,8 +50,8 @@ const planRows = [
   { label: "商品検索・ランキング", guest: "閲覧OK", free: "閲覧OK", pro: "全商品を深掘り" },
   { label: "保存・比較", guest: "登録が必要", free: "基本枠あり", pro: "候補を多く残せる" },
   { label: "成分解析", guest: "登録が必要", free: "月3回", pro: "無制限" },
-  { label: "カルテ・美容ログ", guest: "サンプル閲覧", free: "記録OK", pro: "おすすめ精度に反映" },
-  { label: "購入リンク", guest: "一部のみ", free: "FREE商品中心", pro: "全商品で開放" },
+  { label: "カルテ・美容ログ", guest: "サンプル閲覧", free: "記録OK", pro: "おすすめに反映" },
+  { label: "購入リンク", guest: "一部のみ", free: "無料対象中心", pro: "全商品で開放" },
 ] as const;
 
 const signals = ["性別", "年代", "肌タイプ", "髪タイプ", "悩み", "使用中の製品", "欲しい成分", "生活習慣", "今の状態"];
@@ -86,10 +86,10 @@ export default function GuideTab({
     <div className="guide-tab motion-fade-scale">
       <section className="guide-hero section-shell mobile-tight">
         <div className="guide-hero-copy motion-reveal">
-          <p className="guide-eyebrow">BEAUTE START GUIDE</p>
-          <h1>まずは、beauteの歩き方から。</h1>
+          <p className="guide-eyebrow">はじめ方</p>
+          <h1>まずは、beautiaの歩き方から。</h1>
           <p className="guide-lead">
-            beauteは、楽天の商品を探しながら、気になるものを保存し、成分や使用感を少しずつ自分の記録にしていく美容サーチです。最初に流れを見ておくと、どこから触ればいいか迷いにくくなります。
+            beautiaは、楽天の商品を探しながら、気になるものを保存し、成分や使用感を少しずつ自分の記録にしていく美容サーチです。最初に流れを見ておくと、どこから触ればいいか迷いにくくなります。
           </p>
           <div className="guide-hero-actions">
             <button className="guide-primary motion-cta" onClick={isGuest ? onAuth : onGoKarte}>
@@ -103,7 +103,7 @@ export default function GuideTab({
         <div className="guide-hero-panel motion-reveal-slow">
           <div>
             <span>今やること</span>
-            <strong>{isPro ? "ログを残して精度を上げる" : isGuest ? "まず3商品を見てみる" : "保存と解析をつなげる"}</strong>
+            <strong>{isPro ? "ログを残して選びやすくする" : isGuest ? "まず3商品を見てみる" : "保存と解析をつなげる"}</strong>
             <p>{isPro ? "使ってみた感想を残すほど、次の候補があなたの好みに近づきます。" : "最初はランキングから入り、気になる商品を保存するだけで十分です。"}</p>
           </div>
           <div className="guide-mini-metrics">
@@ -116,7 +116,7 @@ export default function GuideTab({
 
       <section className="guide-section section-shell mobile-tight">
         <div className="guide-section-head">
-          <p className="guide-eyebrow">FLOW</p>
+          <p className="guide-eyebrow">使う流れ</p>
           <h2>基本の流れ</h2>
           <button className="guide-link-button motion-nav-button" onClick={onGoRanking}>
             ランキングから始める
@@ -139,7 +139,7 @@ export default function GuideTab({
 
       <section className="guide-section guide-personal-section section-shell mobile-tight">
         <div className="guide-personal-copy">
-          <p className="guide-eyebrow">PERSONAL ENGINE</p>
+          <p className="guide-eyebrow">わたしのカルテ</p>
           <h2>カルテは、あなたの肌と棚のメモ。</h2>
           <p>
             「最近乾きやすい」「この化粧水は合った」「朝は時間がない」みたいな小さな情報を残しておく場所です。性別や肌質だけで決めるより、今の状態と手元のアイテムまで見たほうが、次に選ぶものが自然に絞れます。
@@ -162,7 +162,7 @@ export default function GuideTab({
 
       <section className="guide-section section-shell mobile-tight">
         <div className="guide-section-head">
-          <p className="guide-eyebrow">PLAN VALUE</p>
+          <p className="guide-eyebrow">できること</p>
           <h2>ゲスト・無料会員・PROでできること</h2>
           {!isPro && (
             <button className="guide-link-button motion-nav-button" onClick={() => isGuest ? onAuth() : onUpgrade("guide_plan_table")}>
@@ -187,7 +187,7 @@ export default function GuideTab({
 
       <section className="guide-section section-shell mobile-tight">
         <div className="guide-section-head">
-          <p className="guide-eyebrow">ROUTINE</p>
+          <p className="guide-eyebrow">続け方</p>
           <h2>続けるほど、選びやすくなる使い方</h2>
         </div>
         <div className="guide-routine-grid">
@@ -203,9 +203,9 @@ export default function GuideTab({
       {!isPro && (
         <section className="guide-pro-cta section-shell mobile-tight motion-reveal">
           <div>
-            <p className="guide-eyebrow">PRO PRECISION</p>
+            <p className="guide-eyebrow">PROでできること</p>
             <h2>ちゃんと選びたい日は、PROで深く見る。</h2>
-            <p>無制限の成分解析、全商品の購入リンク、保存・ログから育つおすすめ精度で、候補をもう一段細かく見られます。</p>
+            <p>無制限の成分解析、全商品の購入リンク、保存・ログを反映したおすすめで、候補をもう一段細かく見られます。</p>
           </div>
           <button className="guide-primary motion-cta" onClick={() => isGuest ? onAuth() : onUpgrade("guide_bottom_cta")}>
             {isGuest ? "無料登録して7日トライアルへ" : "PROを試す"}

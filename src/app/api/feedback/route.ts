@@ -119,7 +119,7 @@ async function insertFeedbackFallback(
   const { data, error } = await supabase
     .from("api_usage_events")
     .insert({
-      provider: "beaute",
+      provider: "beautia",
       endpoint: "/api/feedback",
       operation: "beta_feedback",
       request_count: 1,

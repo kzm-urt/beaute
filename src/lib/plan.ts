@@ -2,7 +2,7 @@ import type { PlanType } from "@/types";
 
 export const PLAN_RULES = {
   free: {
-    label: "FREE",
+    label: "無料",
     priceLabel: "¥0",
     monthlyAnalyzeLimit: 3,
     logLimit: 10,
@@ -25,7 +25,7 @@ export const PLAN_RULES = {
     searchDetailLimitPerPage: null,
     rankingDetailLimit: null,
     trialDays: 7,
-    headline: "解析・記録・おすすめ精度をすべて解放",
+    headline: "解析・記録・商品詳細をすべて解放",
   },
 } as const;
 
@@ -36,8 +36,8 @@ export const PLAN_FEATURE_MATRIX = [
   { label: "お気に入り", free: "10件まで", pro: "無制限" },
   { label: "比較リスト", free: "3件まで", pro: "10件まで" },
   { label: "楽天商品詳細", free: "検索12件/ランキングTOP10", pro: "全商品" },
-  { label: "パーソナル精度", free: "基本おすすめ", pro: "肌質・悩み別スコア表示" },
-  { label: "購入リンク", free: "FREE商品のみ", pro: "全商品の楽天リンク" },
+  { label: "パーソナル表示", free: "基本おすすめ", pro: "肌質・悩みを反映" },
+  { label: "購入リンク", free: "無料対象のみ", pro: "全商品の楽天リンク" },
 ] as const;
 
 export function getPlanType(isPro: boolean): PlanType {

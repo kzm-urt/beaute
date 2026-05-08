@@ -102,7 +102,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
         成分解析
       </h2>
       <p className="text-[13px] mb-4" style={{ color: "#8A7A6E" }}>
-        成分表をAI解析
+        成分表から、合う点と注意点を確認します。
       </p>
 
       {/* ── FREE NOTICE ── */}
@@ -124,7 +124,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
         onClick={() => fileRef.current?.click()}
         className="border-2 border-dashed border-[#EDE5DC] rounded-[20px] p-10 text-center cursor-pointer transition-all bg-white hover:border-[#D4A853] hover:bg-[#FEFBF6] mb-3">
         {img ? (
-          <img src={img} alt="upload" className="max-w-full max-h-[220px] rounded-[12px] object-contain mx-auto" />
+          <img src={img} alt="アップロードした成分表" className="max-w-full max-h-[220px] rounded-[12px] object-contain mx-auto" />
         ) : (
           <>
             <p className="text-[50px] mb-2.5">📸</p>
@@ -138,7 +138,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
       {img && (
         <>
           <GoldButton onClick={analyze} disabled={loading} className="mb-2">
-            {loading ? "🔬 AIが解析中..." : "🧪 成分を解析する"}
+            {loading ? "🔬 成分を確認中..." : "🧪 成分を確認する"}
           </GoldButton>
           <button
             onClick={() => { setImg(null); setResult(null); setError(false); setLimitReached(false); }}
@@ -227,10 +227,10 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
             )}
           </div>
 
-          {/* AI総評 */}
+          {/* まとめ */}
           <div className="rounded-[14px] p-4 border-[1.5px]"
             style={{ background: "linear-gradient(135deg,#F3EAF8,#EDE0F5)", borderColor: "#D5BAF5" }}>
-            <p className="text-[12px] font-bold mb-1.5" style={{ color: "#6A1B9A" }}>💬 AI総評</p>
+            <p className="text-[12px] font-bold mb-1.5" style={{ color: "#6A1B9A" }}>💬 まとめ</p>
             <p className="text-[13px] leading-[1.7]" style={{ color: "#4A148C" }}>{result.verdict}</p>
           </div>
         </div>

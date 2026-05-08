@@ -10,7 +10,9 @@ import type { Category, PersonalPreferences, Product, UserProfile } from "@/type
 
 interface Props {
   isPro: boolean;
+  isGuest?: boolean;
   onUpgrade: (sourceArea?: string, product?: Product) => void;
+  onAuth?: () => void;
   onOpenProduct?: (p: Product) => void;
   initialMode?: BrowseMode;
   profile?: UserProfile;
@@ -24,13 +26,15 @@ const ALL_CATEGORY = "\u3059\u3079\u3066";
 const DEFAULT_CATEGORY = Object.keys(CAT_META)[0] as Category;
 const RESULTS_PAGE_SIZE = 18;
 
-export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct, initialMode = "search", profile }: Props) {
+export default function SearchTab({ isPro, isGuest = false, preferences, onUpgrade, onAuth, onOpenProduct, initialMode = "search", profile }: Props) {
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState<string>(ALL_CATEGORY);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortKey>(isPro ? "personal" : "rating");
   const [mode, setMode] = useState<BrowseMode>(initialMode);
   const [showTags, setShowTags] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showPlanPath, setShowPlanPath] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -75,11 +79,12 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
 
       const trimmedQuery = query.trim();
       const showRankingAsDefault = mode === "search" && !trimmedQuery && activeTags.length === 0;
-      const requestMode = showRankingAsDefault ? "ranking" : mode;
+      const requestMode = showRankingAsDefault && !isPro ? "search" : showRankingAsDefault ? "ranking" : mode;
       const params = new URLSearchParams();
       params.set("mode", requestMode);
       params.set("limit", String(RESULTS_PAGE_SIZE));
       params.set("page", String(requestPage));
+      if (showRankingAsDefault && !isPro) params.set("free", "true");
       if (activeCat !== ALL_CATEGORY) params.set("cat", activeCat);
       if (!showRankingAsDefault && mode === "search" && trimmedQuery) params.set("q", trimmedQuery);
       if (!showRankingAsDefault && mode === "search" && activeTags.length > 0) {
@@ -156,6 +161,18 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
                             a.price - b.price
     );
   }, [products, mode, sortBy, profile, preferences]);
+  const sortLabel =
+    mode === "ranking" ? "ランキング順" :
+    sortBy === "personal" ? "おすすめ順" :
+    sortBy === "rating" ? "評価順" :
+    sortBy === "rev" ? "レビュー順" :
+    "価格順";
+  const activeSummary = [
+    mode === "ranking" ? "楽天ランキング" : "商品検索",
+    activeCat !== ALL_CATEGORY ? activeCat : "すべて",
+    activeTags.length > 0 ? `タグ${activeTags.length}` : null,
+    sortLabel,
+  ].filter(Boolean).join(" / ");
 
   return (
     <div className="motion-fade-scale">
@@ -168,140 +185,159 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         />
       </div>
 
-      <div style={{ padding: "16px 24px 0" }}>
-        <div className="search-mode-switch" style={{ display: "inline-flex", gap: 4, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, padding: 4, marginBottom: 12 }}>
-          {([["search", "商品検索"], ["ranking", "楽天ランキング"]] as [BrowseMode, string][]).map(([value, label]) => (
+      <div className="search-browse-controls" style={{ padding: "12px 24px 0" }}>
+        <div className="search-control-row">
+          <div className="search-mode-switch" style={{ display: "inline-flex", gap: 4, background: "#fff", border: "1px solid #EDE5DC", borderRadius: 12, padding: 4 }}>
+            {([["search", "商品検索"], ["ranking", "楽天ランキング"]] as [BrowseMode, string][]).map(([value, label]) => (
+              <button
+                className="motion-nav-button"
+                key={value}
+                onClick={() => setMode(value)}
+                style={{
+                  padding: "8px 14px",
+                  border: "none",
+                  borderRadius: 9,
+                  background: mode === value ? "#1A0E08" : "transparent",
+                  color: mode === value ? "#FBF8F3" : "#8A7A6E",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div className="search-control-actions">
             <button
-              className="motion-nav-button"
-              key={value}
-              onClick={() => setMode(value)}
-              style={{
-                padding: "8px 14px",
-                border: "none",
-                borderRadius: 9,
-                background: mode === value ? "#1A0E08" : "transparent",
-                color: mode === value ? "#FBF8F3" : "#8A7A6E",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
+              className={`search-small-toggle ${showFilters ? "active" : ""}`}
+              onClick={() => setShowFilters((s) => !s)}
+              type="button"
             >
-              {label}
+              絞り込み{activeTags.length > 0 ? ` ${activeTags.length}` : ""}
             </button>
-          ))}
-        </div>
-
-        {/* Category filter */}
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10 }} className="search-category-rail hide-scrollbar">
-          <button className="motion-nav-button" onClick={() => setActiveCat(ALL_CATEGORY)} style={{
-            flexShrink: 0, padding: "7px 16px", borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1.5px solid",
-            background: activeCat === ALL_CATEGORY ? "#150B00" : "#fff",
-            color: activeCat === ALL_CATEGORY ? "#fff" : "#8A7A6E",
-            borderColor: activeCat === ALL_CATEGORY ? "#150B00" : "#EDE5DC",
-            cursor: "pointer",
-          }}>すべて</button>
-          {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m]) => {
-            const active = activeCat === name;
-            return (
-              <button key={name} className="motion-nav-button" onClick={() => setActiveCat(name)} style={{
-                flexShrink: 0, padding: "7px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600,
-                background: active ? m.dark : m.color,
-                color: active ? m.color : m.dark,
-                border: `1.5px solid ${active ? m.dark : m.accent + "55"}`,
-                cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.15s",
-              }}>
-                <span>{m.icon}</span>{name}
-              </button>
-            );
-          })}
-        </div>
-
-        {mode === "search" && (
-          <>
-            {/* Tag accordion */}
-            <button className="motion-nav-button" onClick={() => setShowTags(s => !s)} style={{ fontSize: 12, fontWeight: 600, border: "none", background: "transparent", cursor: "pointer", color: "#A8722A", padding: "4px 0", display: "flex", alignItems: "center", gap: 4 }}>
-              <Icon name={showTags ? "chevDown" : "chev"} size={14} stroke="#A8722A" sw={2}/>
-              タグで絞り込む{activeTags.length > 0 && ` (${activeTags.length}件)`}
+            <button
+              className={`search-small-toggle ${showPlanPath ? "active" : ""}`}
+              onClick={() => setShowPlanPath((s) => !s)}
+              type="button"
+            >
+              {isPro ? "PRO" : isGuest ? "ゲスト" : "無料"}
             </button>
-            {showTags && (
-              <div style={{ display: "flex", flexWrap: "wrap", marginTop: 6 }}>
-                {ALL_TAGS.map(t => <Chip key={t} label={t} active={activeTags.includes(t)} onClick={() => toggleTag(t)}/>)}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Sort + count */}
-        <div className="search-sort-row" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
-          {mode === "search" ? (
-            <>
-              <span style={{ fontSize: 11, color: "#8A7A6E" }}>並び替え:</span>
-              {([
-                ...(isPro ? [["personal", "おすすめ順"] as [SortKey, string]] : []),
-                ["rating", "評価"],
-                ["rev", "レビュー数"],
-                ["price", "価格"],
-              ] as [SortKey, string][]).map(([v, l]) => (
-                <Chip key={v} label={l} active={sortBy === v} onClick={() => setSortBy(v)}/>
-              ))}
-            </>
-          ) : (
-            <span style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", letterSpacing: "0.08em" }}>
-              楽天市場リアルタイムランキング
-            </span>
-          )}
-          <span style={{ marginLeft: "auto", fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace" }}>
-            {productsLoading ? "\u53d6\u5f97\u4e2d..." : `${filtered.length} \u4ef6`}
-          </span>
+          </div>
         </div>
 
-        {profileSignals.length > 0 && (
-          <div style={{
-            marginTop: 12,
-            padding: "12px 14px",
-            borderRadius: 14,
-            border: isPro ? "1px solid #D4A85366" : "1px solid #EDE5DC",
-            background: isPro ? "linear-gradient(135deg,#1A0E08,#2C1A0E)" : "#fff",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10, letterSpacing: "0.18em", color: isPro ? "#D4A853" : "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
-                {isPro ? (preferences?.confidence ? "LOG PERSONAL SEARCH ON" : "PERSONAL SEARCH ON") : "PRO PERSONAL"}
-              </div>
-              <p style={{ fontSize: 12, lineHeight: 1.6, color: isPro ? "rgba(251,248,243,.78)" : "#6B5B4A", margin: 0 }}>
-                {isPro
-                  ? `${profileSignals.slice(0, 3).join("・")}を優先中。`
-                  : `${profileSignals.slice(0, 3).join("・")}の精密表示はPRO。`}
-              </p>
+        <div className="search-active-summary">
+          <span>{activeSummary}</span>
+          <strong>{productsLoading ? "取得中..." : `${filtered.length} 件`}</strong>
+        </div>
+
+        {showFilters && (
+          <div className="search-advanced-panel motion-reveal">
+            {/* Category filter */}
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10 }} className="search-category-rail hide-scrollbar">
+              <button className="motion-nav-button" onClick={() => setActiveCat(ALL_CATEGORY)} style={{
+                flexShrink: 0, padding: "7px 16px", borderRadius: 20, fontSize: 12, fontWeight: 600, border: "1.5px solid",
+                background: activeCat === ALL_CATEGORY ? "#150B00" : "#fff",
+                color: activeCat === ALL_CATEGORY ? "#fff" : "#8A7A6E",
+                borderColor: activeCat === ALL_CATEGORY ? "#150B00" : "#EDE5DC",
+                cursor: "pointer",
+              }}>すべて</button>
+              {(Object.entries(CAT_META) as [Category, typeof CAT_META[Category]][]).map(([name, m]) => {
+                const active = activeCat === name;
+                return (
+                  <button key={name} className="motion-nav-button" onClick={() => setActiveCat(name)} style={{
+                    flexShrink: 0, padding: "7px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                    background: active ? m.dark : m.color,
+                    color: active ? m.color : m.dark,
+                    border: `1.5px solid ${active ? m.dark : m.accent + "55"}`,
+                    cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "all 0.15s",
+                  }}>
+                    <span>{m.icon}</span>{name}
+                  </button>
+                );
+              })}
             </div>
-            {!isPro && (
-              <button className="motion-cta" onClick={() => onUpgrade("search_personal_teaser")} style={{ flexShrink: 0, border: "none", borderRadius: 999, padding: "8px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
-                試す
-              </button>
+
+            {mode === "search" && (
+              <>
+                {/* Tag accordion */}
+                <button className="motion-nav-button" onClick={() => setShowTags(s => !s)} style={{ fontSize: 12, fontWeight: 600, border: "none", background: "transparent", cursor: "pointer", color: "#A8722A", padding: "4px 0", display: "flex", alignItems: "center", gap: 4 }}>
+                  <Icon name={showTags ? "chevDown" : "chev"} size={14} stroke="#A8722A" sw={2}/>
+                  タグで絞り込む{activeTags.length > 0 && ` (${activeTags.length}件)`}
+                </button>
+                {showTags && (
+                  <div style={{ display: "flex", flexWrap: "wrap", marginTop: 6 }}>
+                    {ALL_TAGS.map(t => <Chip key={t} label={t} active={activeTags.includes(t)} onClick={() => toggleTag(t)}/>)}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Sort + count */}
+            <div className="search-sort-row" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+              {mode === "search" ? (
+                <>
+                  <span style={{ fontSize: 11, color: "#8A7A6E" }}>並び替え:</span>
+                  {([
+                    ...(isPro ? [["personal", "おすすめ順"] as [SortKey, string]] : []),
+                    ["rating", "評価"],
+                    ["rev", "レビュー数"],
+                    ["price", "価格"],
+                  ] as [SortKey, string][]).map(([v, l]) => (
+                    <Chip key={v} label={l} active={sortBy === v} onClick={() => setSortBy(v)}/>
+                  ))}
+                </>
+              ) : (
+                <span style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace", letterSpacing: "0.08em" }}>
+                  楽天市場リアルタイムランキング
+                </span>
+              )}
+            </div>
+
+            {profileSignals.length > 0 && (
+              <div className="search-personal-panel" style={{
+                marginTop: 12,
+                padding: "12px 14px",
+                borderRadius: 14,
+                border: isPro ? "1px solid #D4A85366" : "1px solid #EDE5DC",
+                background: isPro ? "linear-gradient(135deg,#1A0E08,#2C1A0E)" : "#fff",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 10, letterSpacing: "0.18em", color: isPro ? "#D4A853" : "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
+                    {isPro ? (preferences?.confidence ? "記録から並び替え" : "カルテから並び替え") : "PROで詳しく"}
+                  </div>
+                  <p style={{ fontSize: 12, lineHeight: 1.6, color: isPro ? "rgba(251,248,243,.78)" : "#6B5B4A", margin: 0 }}>
+                    {isPro
+                      ? `${profileSignals.slice(0, 3).join("・")}を優先中。`
+                      : `${profileSignals.slice(0, 3).join("・")}を反映した並び替えはPRO。`}
+                  </p>
+                </div>
+                {!isPro && (
+                  <button className="motion-cta" onClick={() => onUpgrade("search_personal_teaser")} style={{ flexShrink: 0, border: "none", borderRadius: 999, padding: "8px 12px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
+                    試す
+                  </button>
+                )}
+              </div>
             )}
           </div>
+        )}
+
+        {showPlanPath && (
+          <PlanPathStrip
+            isGuest={isGuest}
+            isPro={isPro}
+            onAuth={onAuth}
+            onUpgrade={() => onUpgrade("search_plan_path")}
+          />
         )}
       </div>
 
       {/* ── RESULTS GRID ── */}
       <div style={{ padding: "16px 24px 40px" }}>
-        {!productsLoading && mode === "search" && !query.trim() && activeTags.length === 0 && filtered.length > 0 && (
-          <div style={{
-            marginBottom: 14,
-            padding: "12px 14px",
-            borderRadius: 14,
-            border: "1px solid #EDE5DC",
-            background: "#fff",
-            color: "#6B5B4A",
-            fontSize: 12,
-            lineHeight: 1.6,
-          }}>
-            <strong style={{ color: "#150B00" }}>{"\u4eba\u6c17\u5546\u54c1\u304b\u3089\u8868\u793a\u4e2d\u3002"}</strong>
-            {" \u30ad\u30fc\u30ef\u30fc\u30c9\u3067\u7d5e\u308a\u8fbc\u3081\u307e\u3059\u3002"}
-          </div>
-        )}
         {productsLoading ? (
           <div className="search-results-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
             {Array.from({ length: 6 }).map((_, i) => (
@@ -332,7 +368,7 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
         ) : (
           <div className="motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 16 }}>
             {filtered.map(p => (
-              <SearchCard key={p.id} product={p} isPro={isPro} onUpgrade={onUpgrade} onOpen={onOpenProduct} profile={profile} preferences={isPro ? preferences : null} sourceArea={mode === "ranking" ? "ranking_card" : "search_card"}/>
+              <SearchCard key={p.id} product={p} isPro={isPro} isGuest={isGuest} onUpgrade={onUpgrade} onOpen={onOpenProduct} profile={profile} preferences={isPro ? preferences : null} sourceArea={mode === "ranking" ? "ranking_card" : "search_card"}/>
             ))}
           </div>
         )}
@@ -364,8 +400,53 @@ export default function SearchTab({ isPro, preferences, onUpgrade, onOpenProduct
   );
 }
 
-function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences, sourceArea }: {
-  product: Product; isPro: boolean; onUpgrade: (sourceArea?: string, product?: Product) => void; onOpen?: (p: Product) => void; profile?: UserProfile; preferences?: PersonalPreferences | null; sourceArea: string;
+function PlanPathStrip({ isGuest, isPro, onAuth, onUpgrade }: {
+  isGuest: boolean;
+  isPro: boolean;
+  onAuth?: () => void;
+  onUpgrade: () => void;
+}) {
+  const steps = [
+    {
+      label: "ゲスト",
+      body: "検索",
+      state: isGuest ? "now" : "done",
+    },
+    {
+      label: "無料",
+      body: "保存・ログ",
+      state: !isGuest && !isPro ? "now" : isGuest ? "next" : "done",
+    },
+    {
+      label: "PRO",
+      body: "詳細・購入",
+      state: isPro ? "now" : "next",
+    },
+  ];
+
+  return (
+    <div className="plan-path-strip motion-reveal">
+      <div className="plan-path-steps">
+        {steps.map((step) => (
+          <div key={step.label} className={`plan-path-step ${step.state}`}>
+            <span>{step.label}</span>
+            <strong>{step.body}</strong>
+          </div>
+        ))}
+      </div>
+      {!isPro ? (
+        <button className="motion-cta" onClick={isGuest ? onAuth : onUpgrade}>
+          {isGuest ? "無料登録で残す" : "PROで判断する"}
+        </button>
+      ) : (
+        <span className="plan-path-pro">PRO適用中</span>
+      )}
+    </div>
+  );
+}
+
+function SearchCard({ product: p, isPro, isGuest, onUpgrade, onOpen, profile, preferences, sourceArea }: {
+  product: Product; isPro: boolean; isGuest: boolean; onUpgrade: (sourceArea?: string, product?: Product) => void; onOpen?: (p: Product) => void; profile?: UserProfile; preferences?: PersonalPreferences | null; sourceArea: string;
 }) {
   const m = CAT_META[p.cat];
   const locked = !p.free && !isPro;
@@ -380,7 +461,11 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
         isPro,
         metadata: { rank: p.rank ?? null, matchScore: match?.score ?? null },
       });
-      onUpgrade(sourceArea, p);
+      if (onOpen) {
+        onOpen(p);
+      } else {
+        onUpgrade(sourceArea, p);
+      }
       return;
     }
     onOpen?.(p);
@@ -405,7 +490,7 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
         <div className="search-product-brand">{p.brand}</div>
         {locked && (
           <div className="search-product-lock">
-            <span>PROで購入判断を解放</span>
+            <span>詳しい比較はPRO</span>
           </div>
         )}
       </div>
@@ -413,7 +498,7 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
       <div className="search-product-body">
         <div className="search-product-meta">
           <span>{m.icon} {p.cat} · {p.sub}</span>
-          <span>{p.source === "rakuten" ? "RAKUTEN" : "BEAUTE"}</span>
+          <span>{p.source === "rakuten" ? "楽天" : "beautia"}</span>
         </div>
 
         <h3 className="search-product-title">{p.name}</h3>
@@ -426,7 +511,7 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
 
         <div className="search-product-insight">
           <div>
-            <span className="search-product-insight-label">{isPro && match ? "PERSONAL FIT" : "BUY REASON"}</span>
+            <span className="search-product-insight-label">{isPro && match ? "あなた向け" : isGuest ? "無料で確認" : "買う前メモ"}</span>
             <p>{isPro && match ? insight.why : insight.verdict}</p>
           </div>
           {isPro && match ? (
@@ -442,7 +527,7 @@ function SearchCard({ product: p, isPro, onUpgrade, onOpen, profile, preferences
 
         <div className="search-product-footer">
           <span>{formatPrice(p.price)}</span>
-          <span className="tap-card-hint">{locked ? "精密判断 →" : "購入前チェック →"}</span>
+          <span className="tap-card-hint">{locked ? "詳しく比較 →" : isGuest ? "登録で保存 →" : "購入前チェック →"}</span>
         </div>
       </div>
     </div>

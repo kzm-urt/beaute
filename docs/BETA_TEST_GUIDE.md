@@ -1,4 +1,4 @@
-# beaute beta test guide
+# beautia beta test guide
 
 ## Share links
 
@@ -9,7 +9,7 @@
 ## Message to send
 
 ```text
-beauteのテスト版を触って、1分くらいの感想アンケートに答えてもらえると嬉しいです。
+beautiaのテスト版を触って、1分くらいの感想アンケートに答えてもらえると嬉しいです。
 
 見てほしいところ：
 ・スマホで触りやすいか
