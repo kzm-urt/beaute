@@ -30,6 +30,18 @@ interface Props {
   onUpgrade: () => void;
 }
 
+type KarteChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+const KARTE_CHAT_STARTERS = [
+  "今日なに使えばいい？",
+  "朝の順番を組んで",
+  "この候補、私に合いそう？",
+  "刺激が心配なところある？",
+];
+
 const HABITS: Record<string, { icon: string; tips: string[] }> = {
   乾燥肌: { icon: "💧", tips: ["洗顔後3分以内に化粧水をつける", "シートマスクを週2回習慣に", "室内加湿器で湿度50〜60%を保つ", "ぬるま湯（35℃前後）で洗顔する"] },
   脂性肌: { icon: "🌿", tips: ["洗顔は朝晩2回まで（過洗顔に注意）", "ノンコメドジェニック製品を選ぶ", "皮脂コントロール成分（ナイアシンアミド）を活用", "枕カバーを週2回交換する"] },
@@ -271,6 +283,8 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
           ))}
         </div>
       </section>
+
+      <KarteChatPanel isPro={isPro} displayName={displayName} onUpgrade={onUpgrade} />
 
       <section className="lift-card motion-card motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.86fr) minmax(0,1.14fr)", gap: 0 }} className="grid-cols-1-mobile">
@@ -646,6 +660,137 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
         </div>
       </section>
     </div>
+  );
+}
+
+function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; displayName: string; onUpgrade: () => void }) {
+  const [messages, setMessages] = useState<KarteChatMessage[]>([
+    {
+      role: "assistant",
+      content: `${displayName}さん、カルテを見ながら相談できます。商品選び、朝夜の順番、刺激が心配なところなど、気になることをそのまま聞いてください。`,
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const askKarte = async (rawQuestion?: string) => {
+    const question = (rawQuestion ?? input).trim();
+    if (!question || loading) return;
+    if (!isPro) {
+      onUpgrade();
+      return;
+    }
+
+    const nextMessages: KarteChatMessage[] = [...messages, { role: "user", content: question }];
+    setMessages(nextMessages);
+    setInput("");
+    setError("");
+    setLoading(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("ログインが切れています。もう一度ログインしてください。");
+
+      const res = await fetch("/api/karte-chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          question,
+          history: messages.slice(-8),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.proRequired) onUpgrade();
+        throw new Error(data.error || "うまく返事を作れませんでした。");
+      }
+      setMessages((current) => [...current, { role: "assistant", content: data.reply }]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "うまく返事を作れませんでした。";
+      setError(message);
+      setMessages(nextMessages);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className={`karte-chat-panel motion-reveal ${isPro ? "is-live" : "is-locked"}`}>
+      <div className="karte-chat-head">
+        <div>
+          <div className="micro-label">PRO相談室</div>
+          <h2>カルテを見ながら、ちょっと相談。</h2>
+          <p>
+            保存・ログ・成分メモを見ながら、今日どうするかを一緒に整理します。
+          </p>
+        </div>
+        {!isPro && (
+          <button className="motion-cta" onClick={onUpgrade}>
+            PROで使う
+          </button>
+        )}
+      </div>
+
+      {!isPro ? (
+        <div className="karte-chat-locked">
+          <span aria-hidden="true">b</span>
+          <p>
+            PROにすると、カルテを見ながら「今日は何を使う？」「この商品どう？」まで聞けます。
+            まずは迷っていることだけでOKです。
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="karte-chat-starters">
+            {KARTE_CHAT_STARTERS.map((starter) => (
+              <button key={starter} type="button" onClick={() => askKarte(starter)} disabled={loading}>
+                {starter}
+              </button>
+            ))}
+          </div>
+
+          <div className="karte-chat-messages" aria-live="polite">
+            {messages.map((message, index) => (
+              <div key={`${message.role}-${index}`} className={`karte-chat-message ${message.role}`}>
+                <span>{message.role === "user" ? "あなた" : "beautia"}</span>
+                <p>{message.content}</p>
+              </div>
+            ))}
+            {loading && (
+              <div className="karte-chat-message assistant">
+                <span>beautia</span>
+                <p>カルテを見ながら考えています...</p>
+              </div>
+            )}
+          </div>
+
+          {error && <p className="karte-chat-error">{error}</p>}
+
+          <form
+            className="karte-chat-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              askKarte();
+            }}
+          >
+            <textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder="例: 朝は何から使えばいい？"
+              rows={2}
+              maxLength={800}
+            />
+            <button className="motion-cta" type="submit" disabled={loading || !input.trim()}>
+              相談する
+            </button>
+          </form>
+        </>
+      )}
+    </section>
   );
 }
 

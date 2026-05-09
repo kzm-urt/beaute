@@ -19,6 +19,7 @@ const FAQ = [
 ];
 
 const GROWTH_VALUE_CARDS = [
+  { value: "相談", label: "カルテ相談室", body: "保存・ログを見ながらそのまま質問OK" },
   { value: "30日", label: "変化の見通し", body: "続けた時の目安を確認" },
   { value: "記録", label: "美容ログ", body: "使った感想を次の候補に反映" },
   { value: "比較", label: "商品詳細", body: "価格・レビュー・注意点を並べる" },

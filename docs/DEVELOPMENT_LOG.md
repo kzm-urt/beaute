@@ -969,6 +969,15 @@ Recent checks:
 - Home now renders the hero art as an ambient background, so the buddy voice and CTAs stay in front while the visual carries the premium mood.
 - Verified with `npm run build`, `npm run typecheck`, and screenshots on `http://localhost:3010`.
 
+2026-05-09 PRO Karte chat pass:
+
+- Added a PRO-only `KarteChatPanel` inside Karte so paid users can ask natural questions while staying in the Karte flow.
+- Added `/api/karte-chat`, authenticated by Supabase access token and gated by `resolveIsPro`; non-PRO users receive `proRequired`.
+- The chat API reads the user's profile, recent beauty logs, saved products, and recent ingredient analyses server-side before calling Anthropic.
+- Chat responses are constrained to the buddy tone: short, casual polite Japanese, no medical diagnosis, and no visible AI wording.
+- Premium and Guide plan surfaces now mention the new Karte consultation value.
+- Verified with `npm run typecheck`, `npm run build`, API auth checks on `http://localhost:3010/api/karte-chat`, and local Premium/Karte screenshots.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

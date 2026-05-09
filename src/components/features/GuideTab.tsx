@@ -47,6 +47,7 @@ const steps = [
 ] as const;
 
 const planRows = [
+  { label: "カルテ相談", guest: "利用不可", free: "PROで解放", pro: "カルテを見ながら質問OK" },
   { label: "商品検索・ランキング", guest: "閲覧OK", free: "閲覧OK", pro: "全商品を深掘り" },
   { label: "保存・比較", guest: "登録が必要", free: "基本枠あり", pro: "候補を多く残せる" },
   { label: "成分解析", guest: "登録が必要", free: "月3回", pro: "無制限" },

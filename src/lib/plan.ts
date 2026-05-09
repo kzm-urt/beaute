@@ -38,6 +38,7 @@ export const PLAN_FEATURE_MATRIX = [
   { label: "楽天商品詳細", free: "検索12件/ランキングTOP10", pro: "全商品" },
   { label: "パーソナル表示", free: "基本おすすめ", pro: "肌質・悩みを反映" },
   { label: "購入リンク", free: "無料対象のみ", pro: "全商品の楽天リンク" },
+  { label: "カルテ相談", free: "PRO限定", pro: "カルテを見ながら質問OK" },
 ] as const;
 
 export function getPlanType(isPro: boolean): PlanType {
