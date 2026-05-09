@@ -6,10 +6,10 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://beaute-xi.vercel.app"
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
-    default: "beautia | あなただけの美容提案",
+    default: "beautia | パーソナル美容サーチ",
     template: "%s | beautia",
   },
-  description: "肌・髪・悩みに合わせたAI美容提案。成分解析、楽天商品検索、ランキング、保存リスト、使用ログまで。",
+  description: "肌・髪・悩みを見ながら美容アイテムを探せるパーソナル美容サーチ。成分解析、楽天商品検索、ランキング、保存リスト、使用ログまで。",
   manifest: "/manifest.json",
   applicationName: "beautia",
   keywords: ["美容", "コスメ", "スキンケア", "ヘアケア", "成分解析", "楽天", "ランキング", "AI"],
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     title: "beautia",
   },
   openGraph: {
-    title: "beautia | あなただけの美容提案",
-    description: "AIが肌・髪・悩みに合った美容アイテムを提案。成分解析、楽天商品検索、ランキング、使用ログまで。",
+    title: "beautia | パーソナル美容サーチ",
+    description: "肌・髪・悩みを見ながら美容アイテムを探せます。成分解析、楽天商品検索、ランキング、使用ログまで。",
     url: appUrl,
     siteName: "beautia",
     locale: "ja_JP",
@@ -36,8 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "beautia | あなただけの美容提案",
-    description: "肌・髪・悩みに合わせたAI美容提案。",
+    title: "beautia | パーソナル美容サーチ",
+    description: "肌・髪・悩みを見ながら美容アイテムを探せます。",
   },
   robots: {
     index: true,

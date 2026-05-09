@@ -17,6 +17,14 @@ create table if not exists profiles (
     desired_ingredients text[],
     beauty_habits     text[],
     beauty_goals      text[],
+    skin_concerns     text[],
+    hair_concerns     text[],
+    other_concerns    text[],
+    avoid_ingredients text[],
+    allergies         text[],
+    skin_notes        text[],
+    hair_notes        text[],
+    other_notes       text[],
     is_pro            boolean default false,
   stripe_customer_id text,
   stripe_subscription_id text,
@@ -38,6 +46,14 @@ alter table profiles add column if not exists current_state text[];
 alter table profiles add column if not exists desired_ingredients text[];
 alter table profiles add column if not exists beauty_habits text[];
 alter table profiles add column if not exists beauty_goals text[];
+alter table profiles add column if not exists skin_concerns text[];
+alter table profiles add column if not exists hair_concerns text[];
+alter table profiles add column if not exists other_concerns text[];
+alter table profiles add column if not exists avoid_ingredients text[];
+alter table profiles add column if not exists allergies text[];
+alter table profiles add column if not exists skin_notes text[];
+alter table profiles add column if not exists hair_notes text[];
+alter table profiles add column if not exists other_notes text[];
 alter table profiles add column if not exists is_pro boolean default false;
 alter table profiles add column if not exists stripe_customer_id text;
 alter table profiles add column if not exists stripe_subscription_status text;

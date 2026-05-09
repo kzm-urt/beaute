@@ -9,6 +9,7 @@ export const PLAN_RULES = {
     savedAnalysisLimit: 3,
     favoriteLimit: 10,
     compareLimit: 3,
+    personalChatDailyLimit: 3,
     searchDetailLimitPerPage: 12,
     rankingDetailLimit: 10,
     trialDays: 0,
@@ -22,6 +23,7 @@ export const PLAN_RULES = {
     savedAnalysisLimit: 50,
     favoriteLimit: null,
     compareLimit: 10,
+    personalChatDailyLimit: 20,
     searchDetailLimitPerPage: null,
     rankingDetailLimit: null,
     trialDays: 7,
@@ -36,9 +38,9 @@ export const PLAN_FEATURE_MATRIX = [
   { label: "お気に入り", free: "10件まで", pro: "無制限" },
   { label: "比較リスト", free: "3件まで", pro: "10件まで" },
   { label: "楽天商品詳細", free: "検索12件/ランキングTOP10", pro: "全商品" },
-  { label: "パーソナル表示", free: "基本おすすめ", pro: "肌質・悩みを反映" },
+  { label: "パーソナル", free: "基本メモと相談3回/日", pro: "深い相談20回/日" },
   { label: "購入リンク", free: "無料対象のみ", pro: "全商品の楽天リンク" },
-  { label: "カルテ相談", free: "PRO限定", pro: "カルテを見ながら質問OK" },
+  { label: "パーソナル相談", free: "1日3回", pro: "1日20回" },
 ] as const;
 
 export function getPlanType(isPro: boolean): PlanType {

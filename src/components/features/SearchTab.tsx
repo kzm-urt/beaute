@@ -308,12 +308,12 @@ export default function SearchTab({ isPro, isGuest = false, preferences, onUpgra
               }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 10, letterSpacing: "0.18em", color: isPro ? "#D4A853" : "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 3 }}>
-                    {isPro ? (preferences?.confidence ? "記録から並び替え" : "カルテから並び替え") : "PROで詳しく"}
+                    {isPro ? (preferences?.confidence ? "記録から並び替え" : "パーソナルから並び替え") : "PROで詳しく"}
                   </div>
                   <p style={{ fontSize: 12, lineHeight: 1.6, color: isPro ? "rgba(251,248,243,.78)" : "#6B5B4A", margin: 0 }}>
                     {isPro
                       ? `${profileSignals.slice(0, 3).join("・")}を優先中。`
-                      : `${profileSignals.slice(0, 3).join("・")}を反映した並び替えはPRO。`}
+                      : `${profileSignals.slice(0, 3).join("・")}まで見た並び替えはPRO。`}
                   </p>
                 </div>
                 {!isPro && (

@@ -14,7 +14,7 @@ const FEATURE_OPTIONS = [
   "商品検索",
   "楽天ランキング",
   "商品詳細",
-  "カルテ",
+  "パーソナル",
   "成分分析",
   "保存・比較",
   "YouTube/動画導線",
@@ -23,7 +23,7 @@ const FEATURE_OPTIONS = [
 
 const CONFUSING_OPTIONS = [
   "最初に何をすればいいか",
-  "カルテの意味",
+  "パーソナルの意味",
   "FREE/PROの違い",
   "商品詳細の見方",
   "保存・比較の使い方",
@@ -144,7 +144,7 @@ export default function FeedbackPage() {
 
   const shareCopy = useMemo(
     () =>
-      "beautiaのテスト版を触って、1分くらいの感想アンケートに答えてもらえると嬉しいです。美容アイテム検索とランキング、カルテ、PRO導線まわりを見てほしいです。",
+      "beautiaのテスト版を触って、1分くらいの感想アンケートに答えてもらえると嬉しいです。美容アイテム検索とランキング、パーソナル、PRO導線まわりを見てほしいです。",
     []
   );
 
@@ -184,7 +184,7 @@ export default function FeedbackPage() {
           <div className="feedback-kicker">THANK YOU</div>
           <h1>回答ありがとうございます。</h1>
           <p>
-            もらった感想をもとに、使い方・カルテ・有料にする理由・スマホの触り心地を詰めていきます。
+            もらった感想をもとに、使い方・パーソナル・有料にする理由・スマホの触り心地を詰めていきます。
           </p>
           <div className="feedback-actions">
             <a href="/">beautiaに戻る</a>

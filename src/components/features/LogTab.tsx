@@ -136,14 +136,14 @@ export default function LogTab({ userId, isPro, onUpgrade }: Props) {
           <span>記録ポイント</span>
           <strong>{loading ? "…" : totalGrowthXp.toLocaleString()}</strong>
         </div>
-        <p>ログを書くほど、カルテの判断に反映されます。</p>
+        <p>ログを書くほど、パーソナル相談であとから比べやすくなります。</p>
       </div>
 
       {growthToast && (
         <div className="beauty-growth-toast motion-fade-scale">
-          <span>ログを反映</span>
+          <span>ログを保存</span>
           <strong>+{growthToast.xp} pt</strong>
-          <p>{growthToast.label}の使用感を美容ログに反映しました。</p>
+          <p>{growthToast.label}の使用感を美容ログに残しました。</p>
         </div>
       )}
 

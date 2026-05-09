@@ -40,7 +40,7 @@ const NAV: { key: Tab; icon: Parameters<typeof Icon>[0]["name"]; jp: string; en:
   { key: "search",  icon: "search",  jp: "検索",     en: "Search"  },
   { key: "ranking", icon: "ranking", jp: "ランキング", en: "Ranking" },
   { key: "analyze", icon: "sparkle", jp: "成分解析", en: "Analyze" },
-  { key: "karte",   icon: "karte",   jp: "カルテ",   en: "Karte"   },
+  { key: "karte",   icon: "karte",   jp: "パーソナル",   en: "Personal"   },
   { key: "saved",   icon: "bookmark", jp: "保存",     en: "Saved"   },
   { key: "log",     icon: "note",    jp: "ログ",     en: "Journal" },
   { key: "premium", icon: "crown",   jp: "プラン",   en: "Pro"     },
@@ -124,7 +124,7 @@ function WelcomeBackLoading({ displayName }: { displayName?: string }) {
               WELCOME BACK
             </div>
             <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "#3A281C" }}>
-              {displayName}さんの美容カルテを準備しています
+              {displayName}さんのパーソナルを準備しています
             </p>
           </>
         ) : (
@@ -371,7 +371,7 @@ export default function BeauteApp() {
           {tab === "search"  && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
           {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}
           {tab === "analyze" && (isGuest ? <GuestGate title={"\u6210\u5206\u89e3\u6790\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6210\u5206\u306e\u8981\u70b9\u3068\u6ce8\u610f\u70b9\u3092\u6b8b\u305b\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
-          {tab === "karte"   && (isGuest ? <GuestGate title={"\u30ab\u30eb\u30c6\u306f\u3042\u306a\u305f\u5c02\u7528"} body={"\u808c\u30fb\u9aea\u30fb\u4fdd\u5b58\u30fb\u30ed\u30b0\u3092\u3072\u3068\u3064\u306b\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} displayName={displayName} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}
+          {tab === "karte"   && (isGuest ? <GuestGate title={"パーソナルはあなた専用"} body={"肌・髪・注意メモを分けて残せます。無料登録すると相談も1日3回使えます。"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} displayName={displayName} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}
           {tab === "saved"   && (isGuest ? <GuestGate title={"\u4fdd\u5b58\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6c17\u306b\u306a\u308b\u5546\u54c1\u3092\u6bd4\u8f03\u3067\u304d\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <SavedTab isPro={effectiveIsPro} onUpgrade={upgrade} onOpenProduct={setDrawer}/>)}
           {tab === "log"     && (isGuest ? <GuestGate title={"\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u4f7f\u3063\u305f\u611f\u60f3\u304c\u6b21\u306e\u63d0\u6848\u3092\u80b2\u3066\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <LogTab userId={user.id} isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
           {tab === "premium" && <PremiumTab isPro={effectiveIsPro} onUpgrade={() => isGuest ? setShowAuth(true) : setIsPro(true)} user={user}/>}

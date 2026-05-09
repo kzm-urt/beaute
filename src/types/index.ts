@@ -50,6 +50,14 @@ export interface UserProfile {
   desiredIngredients: string[];
   habits: string[];
   goals: string[];
+  skinConcerns?: string[];
+  hairConcerns?: string[];
+  otherConcerns?: string[];
+  avoidIngredients?: string[];
+  allergies?: string[];
+  skinNotes?: string[];
+  hairNotes?: string[];
+  otherNotes?: string[];
 }
 
 export interface LogEntry {

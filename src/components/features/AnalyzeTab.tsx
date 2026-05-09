@@ -79,7 +79,7 @@ export default function AnalyzeTab({ isPro, onUpgrade }: Props) {
         }).catch(() => undefined);
       }
 
-      // DB保存に失敗した場合でもカルテで見返せるようにローカルにも控える
+      // DB保存に失敗した場合でもパーソナルで見返せるようにローカルにも控える
       const savedLimit = isPro ? PLAN_RULES.pro.savedAnalysisLimit : PLAN_RULES.free.savedAnalysisLimit;
       const saved = JSON.parse(localStorage.getItem("beaute_analyses") ?? "[]");
       saved.unshift({ id: Date.now().toString(), date: new Date().toISOString(), result: data });

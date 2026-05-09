@@ -512,7 +512,7 @@ function buildInsights({
     insights.push({
       tone: "good",
       title: "反応商品の露出を増やす",
-      body: `${winner.name} に反応があります。検索上部、ランキング、カルテ推薦に寄せると次のクリックを取りやすいです。`,
+      body: `${winner.name} に反応があります。検索上部、ランキング、パーソナル推薦に寄せると次のクリックを取りやすいです。`,
       metric: `${winner.purchases}購入 / ${winner.lockedClicks}ロック`,
     });
   }

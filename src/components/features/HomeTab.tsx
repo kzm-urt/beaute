@@ -201,7 +201,7 @@ const HERO_MESSAGES: HeroMessage[] = [
   { id: "guest-first", tags: ["guest"], kicker: "まずはお試し", line1: "まずは、", accent: "気軽に見る。", body: "はじめまして。今日は気になる悩みをひとつだけ選んで、合いそうなものを見てみましょう。" },
   { id: "guest-reason", tags: ["guest", "productReady"], kicker: "お試し中", line1: "買う前に、", accent: "少し確認。", body: "気になる商品、まずは見るだけで大丈夫です。保存やメモは無料登録から使えます。" },
   { id: "free-narrow", tags: ["free"], kicker: "無料でOK", line1: "少しずつ、", accent: "絞っていく。", body: "無料のままでも大丈夫です。保存とメモを少し使うだけで、あとで比べやすくなります。" },
-  { id: "pro-deep", tags: ["pro"], kicker: "PROカルテ", line1: "記録があると、", accent: "選びやすい。", body: "ログと保存があるので、今日は相性と注意点まで見ておきましょう。" },
+  { id: "pro-deep", tags: ["pro"], kicker: "PROパーソナル", line1: "記録があると、", accent: "選びやすい。", body: "ログと保存があるので、今日は相性と注意点まで見ておきましょう。" },
   { id: "high-score", tags: ["highScore"], kicker: "調子よし", line1: "いい流れは、", accent: "崩さない。", body: "今はわりと整っています。今日は大きく変えず、続けやすさで見ましょう。" },
   { id: "low-score", tags: ["lowScore"], kicker: "立て直し", line1: "全部じゃなくて、", accent: "ひとつだけ。", body: "今日は全部変えなくて大丈夫です。まずは一番気になるところだけ見ましょう。" },
   { id: "delta-up", tags: ["deltaUp"], kicker: "変化あり", line1: "よかった流れ、", accent: "残しておく。", body: "少し上向きです。よかった動きを残しておくと、次も真似しやすくなります。" },
@@ -468,7 +468,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
 
         <div className="home-hero-content motion-reveal-slow" style={{ position: "absolute", bottom: 34, left: 32, right: 32, maxWidth: 560 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.2em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 14 }}>
-            {heroMessage.kicker} · {isPro && preferences?.confidence ? "記録も見ました" : "カルテを見ながら"}
+            {heroMessage.kicker} · {isPro && preferences?.confidence ? "記録も見ました" : "パーソナルを見ながら"}
           </div>
           <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: "clamp(30px,4vw,46px)", lineHeight: 1.04, margin: 0, fontWeight: 400, color: "#FBF8F3", letterSpacing: "0.02em" }}>
             {heroMessage.line1}<br/>
@@ -637,7 +637,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
       <ProductRail
         number="02"
         title={`今週の ${profile.skinType || "あなた"} 向け候補`}
-        eyebrow={aiPicks.length > 0 ? (isPro && preferences?.confidence ? "ログから更新" : "カルテから候補") : "編集部の候補"}
+        eyebrow={aiPicks.length > 0 ? (isPro && preferences?.confidence ? "ログから更新" : "パーソナルから候補") : "編集部の候補"}
         products={recommendationProducts}
         onOpen={onOpenProduct}
         isPro={isPro}
@@ -768,9 +768,9 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
   const steps = [
     {
       no: "01",
-      title: "カルテを整える",
+      title: "パーソナルを整える",
       body: "肌・髪・予算を登録。",
-      action: "カルテを見る",
+      action: "パーソナルを見る",
       onClick: onGoKarte,
       badge: "最初にやる",
     },

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createAdminClient } from "@/lib/supabase";
-import { resolveIsPro } from "@/lib/plan";
+import { PLAN_RULES, resolveIsPro } from "@/lib/plan";
 import { logApiUsage } from "@/lib/apiUsage";
 import { estimateAnthropicCost } from "@/lib/businessMetrics";
 import type { AnalyzeResult, Product } from "@/types";
@@ -30,6 +30,14 @@ interface ProfileRow {
   desired_ingredients?: string[] | null;
   beauty_habits?: string[] | null;
   beauty_goals?: string[] | null;
+  skin_concerns?: string[] | null;
+  hair_concerns?: string[] | null;
+  other_concerns?: string[] | null;
+  avoid_ingredients?: string[] | null;
+  allergies?: string[] | null;
+  skin_notes?: string[] | null;
+  hair_notes?: string[] | null;
+  other_notes?: string[] | null;
   is_pro?: boolean | null;
 }
 
@@ -84,6 +92,17 @@ function normalizeHistory(value: unknown): ChatHistoryItem[] {
     .slice(-8);
 }
 
+function getJstDayStartIso() {
+  const jstOffsetMs = 9 * 60 * 60 * 1000;
+  const jstNow = new Date(Date.now() + jstOffsetMs);
+  const jstDayStartUtc = Date.UTC(
+    jstNow.getUTCFullYear(),
+    jstNow.getUTCMonth(),
+    jstNow.getUTCDate()
+  ) - jstOffsetMs;
+  return new Date(jstDayStartUtc).toISOString();
+}
+
 function buildKarteContext({
   userEmail,
   profile,
@@ -125,6 +144,14 @@ function buildKarteContext({
       desiredIngredients: compactList(profile?.desired_ingredients),
       habits: compactList(profile?.beauty_habits),
       goals: compactList(profile?.beauty_goals),
+      skinConcerns: compactList(profile?.skin_concerns),
+      hairConcerns: compactList(profile?.hair_concerns),
+      otherConcerns: compactList(profile?.other_concerns),
+      avoidIngredients: compactList(profile?.avoid_ingredients),
+      allergies: compactList(profile?.allergies),
+      skinNotes: compactList(profile?.skin_notes),
+      hairNotes: compactList(profile?.hair_notes),
+      otherNotes: compactList(profile?.other_notes),
     },
     recentLogs: logs.slice(0, 8).map((log) => ({
       productName: log.product_name,
@@ -148,9 +175,9 @@ function buildKarteContext({
 
 function buildPrompt(context: ReturnType<typeof buildKarteContext>, history: ChatHistoryItem[], question: string) {
   return [
-    "以下はユーザーのbeautiaカルテです。カルテを見ながら、今の相談に答えてください。",
+    "以下はユーザーのbeautiaパーソナルです。肌・髪・その他・注意メモを見ながら、今の相談に答えてください。",
     "",
-    "カルテ:",
+    "パーソナル:",
     JSON.stringify(context, null, 2),
     "",
     history.length > 0
@@ -182,18 +209,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "認証に失敗しました。" }, { status: 401 });
     }
 
-    const { data: profileData } = await supabase
+    let profile: ProfileRow | null = null;
+    const { data: profileData, error: profileError } = await supabase
       .from("profiles")
-      .select("nickname, age, gender, skin_type, hair_type, concerns, current_products, current_state, desired_ingredients, beauty_habits, beauty_goals, is_pro")
+      .select("nickname, age, gender, skin_type, hair_type, concerns, current_products, current_state, desired_ingredients, beauty_habits, beauty_goals, skin_concerns, hair_concerns, other_concerns, avoid_ingredients, allergies, skin_notes, hair_notes, other_notes, is_pro")
       .eq("id", user.id)
       .maybeSingle();
-    const profile = (profileData ?? null) as ProfileRow | null;
+    profile = (profileData ?? null) as ProfileRow | null;
+    if (profileError || !profile) {
+      const { data: fallbackProfileData } = await supabase
+        .from("profiles")
+        .select("nickname, age, gender, skin_type, hair_type, concerns, current_products, current_state, desired_ingredients, beauty_habits, beauty_goals, is_pro")
+        .eq("id", user.id)
+        .maybeSingle();
+      profile = (fallbackProfileData ?? null) as ProfileRow | null;
+    }
     const isPro = resolveIsPro(profile?.is_pro, user.email);
+    const dailyLimit = isPro ? PLAN_RULES.pro.personalChatDailyLimit : PLAN_RULES.free.personalChatDailyLimit;
 
-    if (!isPro) {
+    const { count: usedToday, error: usageError } = await supabase
+      .from("api_usage_events")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("operation", "personal_chat")
+      .gte("created_at", getJstDayStartIso());
+
+    if (!usageError && (usedToday ?? 0) >= dailyLimit) {
       return NextResponse.json(
-        { error: "カルテ相談はPRO限定です。", proRequired: true },
-        { status: 403 }
+        {
+          error: isPro
+            ? "今日は20回使いました。また明日聞きましょう。"
+            : "無料の相談は今日は3回までです。続きはPROで聞けます。",
+          dailyLimit,
+          remaining: 0,
+          isPro,
+          upgradeRecommended: !isPro,
+        },
+        { status: 429 }
       );
     }
 
@@ -231,10 +283,11 @@ export async function POST(req: NextRequest) {
       max_tokens: 850,
       temperature: 0.75,
       system: [
-        "あなたはbeautiaのPRO限定機能「カルテ相談室」です。",
+        "あなたはbeautiaのパーソナルアドバイザーです。",
         "美容好きの相棒として、少しくだけた丁寧語で話してください。",
         "回答は短めに。長くても4段落まで。必要な時だけ箇条書きにしてください。",
-        "カルテ・保存商品・ログ・成分解析履歴に基づいて、今日の選び方、使い方、比較の見方を一緒に整理してください。",
+        "パーソナル、保存商品、ログ、成分解析履歴に基づいて、今日の選び方、使い方、比較の見方を一緒に整理してください。",
+        isPro ? "ユーザーはPROです。少し深めに、でも長すぎず答えてください。" : "ユーザーは無料プランです。短く役立つ範囲で答え、必要なときだけPROならさらに深く見られると自然に伝えてください。",
         "医療診断、治療、疾患の断定はしないでください。強い赤み、痛み、腫れ、長引く肌荒れがある場合は皮膚科相談をすすめてください。",
         "避ける表現: 最適化、反映、提案、判断軸、今日の一手、AI。",
         "使ってよい表現: 今日はこれでよさそう、まずこれだけでOK、ちょっと乾きそう、あとで比べやすくなります。",
@@ -259,7 +312,7 @@ export async function POST(req: NextRequest) {
       userId: user.id,
       provider: "anthropic",
       endpoint: "/api/karte-chat",
-      operation: "karte_chat",
+      operation: "personal_chat",
       model: KARTE_CHAT_MODEL,
       inputTokens,
       outputTokens,
@@ -276,9 +329,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ reply });
+    const remaining = Math.max(0, dailyLimit - (usedToday ?? 0) - 1);
+    return NextResponse.json({ reply, dailyLimit, remaining, isPro });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "カルテ相談の返事を作れませんでした。" }, { status: 500 });
+    return NextResponse.json({ error: "パーソナル相談の返事を作れませんでした。" }, { status: 500 });
   }
 }

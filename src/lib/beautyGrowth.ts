@@ -115,11 +115,11 @@ export function getBeautyGrowth({
   const levelName = LEVEL_NAMES[Math.min(LEVEL_NAMES.length - 1, Math.floor((level - 1) / 2))];
 
   const reasons = [
-    profile?.currentState?.[0] ? `今の状態「${profile.currentState[0]}」を反映` : "",
-    logCount > 0 ? `ログ${logCount}件を反映` : "",
-    analysisCount > 0 ? `成分解析${analysisCount}件を反映` : "",
+    profile?.currentState?.[0] ? `今の状態「${profile.currentState[0]}」を見ています` : "",
+    logCount > 0 ? `ログ${logCount}件を見ています` : "",
+    analysisCount > 0 ? `成分解析${analysisCount}件があります` : "",
     savedCount > 0 ? `保存${savedCount}件から好みを確認` : "",
-    confidence > 0 ? `記録の反映度${confidence}` : "",
+    confidence > 0 ? `記録メモ${confidence}` : "",
     topProduct ? `${topProduct.cat}候補として比較できます` : "",
   ].filter(Boolean);
 
@@ -150,7 +150,7 @@ export function getBeautyGrowth({
       : score >= 72
         ? "使ったものと状態がつながり始めています。"
         : score >= 58
-          ? "カルテの材料が少しずつ揃っています。"
+          ? "パーソナルの材料が少しずつ揃っています。"
           : "まずは状態・分析・ログのどれか1つから。";
 
   return {

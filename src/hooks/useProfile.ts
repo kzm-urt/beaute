@@ -17,6 +17,14 @@ const DEFAULT: UserProfile = {
   desiredIngredients: [],
   habits: [],
   goals: [],
+  skinConcerns: [],
+  hairConcerns: [],
+  otherConcerns: [],
+  avoidIngredients: [],
+  allergies: [],
+  skinNotes: [],
+  hairNotes: [],
+  otherNotes: [],
 };
 
 const BASE_PROFILE_SELECT = "age, skin_type, hair_type, concerns, is_pro";
@@ -34,6 +42,17 @@ const COMPAT_PROFILE_SELECT = [
   "is_pro",
 ].join(",");
 const FULL_PROFILE_SELECT = `nickname,${COMPAT_PROFILE_SELECT}`;
+const ENHANCED_PROFILE_SELECT = [
+  FULL_PROFILE_SELECT,
+  "skin_concerns",
+  "hair_concerns",
+  "other_concerns",
+  "avoid_ingredients",
+  "allergies",
+  "skin_notes",
+  "hair_notes",
+  "other_notes",
+].join(",");
 
 type ProfileRow = {
   nickname?: string | null;
@@ -47,6 +66,14 @@ type ProfileRow = {
   desired_ingredients?: string[] | null;
   beauty_habits?: string[] | null;
   beauty_goals?: string[] | null;
+  skin_concerns?: string[] | null;
+  hair_concerns?: string[] | null;
+  other_concerns?: string[] | null;
+  avoid_ingredients?: string[] | null;
+  allergies?: string[] | null;
+  skin_notes?: string[] | null;
+  hair_notes?: string[] | null;
+  other_notes?: string[] | null;
   is_pro?: boolean | null;
 };
 
@@ -63,6 +90,14 @@ function fromRow(data: ProfileRow): UserProfile {
     desiredIngredients: data.desired_ingredients ?? [],
     habits: data.beauty_habits ?? [],
     goals: data.beauty_goals ?? [],
+    skinConcerns: data.skin_concerns ?? [],
+    hairConcerns: data.hair_concerns ?? [],
+    otherConcerns: data.other_concerns ?? [],
+    avoidIngredients: data.avoid_ingredients ?? [],
+    allergies: data.allergies ?? [],
+    skinNotes: data.skin_notes ?? [],
+    hairNotes: data.hair_notes ?? [],
+    otherNotes: data.other_notes ?? [],
   };
 }
 
@@ -96,12 +131,21 @@ export function useProfile(user: User | null) {
       let nextIsPro = resolveIsPro(false, userEmail);
 
       try {
-        const fullResult = await supabase
+        const enhancedResult = await supabase
+          .from("profiles")
+          .select(ENHANCED_PROFILE_SELECT)
+          .eq("id", userId)
+          .single();
+        profileData = enhancedResult.data as ProfileRow | null;
+
+        if (!profileData) {
+          const fullResult = await supabase
           .from("profiles")
           .select(FULL_PROFILE_SELECT)
           .eq("id", userId)
           .single();
-        profileData = fullResult.data as ProfileRow | null;
+          profileData = fullResult.data as ProfileRow | null;
+        }
 
         if (!profileData) {
           const compat = await supabase
@@ -162,13 +206,25 @@ export function useProfile(user: User | null) {
       beauty_habits: next.habits,
       beauty_goals: next.goals,
     };
-    const { error } = await supabase.from("profiles").upsert({
+    const enhancedPayload = {
       ...richPayload,
       nickname: next.nickname,
-    });
+      skin_concerns: next.skinConcerns ?? [],
+      hair_concerns: next.hairConcerns ?? [],
+      other_concerns: next.otherConcerns ?? [],
+      avoid_ingredients: next.avoidIngredients ?? [],
+      allergies: next.allergies ?? [],
+      skin_notes: next.skinNotes ?? [],
+      hair_notes: next.hairNotes ?? [],
+      other_notes: next.otherNotes ?? [],
+    };
+    const { error } = await supabase.from("profiles").upsert(enhancedPayload);
 
     if (error) {
-      const compat = await supabase.from("profiles").upsert(richPayload);
+      const compat = await supabase.from("profiles").upsert({
+        ...richPayload,
+        nickname: next.nickname,
+      });
       if (compat.error) {
         await supabase.from("profiles").upsert(basePayload);
       }
@@ -188,12 +244,20 @@ export function useProfile(user: User | null) {
   const refreshProfile = async () => {
     if (!user) return;
     let profileData: ProfileRow | null = null;
-    const fullResult = await supabase
+    const enhancedResult = await supabase
+      .from("profiles")
+      .select(ENHANCED_PROFILE_SELECT)
+      .eq("id", user.id)
+      .single();
+    profileData = enhancedResult.data as ProfileRow | null;
+    if (!profileData) {
+      const fullResult = await supabase
       .from("profiles")
       .select(FULL_PROFILE_SELECT)
       .eq("id", user.id)
       .single();
-    profileData = fullResult.data as ProfileRow | null;
+      profileData = fullResult.data as ProfileRow | null;
+    }
     if (!profileData) {
       const compat = await supabase
         .from("profiles")

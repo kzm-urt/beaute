@@ -62,6 +62,14 @@ function getProfileSignals(profile: UserProfile) {
     ...profile.desiredIngredients,
     ...profile.habits,
     ...profile.goals,
+    ...(profile.skinConcerns ?? []),
+    ...(profile.hairConcerns ?? []),
+    ...(profile.otherConcerns ?? []),
+    ...(profile.avoidIngredients ?? []),
+    ...(profile.allergies ?? []),
+    ...(profile.skinNotes ?? []),
+    ...(profile.hairNotes ?? []),
+    ...(profile.otherNotes ?? []),
   ].filter(Boolean);
 }
 
@@ -72,6 +80,8 @@ function getVideoQuery(profile: UserProfile) {
     ...profile.concerns.slice(0, 2),
     ...profile.currentState.slice(0, 2),
     ...profile.desiredIngredients.slice(0, 2),
+    ...(profile.skinConcerns ?? []).slice(0, 2),
+    ...(profile.hairConcerns ?? []).slice(0, 2),
     profile.currentProducts[0],
   ].filter(Boolean);
   return queryParts.length > 0 ? queryParts.join(" ") : "美容 スキンケア コスメ";
@@ -192,7 +202,7 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
   ];
   const nextActions = [
     {
-      label: profile.currentProducts.length === 0 ? "使用中アイテムを登録" : signalCount < 14 ? "カルテを細かくする" : "カルテを見直す",
+      label: profile.currentProducts.length === 0 ? "使用中アイテムを登録" : signalCount < 14 ? "パーソナルを細かくする" : "パーソナルを見直す",
       body: profile.currentProducts.length === 0 ? "買い替えの目安に。" : signalCount < 14 ? "選びやすく。" : "季節に合わせて見直し。",
       action: "編集",
       onClick: onEditProfile,
@@ -220,6 +230,28 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
       tone: "log",
     },
   ];
+  const personalSections = [
+    {
+      label: "肌",
+      body: listText([profile.skinType, ...(profile.skinConcerns ?? []), ...profile.currentState, ...(profile.skinNotes ?? [])].filter(Boolean), "肌メモなし"),
+      caption: "肌タイプ・状態・メモ",
+    },
+    {
+      label: "髪",
+      body: listText([profile.hairType, ...(profile.hairConcerns ?? []), ...(profile.hairNotes ?? [])].filter(Boolean), "髪メモなし"),
+      caption: "髪質・頭皮・ダメージ",
+    },
+    {
+      label: "その他",
+      body: listText([...(profile.otherConcerns ?? []), ...profile.desiredIngredients, ...profile.habits, ...profile.goals, ...(profile.otherNotes ?? [])].filter(Boolean), "その他メモなし"),
+      caption: "成分・習慣・目的",
+    },
+    {
+      label: "注意",
+      body: listText([...(profile.avoidIngredients ?? []), ...(profile.allergies ?? [])].filter(Boolean), "注意メモなし"),
+      caption: "避けたいもの・アレルギー",
+    },
+  ];
 
   return (
     <div className="mobile-tight motion-fade-scale" style={{ padding: "28px 24px 64px", maxWidth: 1120, margin: "0 auto" }}>
@@ -227,15 +259,15 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
       {/* ── ヘッダー ── */}
       <div style={{ marginBottom: 26, display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(260px,360px)", gap: 18, alignItems: "end" }} className="grid-cols-1-mobile motion-reveal">
         <div>
-          <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ わたしのカルテ</div>
+          <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>━━ わたしのパーソナル</div>
           <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 36, fontWeight: 400, color: "#150B00", margin: 0 }}>
-            {displayName}さんの美容カルテ
+            {displayName}さんのパーソナル
           </h1>
           <p style={{ fontSize: 13, color: "#8A7A6E", marginTop: 6, lineHeight: 1.8 }}>迷ったら、今日の分だけ見ましょう。</p>
         </div>
         <div className="soft-card motion-card motion-status-pulse" style={{ padding: "14px 16px", display: "grid", gap: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
-            <span className="micro-label">カルテの情報</span>
+            <span className="micro-label">パーソナルの情報</span>
             <strong style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 28, color: "#A8722A", lineHeight: 1 }}>{precisionScore}</strong>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
@@ -267,7 +299,7 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
         <div>
           <div className="micro-label">{"今日見るところ"}</div>
           <h2>{displayName}さん、今日はここから見ましょう</h2>
-          <p>{topProductInsight && topProduct ? `${topProduct.brand}、気になるなら先に注意点だけ見ておきましょう。` : "カルテを少し書くと、今日見るところがはっきりします。"}</p>
+          <p>{topProductInsight && topProduct ? `${topProduct.brand}、気になるなら先に注意点だけ見ておきましょう。` : "パーソナルを少し書くと、今日見るところがはっきりします。"}</p>
           <div className="karte-buddy-note">
             <span aria-hidden="true">b</span>
             <p>{karteBuddyText}</p>
@@ -284,12 +316,33 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
         </div>
       </section>
 
+      <section className="motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: 18, marginBottom: 24, boxShadow: "0 8px 30px rgba(21,11,0,.05)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 5 }}>整理したメモ</div>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 24, fontWeight: 400, margin: 0, color: "#150B00" }}>肌・髪・その他・注意で分けています。</h2>
+          </div>
+          <button onClick={onEditProfile} className="motion-nav-button" style={{ border: "1px solid #EDE5DC", borderRadius: 999, background: "#FBF8F3", color: "#A8722A", padding: "8px 12px", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
+            追加する
+          </button>
+        </div>
+        <div className="grid-cols-1-mobile motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10 }}>
+          {personalSections.map((item) => (
+            <div key={item.label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 14, padding: 13, background: item.label === "注意" ? "#FFF9EC" : "#FBF8F3", minHeight: 124 }}>
+              <div style={{ fontSize: 10, letterSpacing: ".16em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 8 }}>{item.label}</div>
+              <div style={{ fontSize: 13, fontWeight: 900, color: "#150B00", lineHeight: 1.5 }}>{item.body}</div>
+              <div style={{ fontSize: 10, color: "#8A7A6E", lineHeight: 1.5, marginTop: 7 }}>{item.caption}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <KarteChatPanel isPro={isPro} displayName={displayName} onUpgrade={onUpgrade} />
 
       <section className="lift-card motion-card motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.86fr) minmax(0,1.14fr)", gap: 0 }} className="grid-cols-1-mobile">
           <div style={{ padding: "22px 22px 20px", background: "linear-gradient(145deg,#1A0E08,#3A1D0D)", color: "#FBF8F3" }}>
-            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>カルテの中身</div>
+            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>パーソナルの中身</div>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14 }}>
               <div style={{ width: 86, height: 86, borderRadius: "50%", border: "1px solid rgba(212,168,83,.38)", display: "grid", placeItems: "center", background: "rgba(212,168,83,.08)" }}>
                 <div style={{ textAlign: "center" }}>
@@ -397,7 +450,7 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
           <div>
             <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 5 }}>今の条件</div>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 24, fontWeight: 400, margin: 0, color: "#150B00" }}>今の状態から、次の一手へ。</h2>
+            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 24, fontWeight: 400, margin: 0, color: "#150B00" }}>今の状態から、次に見るところへ。</h2>
           </div>
           <button onClick={onEditProfile} className="motion-nav-button" style={{ border: "1px solid #EDE5DC", borderRadius: 999, background: "#FBF8F3", color: "#A8722A", padding: "8px 12px", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
             追加する
@@ -664,21 +717,27 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
 }
 
 function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; displayName: string; onUpgrade: () => void }) {
+  const dailyLimit = isPro ? PLAN_RULES.pro.personalChatDailyLimit : PLAN_RULES.free.personalChatDailyLimit;
   const [messages, setMessages] = useState<KarteChatMessage[]>([
     {
       role: "assistant",
-      content: `${displayName}さん、カルテを見ながら相談できます。商品選び、朝夜の順番、刺激が心配なところなど、気になることをそのまま聞いてください。`,
+      content: `${displayName}さん、パーソナルを見ながら相談できます。商品選び、朝夜の順番、刺激が心配なところなど、気になることをそのまま聞いてください。`,
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [remaining, setRemaining] = useState(dailyLimit);
+
+  useEffect(() => {
+    setRemaining(dailyLimit);
+  }, [dailyLimit]);
 
   const askKarte = async (rawQuestion?: string) => {
     const question = (rawQuestion ?? input).trim();
     if (!question || loading) return;
-    if (!isPro) {
-      onUpgrade();
+    if (remaining <= 0) {
+      setError(isPro ? "今日は20回使いました。また明日聞きましょう。" : "無料の相談は今日は3回までです。続きはPROで聞けます。");
       return;
     }
 
@@ -705,9 +764,10 @@ function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; dis
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.proRequired) onUpgrade();
+        if (typeof data.remaining === "number") setRemaining(data.remaining);
         throw new Error(data.error || "うまく返事を作れませんでした。");
       }
+      if (typeof data.remaining === "number") setRemaining(data.remaining);
       setMessages((current) => [...current, { role: "assistant", content: data.reply }]);
     } catch (err) {
       const message = err instanceof Error ? err.message : "うまく返事を作れませんでした。";
@@ -719,35 +779,34 @@ function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; dis
   };
 
   return (
-    <section className={`karte-chat-panel motion-reveal ${isPro ? "is-live" : "is-locked"}`}>
+    <section className="karte-chat-panel motion-reveal is-live">
       <div className="karte-chat-head">
         <div>
-          <div className="micro-label">PRO相談室</div>
-          <h2>カルテを見ながら、ちょっと相談。</h2>
+          <div className="micro-label">{isPro ? "PROアドバイザー" : "無料相談"}</div>
+          <h2>パーソナルを見ながら、ちょっと相談。</h2>
           <p>
-            保存・ログ・成分メモを見ながら、今日どうするかを一緒に整理します。
+            {isPro ? "保存・ログ・成分メモまで見ながら、今日どうするかを一緒に整理します。" : "無料は1日3回まで。まずは今日迷っていることだけ聞けます。"}
           </p>
         </div>
         {!isPro && (
           <button className="motion-cta" onClick={onUpgrade}>
-            PROで使う
+            PROで深く聞く
           </button>
         )}
       </div>
 
-      {!isPro ? (
-        <div className="karte-chat-locked">
-          <span aria-hidden="true">b</span>
-          <p>
-            PROにすると、カルテを見ながら「今日は何を使う？」「この商品どう？」まで聞けます。
-            まずは迷っていることだけでOKです。
-          </p>
-        </div>
-      ) : (
-        <>
+      <>
+          <div className="karte-chat-locked" style={{ marginBottom: 12 }}>
+            <span aria-hidden="true">b</span>
+            <p>
+              {isPro
+                ? `今日はあと${remaining}回聞けます。細かい比較まで一緒に見ます。`
+                : `今日はあと${remaining}回聞けます。PROなら1日20回、保存やログまで見て深く相談できます。`}
+            </p>
+          </div>
           <div className="karte-chat-starters">
             {KARTE_CHAT_STARTERS.map((starter) => (
-              <button key={starter} type="button" onClick={() => askKarte(starter)} disabled={loading}>
+              <button key={starter} type="button" onClick={() => askKarte(starter)} disabled={loading || remaining <= 0}>
                 {starter}
               </button>
             ))}
@@ -763,7 +822,7 @@ function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; dis
             {loading && (
               <div className="karte-chat-message assistant">
                 <span>beautia</span>
-                <p>カルテを見ながら考えています...</p>
+                <p>パーソナルを見ながら考えています...</p>
               </div>
             )}
           </div>
@@ -784,12 +843,11 @@ function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; dis
               rows={2}
               maxLength={800}
             />
-            <button className="motion-cta" type="submit" disabled={loading || !input.trim()}>
+            <button className="motion-cta" type="submit" disabled={loading || remaining <= 0 || !input.trim()}>
               相談する
             </button>
           </form>
-        </>
-      )}
+      </>
     </section>
   );
 }

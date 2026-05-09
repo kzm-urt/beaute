@@ -985,6 +985,15 @@ Recent checks:
 - Home no longer renders the dense hero stat cards, mission card, profile strip, or full tutorial guide block above the first product sections.
 - Keep this split going forward: Home should help returning users start quickly; Guide should explain how to use beautia without making the first screen heavy.
 
+2026-05-09 Personal foundation pass:
+
+- User-facing `カルテ` naming moved to `パーソナル` while keeping the internal route/component names stable for now.
+- Profile setup is now organized into skin, hair, other preferences, and caution/allergy memo sections, with multi-select chips and free-text list notes.
+- Added compatible profile fields for skin/hair/other concerns, avoid ingredients, allergy notes, and separate memo lists. Code falls back to existing profile columns if the new Supabase columns have not been applied yet.
+- Personal now shows an organized summary for skin, hair, other, and caution notes before the advisor.
+- `/api/karte-chat` now behaves as the Personal advisor: FREE users can ask 3 times/day and PRO users 20 times/day, enforced server-side via `api_usage_events`.
+- Guest Personal gate explains that registration unlocks the saved personal notes and 3 free daily advisor messages.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

@@ -32,9 +32,9 @@ const steps = [
   },
   {
     no: "03",
-    title: "カルテを育てる",
-    body: "肌や髪のこと、今使っているもの、気になっている成分を少しずつ足していきます。",
-    cta: "カルテを見る",
+    title: "パーソナルを整える",
+    body: "肌・髪・注意メモを分けて、わかるところから少しずつ足していきます。",
+    cta: "パーソナルへ",
     action: "karte",
   },
   {
@@ -47,18 +47,18 @@ const steps = [
 ] as const;
 
 const planRows = [
-  { label: "カルテ相談", guest: "利用不可", free: "PROで解放", pro: "カルテを見ながら質問OK" },
+  { label: "パーソナル相談", guest: "登録が必要", free: "1日3回", pro: "1日20回" },
   { label: "商品検索・ランキング", guest: "閲覧OK", free: "閲覧OK", pro: "全商品を深掘り" },
   { label: "保存・比較", guest: "登録が必要", free: "基本枠あり", pro: "候補を多く残せる" },
   { label: "成分解析", guest: "登録が必要", free: "月3回", pro: "無制限" },
-  { label: "カルテ・美容ログ", guest: "サンプル閲覧", free: "記録OK", pro: "おすすめが少し合いやすい" },
+  { label: "パーソナル・美容ログ", guest: "サンプル閲覧", free: "記録OK", pro: "おすすめが少し合いやすい" },
   { label: "購入リンク", guest: "一部のみ", free: "無料対象中心", pro: "全商品で開放" },
 ] as const;
 
 const signals = ["性別", "年代", "肌タイプ", "髪タイプ", "悩み", "使用中の製品", "欲しい成分", "生活習慣", "今の状態"];
 
 const routines = [
-  { label: "初日", body: "ランキングを見て、3つ保存。カルテに肌・髪・悩みを登録。" },
+  { label: "初日", body: "ランキングを見て、気になる商品を保存。パーソナルに肌・髪・注意メモを少しだけ。" },
   { label: "選ぶ前", body: "商品詳細で相性、注意点、レビュー量、動画を軽く確認。" },
   { label: "週1回", body: "美容ログに使用感を残して、また使いたい理由・やめたい理由をメモ。" },
   { label: "月1回", body: "成分解析と保存リストを見直して、次に買う候補を整理。" },
@@ -74,9 +74,9 @@ const quickRoutes = [
   },
   {
     label: "自分に合うか見たい",
-    title: "カルテを少し入れる",
+    title: "パーソナルを少し入れる",
     body: "肌タイプ、髪タイプ、悩みを1つずつ。最初はそれだけで十分です。",
-    cta: "カルテへ",
+    cta: "パーソナルへ",
     action: "karte",
   },
   {
@@ -88,8 +88,8 @@ const quickRoutes = [
   },
   {
     label: "ちゃんと相談したい",
-    title: "カルテ相談室で聞く",
-    body: "PROなら、カルテやログを見ながら質問できます。",
+    title: "パーソナル相談で聞く",
+    body: "無料は1日3回、PROなら1日20回まで質問できます。",
     cta: "相談する",
     action: "consult",
   },
@@ -98,14 +98,14 @@ const quickRoutes = [
 const faqs = [
   {
     q: "最初は何をすればいい？",
-    a: "まずランキングか検索で、気になる商品をひとつ見るだけでOKです。カルテや保存は、使いながら少しずつで大丈夫です。",
+    a: "まずランキングか検索で、気になる商品をひとつ見るだけでOKです。パーソナルや保存は、使いながら少しずつで大丈夫です。",
   },
   {
     q: "ゲストでも使えますか？",
-    a: "商品検索とランキングはすぐ見られます。保存、ログ、カルテを残したい時は無料登録すると使いやすくなります。",
+    a: "商品検索とランキングはすぐ見られます。保存、ログ、パーソナル相談を使いたい時は無料登録すると使いやすくなります。",
   },
   {
-    q: "カルテはたくさん入力しないとだめ？",
+    q: "パーソナルはたくさん入力しないとだめ？",
     a: "だめじゃないです。肌タイプ、髪タイプ、悩みを1つずつ入れるだけでも十分。あとで気づいたことを足せます。",
   },
   {
@@ -118,7 +118,7 @@ const faqs = [
   },
   {
     q: "PROの相談は何が違う？",
-    a: "カルテ、保存、ログを見ながら聞けます。買う前の迷いを短くしたい時に使う場所です。",
+    a: "パーソナル、保存、ログを見ながら聞けます。買う前の迷いを短くしたい時に使う場所です。",
   },
 ] as const;
 
@@ -147,8 +147,7 @@ export default function GuideTab({
     if (action === "analyze") isGuest ? onAuth() : onGoAnalyze();
     if (action === "consult") {
       if (isGuest) onAuth();
-      else if (isPro) onGoKarte();
-      else onUpgrade("guide_karte_chat");
+      else onGoKarte();
     }
   };
 
@@ -163,7 +162,7 @@ export default function GuideTab({
           </p>
           <div className="guide-hero-actions">
             <button className="guide-primary motion-cta" onClick={isGuest ? onAuth : onGoKarte}>
-              {isGuest ? "無料登録してカルテを作る" : "カルテを育てる"}
+              {isGuest ? "無料登録してパーソナルを作る" : "パーソナルを整える"}
             </button>
             <button className="guide-secondary motion-nav-button" onClick={onGoSearch}>
               商品を探す
@@ -178,7 +177,7 @@ export default function GuideTab({
           </div>
           <div className="guide-mini-metrics">
             <div><b>3</b><span>分で開始</span></div>
-            <div><b>9</b><span>カルテ信号</span></div>
+            <div><b>4</b><span>整理カテゴリ</span></div>
             <div><b>PRO</b><span>全商品開放</span></div>
           </div>
         </div>
@@ -219,7 +218,7 @@ export default function GuideTab({
               <h3>{route.title}</h3>
               <p>{route.body}</p>
               <button onClick={() => runQuickAction(route.action)}>
-                {isGuest && route.action !== "ranking" ? "無料登録して使う" : !isPro && route.action === "consult" ? "PROを見る" : route.cta}
+                {isGuest && route.action !== "ranking" ? "無料登録して使う" : route.cta}
                 <Icon name="arrow" size={15} sw={2} />
               </button>
             </article>
@@ -244,14 +243,14 @@ export default function GuideTab({
 
       <section className="guide-section guide-personal-section section-shell mobile-tight">
         <div className="guide-personal-copy">
-          <p className="guide-eyebrow">わたしのカルテ</p>
-          <h2>カルテは、あなたの肌と棚のメモ。</h2>
+          <p className="guide-eyebrow">わたしのパーソナル</p>
+          <h2>パーソナルは、肌・髪・注意メモの置き場所。</h2>
           <p>
             「最近乾きやすい」「この化粧水は合った」「朝は時間がない」みたいな小さな情報を残しておく場所です。性別や肌質だけで決めるより、今の状態と手元のアイテムまで見たほうが、次に選ぶものが自然に絞れます。
           </p>
           <div className="guide-hero-actions">
             <button className="guide-primary motion-cta" onClick={isGuest ? onAuth : onGoKarte}>
-              {isGuest ? "無料登録して始める" : "カルテを開く"}
+            {isGuest ? "無料登録して始める" : "パーソナルを開く"}
             </button>
             <button className="guide-secondary motion-nav-button" onClick={isGuest ? onAuth : onGoLog}>
               美容ログを残す
