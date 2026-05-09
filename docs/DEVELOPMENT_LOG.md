@@ -1032,6 +1032,12 @@ Recent checks:
 
 - Basic auth is now limited to `/admin/*` pages only. Admin API routes continue to require the logged-in Supabase admin bearer token, which avoids repeated browser Basic-auth prompts when the admin dashboard fetches analytics/status data.
 
+2026-05-10 Admin Stripe revenue pass:
+
+- Next priority chosen after the auth/logos work: make real sales easier to confirm from the admin dashboard.
+- `/api/product-events` now reads Stripe charges/subscriptions server-side when `STRIPE_SECRET_KEY` is configured, and folds net Stripe revenue, fees, failed payments, subscription counts, and MRR into admin analytics.
+- `/admin/analytics` now shows Stripe売上, MRR, fees, and daily Stripe revenue next to Rakuten reward estimates and API cost so the business view is not only click-based.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

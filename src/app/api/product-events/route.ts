@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase";
 import { getProductKey } from "@/lib/utils";
 import { isAdminEmail, resolveIsPro } from "@/lib/plan";
@@ -69,6 +70,8 @@ interface DailyFinance {
   upgradeClicks: number;
   purchaseValueJpy: number;
   estimatedRewardJpy: number;
+  stripeNetRevenueJpy: number;
+  stripeFeeJpy: number;
   apiCostJpy: number;
   grossProfitJpy: number;
 }
@@ -78,6 +81,32 @@ interface AnalyticsInsight {
   title: string;
   body: string;
   metric: string;
+}
+
+interface StripeDailyRevenue {
+  key: string;
+  grossRevenueJpy: number;
+  netRevenueJpy: number;
+  feeJpy: number;
+  refundedJpy: number;
+  paidCharges: number;
+}
+
+interface StripeRevenueSummary {
+  grossRevenueJpy: number;
+  netRevenueJpy: number;
+  feeJpy: number;
+  refundedJpy: number;
+  paidCharges: number;
+  failedPayments: number;
+  newCustomers: number;
+  activeSubscriptions: number;
+  trialingSubscriptions: number;
+  pastDueSubscriptions: number;
+  canceledSubscriptions: number;
+  mrrJpy: number;
+  daily: StripeDailyRevenue[];
+  warning: string | null;
 }
 
 function getAccessToken(req: NextRequest) {
@@ -187,8 +216,9 @@ export async function GET(req: NextRequest) {
     const rows = (data ?? []) as ProductEventRow[];
     const profileByUser = await buildProfileSummary(supabase, rows);
     const apiUsage = await getApiUsageRows(supabase, since);
+    const stripeRevenue = await getStripeRevenueSummary(since, days);
 
-    return NextResponse.json(buildAnalytics(rows, days, profileByUser, apiUsage.rows, apiUsage.warning));
+    return NextResponse.json(buildAnalytics(rows, days, profileByUser, apiUsage.rows, apiUsage.warning, stripeRevenue));
   } catch (error) {
     console.error(error);
     if (isMissingProductEventsTable(error)) {
@@ -254,7 +284,8 @@ function buildAnalytics(
   days: number,
   profileByUser: Record<string, { isPro: boolean }>,
   apiRows: ApiUsageRow[],
-  apiUsageWarning: string | null
+  apiUsageWarning: string | null,
+  stripeRevenue: StripeRevenueSummary
 ) {
   const counts = {
     totalEvents: rows.length,
@@ -344,7 +375,7 @@ function buildAnalytics(
     }));
   const commerce = buildCommerceSummary(rows);
   const apiCost = buildApiCostSummary(apiRows, apiUsageWarning);
-  const dailyFinance = buildDailyFinance(rows, apiRows, days);
+  const dailyFinance = buildDailyFinance(rows, apiRows, stripeRevenue.daily, days);
   const insights = buildInsights({
     counts,
     rates: {
@@ -354,6 +385,7 @@ function buildAnalytics(
     },
     commerce,
     apiCost,
+    stripeRevenue,
     topProducts,
   });
 
@@ -371,20 +403,26 @@ function buildAnalytics(
     daily: toEventArray(dayMap).sort((a, b) => a.key.localeCompare(b.key)),
     topProducts,
     commerce,
+    stripeRevenue,
     apiCost,
     dailyFinance,
     insights,
     profit: {
-      estimatedGrossProfitJpy: commerce.estimatedRewardJpy - apiCost.totalCostJpy,
+      estimatedGrossProfitJpy: commerce.estimatedRewardJpy + stripeRevenue.netRevenueJpy - apiCost.totalCostJpy,
       rewardToCostRatio:
         apiCost.totalCostJpy > 0
-          ? Math.round((commerce.estimatedRewardJpy / apiCost.totalCostJpy) * 10) / 10
+          ? Math.round(((commerce.estimatedRewardJpy + stripeRevenue.netRevenueJpy) / apiCost.totalCostJpy) * 10) / 10
           : null,
     },
   };
 }
 
-function buildDailyFinance(rows: ProductEventRow[], apiRows: ApiUsageRow[], days: number) {
+function buildDailyFinance(
+  rows: ProductEventRow[],
+  apiRows: ApiUsageRow[],
+  stripeRows: StripeDailyRevenue[],
+  days: number
+) {
   const map = new Map<string, DailyFinance>();
 
   for (let i = days - 1; i >= 0; i--) {
@@ -412,8 +450,16 @@ function buildDailyFinance(rows: ProductEventRow[], apiRows: ApiUsageRow[], days
     const key = row.created_at.slice(0, 10);
     const current = map.get(key) ?? emptyDailyFinance(key);
     current.apiCostJpy += Math.round(toNumber(row.cost_jpy));
-    current.grossProfitJpy = current.estimatedRewardJpy - current.apiCostJpy;
+    current.grossProfitJpy = current.estimatedRewardJpy + current.stripeNetRevenueJpy - current.apiCostJpy;
     map.set(key, current);
+  }
+
+  for (const row of stripeRows) {
+    const current = map.get(row.key) ?? emptyDailyFinance(row.key);
+    current.stripeNetRevenueJpy += row.netRevenueJpy;
+    current.stripeFeeJpy += row.feeJpy;
+    current.grossProfitJpy = current.estimatedRewardJpy + current.stripeNetRevenueJpy - current.apiCostJpy;
+    map.set(row.key, current);
   }
 
   return [...map.values()].sort((a, b) => a.key.localeCompare(b.key));
@@ -428,6 +474,8 @@ function emptyDailyFinance(key: string): DailyFinance {
     upgradeClicks: 0,
     purchaseValueJpy: 0,
     estimatedRewardJpy: 0,
+    stripeNetRevenueJpy: 0,
+    stripeFeeJpy: 0,
     apiCostJpy: 0,
     grossProfitJpy: 0,
   };
@@ -438,6 +486,7 @@ function buildInsights({
   rates,
   commerce,
   apiCost,
+  stripeRevenue,
   topProducts,
 }: {
   counts: {
@@ -453,6 +502,7 @@ function buildInsights({
   };
   commerce: ReturnType<typeof buildCommerceSummary>;
   apiCost: ReturnType<typeof buildApiCostSummary>;
+  stripeRevenue: StripeRevenueSummary;
   topProducts: Array<{
     name: string;
     purchases: number;
@@ -507,6 +557,29 @@ function buildInsights({
     });
   }
 
+  if (stripeRevenue.warning) {
+    insights.push({
+      tone: "warn",
+      title: "Stripe連携を確認する",
+      body: stripeRevenue.warning,
+      metric: "Stripe未確認",
+    });
+  } else if (stripeRevenue.activeSubscriptions === 0 && counts.upgradeClicks > 0) {
+    insights.push({
+      tone: "warn",
+      title: "PRO意向を決済完了へつなぐ",
+      body: "PRO導線のクリックはありますが、Stripe上の有料契約はまだありません。料金説明と決済前の不安解消を近づけるとよさそうです。",
+      metric: `${counts.upgradeClicks}クリック`,
+    });
+  } else if (stripeRevenue.activeSubscriptions > 0) {
+    insights.push({
+      tone: "good",
+      title: "有料契約が動いています",
+      body: "Stripe上で有料契約が確認できます。解約・失敗決済を見ながら、PRO価値の初回体験をさらに強めたい状態です。",
+      metric: `MRR ${stripeRevenue.mrrJpy.toLocaleString("ja-JP")}円`,
+    });
+  }
+
   const winner = topProducts.find((product) => product.purchases > 0 || product.lockedClicks > 0);
   if (winner) {
     insights.push({
@@ -527,6 +600,170 @@ function buildInsights({
   }
 
   return insights.slice(0, 4);
+}
+
+async function getStripeRevenueSummary(since: string, days: number): Promise<StripeRevenueSummary> {
+  const summary = emptyStripeRevenueSummary(days);
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    return { ...summary, warning: "STRIPE_SECRET_KEY が未設定のため、Stripe売上は取得できません。" };
+  }
+
+  const sinceUnix = Math.floor(new Date(since).getTime() / 1000);
+  const customerIds = new Set<string>();
+  const dailyMap = new Map(summary.daily.map((row) => [row.key, row]));
+  let skippedCurrency = false;
+  const stripeClient = new Stripe(secretKey, { apiVersion: "2024-04-10" });
+
+  try {
+    for await (const charge of stripeClient.charges.list({
+      created: { gte: sinceUnix },
+      limit: 100,
+      expand: ["data.balance_transaction"],
+    })) {
+      const currency = charge.currency.toLowerCase();
+      if (currency !== "jpy") {
+        skippedCurrency = true;
+        continue;
+      }
+
+      const customerId = getStripeCustomerId(charge.customer);
+      if (customerId) customerIds.add(customerId);
+
+      if (!charge.paid || charge.status !== "succeeded") {
+        summary.failedPayments++;
+        continue;
+      }
+
+      const balanceTransaction =
+        typeof charge.balance_transaction === "object" && charge.balance_transaction
+          ? charge.balance_transaction
+          : null;
+      const grossRevenue = Math.max(0, charge.amount_captured || charge.amount || 0);
+      const refunded = Math.max(0, charge.amount_refunded || 0);
+      const fee = Math.max(0, balanceTransaction?.fee ?? 0);
+      const netRevenue = Math.max(0, (balanceTransaction?.net ?? grossRevenue - refunded - fee));
+      const key = new Date(charge.created * 1000).toISOString().slice(0, 10);
+      const daily = dailyMap.get(key) ?? emptyStripeDailyRevenue(key);
+
+      summary.paidCharges++;
+      summary.grossRevenueJpy += grossRevenue;
+      summary.refundedJpy += refunded;
+      summary.feeJpy += fee;
+      summary.netRevenueJpy += netRevenue;
+
+      daily.paidCharges++;
+      daily.grossRevenueJpy += grossRevenue;
+      daily.refundedJpy += refunded;
+      daily.feeJpy += fee;
+      daily.netRevenueJpy += netRevenue;
+      dailyMap.set(key, daily);
+    }
+
+    for await (const paymentIntent of stripeClient.paymentIntents.list({
+      created: { gte: sinceUnix },
+      limit: 100,
+    })) {
+      if (["requires_payment_method", "canceled"].includes(paymentIntent.status)) {
+        summary.failedPayments++;
+      }
+    }
+
+    for await (const subscription of stripeClient.subscriptions.list({
+      status: "all",
+      limit: 100,
+    })) {
+      if (subscription.status === "active") {
+        summary.activeSubscriptions++;
+        summary.mrrJpy += getSubscriptionMonthlyAmountJpy(subscription);
+      }
+      if (subscription.status === "trialing") {
+        summary.trialingSubscriptions++;
+        summary.mrrJpy += getSubscriptionMonthlyAmountJpy(subscription);
+      }
+      if (subscription.status === "past_due" || subscription.status === "unpaid") {
+        summary.pastDueSubscriptions++;
+      }
+      if (subscription.status === "canceled" && subscription.canceled_at && subscription.canceled_at >= sinceUnix) {
+        summary.canceledSubscriptions++;
+      }
+    }
+
+    summary.newCustomers = customerIds.size;
+    summary.daily = [...dailyMap.values()].sort((a, b) => a.key.localeCompare(b.key));
+    summary.warning = skippedCurrency ? "JPY以外のStripe売上がありました。この画面ではJPYのみ集計しています。" : null;
+    return summary;
+  } catch (error) {
+    return {
+      ...summary,
+      warning: `Stripe売上を取得できませんでした: ${formatError(error)}`,
+    };
+  }
+}
+
+function emptyStripeRevenueSummary(days: number): StripeRevenueSummary {
+  const daily: StripeDailyRevenue[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    daily.push(emptyStripeDailyRevenue(date));
+  }
+
+  return {
+    grossRevenueJpy: 0,
+    netRevenueJpy: 0,
+    feeJpy: 0,
+    refundedJpy: 0,
+    paidCharges: 0,
+    failedPayments: 0,
+    newCustomers: 0,
+    activeSubscriptions: 0,
+    trialingSubscriptions: 0,
+    pastDueSubscriptions: 0,
+    canceledSubscriptions: 0,
+    mrrJpy: 0,
+    daily,
+    warning: null,
+  };
+}
+
+function emptyStripeDailyRevenue(key: string): StripeDailyRevenue {
+  return {
+    key,
+    grossRevenueJpy: 0,
+    netRevenueJpy: 0,
+    feeJpy: 0,
+    refundedJpy: 0,
+    paidCharges: 0,
+  };
+}
+
+function getStripeCustomerId(customer: string | Stripe.Customer | Stripe.DeletedCustomer | null): string | null {
+  if (!customer) return null;
+  if (typeof customer === "string") return customer;
+  return customer.id ?? null;
+}
+
+function getSubscriptionMonthlyAmountJpy(subscription: Stripe.Subscription) {
+  return Math.round(
+    subscription.items.data.reduce((sum, item) => {
+      const price = item.price;
+      if (price.currency.toLowerCase() !== "jpy" || price.unit_amount == null) return sum;
+      const quantity = item.quantity ?? 1;
+      const interval = price.recurring?.interval;
+      const intervalCount = Math.max(1, price.recurring?.interval_count ?? 1);
+      const amount = price.unit_amount * quantity;
+
+      if (interval === "month") return sum + amount / intervalCount;
+      if (interval === "year") return sum + amount / (12 * intervalCount);
+      if (interval === "week") return sum + (amount * 52) / (12 * intervalCount);
+      if (interval === "day") return sum + (amount * 365) / (12 * intervalCount);
+      return sum + amount;
+    }, 0)
+  );
+}
+
+function formatError(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function buildCommerceSummary(rows: ProductEventRow[]) {

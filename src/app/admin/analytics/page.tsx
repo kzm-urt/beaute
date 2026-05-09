@@ -74,6 +74,32 @@ interface ApiCostSummary {
   warning: string | null;
 }
 
+interface StripeDailyRevenue {
+  key: string;
+  grossRevenueJpy: number;
+  netRevenueJpy: number;
+  feeJpy: number;
+  refundedJpy: number;
+  paidCharges: number;
+}
+
+interface StripeRevenueSummary {
+  grossRevenueJpy: number;
+  netRevenueJpy: number;
+  feeJpy: number;
+  refundedJpy: number;
+  paidCharges: number;
+  failedPayments: number;
+  newCustomers: number;
+  activeSubscriptions: number;
+  trialingSubscriptions: number;
+  pastDueSubscriptions: number;
+  canceledSubscriptions: number;
+  mrrJpy: number;
+  daily: StripeDailyRevenue[];
+  warning: string | null;
+}
+
 interface DailyFinance {
   key: string;
   productViews: number;
@@ -82,6 +108,8 @@ interface DailyFinance {
   upgradeClicks: number;
   purchaseValueJpy: number;
   estimatedRewardJpy: number;
+  stripeNetRevenueJpy: number;
+  stripeFeeJpy: number;
   apiCostJpy: number;
   grossProfitJpy: number;
 }
@@ -115,6 +143,7 @@ interface AnalyticsResponse {
   daily: EventBucket[];
   topProducts: TopProduct[];
   commerce: CommerceSummary;
+  stripeRevenue: StripeRevenueSummary;
   apiCost: ApiCostSummary;
   dailyFinance: DailyFinance[];
   insights: AnalyticsInsight[];
@@ -274,7 +303,7 @@ export default function AdminAnalyticsPage() {
             <FinanceOverview analytics={analytics} />
 
             <section className="analytics-two-col" style={{ marginBottom: 18 }}>
-              <Panel title="日別の収支" subtitle="報酬見込み、API費用、クリックの流れ">
+              <Panel title="日別の収支" subtitle="Stripe売上、報酬見込み、API費用の流れ">
                 <DailyFinanceChart rows={analytics.dailyFinance.slice(-14)} />
               </Panel>
               <Panel title="次の改善アクション" subtitle="今の数字から優先度を出しています">
@@ -355,31 +384,45 @@ export default function AdminAnalyticsPage() {
 
 function FinanceOverview({ analytics }: { analytics: AnalyticsResponse }) {
   const profitColor = analytics.profit.estimatedGrossProfitJpy >= 0 ? "#BFE5D0" : "#F2A69D";
+  const paidPlanCount = analytics.stripeRevenue.activeSubscriptions + analytics.stripeRevenue.trialingSubscriptions;
 
   return (
-    <section className="analytics-finance-grid" style={{ marginBottom: 18 }}>
-      <FinanceCard
-        label="楽天報酬見込み"
-        value={formatYen(analytics.commerce.estimatedRewardJpy)}
-        sub={`${analytics.commerce.purchaseClicks}クリック / 平均 ${formatYen(analytics.commerce.estimatedRewardPerClickJpy)}`}
-      />
-      <FinanceCard
-        label="API費用"
-        value={formatYen(analytics.apiCost.totalCostJpy)}
-        sub={`${analytics.apiCost.totalRequests}リクエスト / ${formatUsd(analytics.apiCost.totalCostUsd)}`}
-      />
-      <FinanceCard
-        label="収支見込み"
-        value={formatYen(analytics.profit.estimatedGrossProfitJpy)}
-        sub={analytics.profit.rewardToCostRatio ? `報酬 / 費用 ${analytics.profit.rewardToCostRatio}x` : "費用ゼロまたは未計測"}
-        valueColor={profitColor}
-      />
-      <FinanceCard
-        label="クリック売上"
-        value={formatYen(analytics.commerce.purchaseValueJpy)}
-        sub={`平均注文 ${formatYen(analytics.commerce.averageOrderValueJpy)}`}
-      />
-    </section>
+    <>
+      {analytics.stripeRevenue.warning && <WarningLine>{analytics.stripeRevenue.warning}</WarningLine>}
+      <section className="analytics-finance-grid" style={{ marginBottom: 18 }}>
+        <FinanceCard
+          label="Stripe売上"
+          value={formatYen(analytics.stripeRevenue.netRevenueJpy)}
+          sub={`${analytics.stripeRevenue.paidCharges}決済 / 手数料 ${formatYen(analytics.stripeRevenue.feeJpy)}`}
+        />
+        <FinanceCard
+          label="MRR"
+          value={formatYen(analytics.stripeRevenue.mrrJpy)}
+          sub={`有料 ${paidPlanCount}件 / 失敗 ${analytics.stripeRevenue.failedPayments}件`}
+        />
+        <FinanceCard
+          label="楽天報酬見込み"
+          value={formatYen(analytics.commerce.estimatedRewardJpy)}
+          sub={`${analytics.commerce.purchaseClicks}クリック / 平均 ${formatYen(analytics.commerce.estimatedRewardPerClickJpy)}`}
+        />
+        <FinanceCard
+          label="API費用"
+          value={formatYen(analytics.apiCost.totalCostJpy)}
+          sub={`${analytics.apiCost.totalRequests}リクエスト / ${formatUsd(analytics.apiCost.totalCostUsd)}`}
+        />
+        <FinanceCard
+          label="収支見込み"
+          value={formatYen(analytics.profit.estimatedGrossProfitJpy)}
+          sub={analytics.profit.rewardToCostRatio ? `売上+報酬 / 費用 ${analytics.profit.rewardToCostRatio}x` : "費用ゼロまたは未計測"}
+          valueColor={profitColor}
+        />
+        <FinanceCard
+          label="クリック売上"
+          value={formatYen(analytics.commerce.purchaseValueJpy)}
+          sub={`平均注文 ${formatYen(analytics.commerce.averageOrderValueJpy)}`}
+        />
+      </section>
+    </>
   );
 }
 
@@ -413,13 +456,14 @@ function DailyFinanceChart({ rows }: { rows: DailyFinance[] }) {
       row.productViews > 0 ||
       row.purchaseClicks > 0 ||
       row.estimatedRewardJpy > 0 ||
+      row.stripeNetRevenueJpy > 0 ||
       row.apiCostJpy > 0
   );
   const displayRows = activeRows.length > 0 ? activeRows : rows.slice(-7);
   const maxValue = Math.max(
     1,
     ...displayRows.map((row) =>
-      Math.max(row.estimatedRewardJpy, row.apiCostJpy, Math.abs(row.grossProfitJpy), row.productViews)
+      Math.max(row.stripeNetRevenueJpy, row.estimatedRewardJpy, row.apiCostJpy, Math.abs(row.grossProfitJpy), row.productViews)
     )
   );
 
@@ -430,15 +474,19 @@ function DailyFinanceChart({ rows }: { rows: DailyFinance[] }) {
   return (
     <div style={{ display: "grid", gap: 10 }}>
       {displayRows.map((row) => {
+        const stripeWidth = Math.max(4, Math.round((row.stripeNetRevenueJpy / maxValue) * 100));
         const rewardWidth = Math.max(4, Math.round((row.estimatedRewardJpy / maxValue) * 100));
         const costWidth = Math.max(4, Math.round((row.apiCostJpy / maxValue) * 100));
         const date = new Date(`${row.key}T00:00:00`);
         const dateLabel = date.toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" });
 
         return (
-          <div key={row.key} className="analytics-trend-row" style={{ display: "grid", gridTemplateColumns: "54px minmax(0, 1fr) 116px", gap: 10, alignItems: "center" }}>
+          <div key={row.key} className="analytics-trend-row" style={{ display: "grid", gridTemplateColumns: "54px minmax(0, 1fr) 136px", gap: 10, alignItems: "center" }}>
             <div style={{ color: "#8A7A6E", fontSize: 11, fontWeight: 800 }}>{dateLabel}</div>
             <div style={{ display: "grid", gap: 5 }}>
+              <div style={{ height: 8, borderRadius: 999, background: "#F3EAE0", overflow: "hidden" }}>
+                <div style={{ width: `${stripeWidth}%`, height: "100%", background: "#D4A853", borderRadius: 999 }} />
+              </div>
               <div style={{ height: 8, borderRadius: 999, background: "#F3EAE0", overflow: "hidden" }}>
                 <div style={{ width: `${rewardWidth}%`, height: "100%", background: "#247A55", borderRadius: 999 }} />
               </div>
@@ -451,13 +499,14 @@ function DailyFinanceChart({ rows }: { rows: DailyFinance[] }) {
                 {formatYen(row.grossProfitJpy)}
               </div>
               <div style={{ fontSize: 9, color: "#8A7A6E", marginTop: 2 }}>
-                {row.productViews}詳細 / {row.purchaseClicks}購入
+                {row.productViews}詳細 / {row.purchaseClicks}購入 / {formatYen(row.stripeNetRevenueJpy)}
               </div>
             </div>
           </div>
         );
       })}
       <div style={{ display: "flex", gap: 12, color: "#8A7A6E", fontSize: 10, fontWeight: 800, paddingTop: 4 }}>
+        <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 999, background: "#D4A853", marginRight: 5 }} />Stripe</span>
         <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 999, background: "#247A55", marginRight: 5 }} />報酬</span>
         <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: 999, background: "#B13A2E", marginRight: 5 }} />費用</span>
       </div>
