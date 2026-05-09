@@ -1008,6 +1008,13 @@ Recent checks:
 - Starter buttons now fill the chat input instead of sending immediately, so FREE users do not accidentally spend one of the 3 daily messages.
 - The chat helper copy explicitly tells users they can edit the drafted question before sending.
 
+2026-05-09 Alignment and debug polish pass:
+
+- Shared empty-state cards now use left-aligned copy with compact labels instead of mixing centered blocks across Search, Saved, and Personal.
+- Personal section headers now use one layout: left title plus small meta pill, with numeric scores centered only inside badges.
+- Product candidate actions are left-aligned on desktop and full-width on mobile to avoid random right-aligned CTAs.
+- Search and Personal product/video fetches now fail softly instead of leaving stale or broken UI; stale session category hints are ignored.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

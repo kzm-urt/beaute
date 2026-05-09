@@ -92,7 +92,10 @@ export default function SearchTab({ isPro, isGuest = false, preferences, onUpgra
       }
 
       fetch(`/api/products?${params}`, { signal: controller.signal })
-        .then(r => r.json())
+        .then(async (r) => {
+          if (!r.ok) throw new Error("products request failed");
+          return r.json();
+        })
         .then(d => {
           if (ignore) return;
           const nextProducts: Product[] = d.products ?? [];
@@ -104,7 +107,10 @@ export default function SearchTab({ isPro, isGuest = false, preferences, onUpgra
           });
         })
         .catch((error) => {
-          if (!ignore && error?.name !== "AbortError") setHasMore(false);
+          if (!ignore && error?.name !== "AbortError") {
+            if (requestPage === 1) setProducts([]);
+            setHasMore(false);
+          }
         })
         .finally(() => {
           if (ignore) return;
@@ -122,7 +128,10 @@ export default function SearchTab({ isPro, isGuest = false, preferences, onUpgra
 
   useEffect(() => {
     const saved = sessionStorage.getItem("beaute_initCat");
-    if (saved) { setActiveCat(saved); sessionStorage.removeItem("beaute_initCat"); }
+    if (saved) {
+      if (saved === ALL_CATEGORY || saved in CAT_META) setActiveCat(saved);
+      sessionStorage.removeItem("beaute_initCat");
+    }
   }, []);
 
   const toggleTag = (t: string) =>
@@ -177,7 +186,7 @@ export default function SearchTab({ isPro, isGuest = false, preferences, onUpgra
   return (
     <div className="motion-fade-scale">
       {/* ── SEARCH / FILTER BAR ── */}
-      <div style={{ position: "sticky", top: 52, zIndex: 15, background: "rgba(248,244,239,.97)", backdropFilter: "blur(10px)", borderBottom: "1px solid #EDE5DC", padding: "12px 24px 10px" }} className="search-filter-bar top-[52px] md:top-[52px] top-[52px] motion-reveal">
+      <div style={{ position: "sticky", top: 52, zIndex: 15, background: "rgba(248,244,239,.97)", backdropFilter: "blur(10px)", borderBottom: "1px solid #EDE5DC", padding: "12px 24px 10px" }} className="search-filter-bar motion-reveal">
         <Input
           value={query}
           onChange={setQuery}
@@ -352,17 +361,19 @@ export default function SearchTab({ isPro, isGuest = false, preferences, onUpgra
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="motion-reveal" style={{ textAlign: "center", padding: "60px 20px", color: "#8A7A6E" }}>
-            <p style={{ fontSize: 40, marginBottom: 12 }}>🔍</p>
-            <p style={{ fontSize: 15, color: "#150B00", fontWeight: 700 }}>{"\u6761\u4ef6\u306b\u5408\u3046\u5546\u54c1\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093"}</p>
-            <p style={{ fontSize: 12, marginTop: 6 }}>{"\u6761\u4ef6\u3092\u5e83\u3052\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002"}</p>
-            <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 18 }}>
-              <button className="motion-cta" onClick={resetFilters} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#150B00", color: "#FBF8F3", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+          <div className="app-empty-state motion-reveal">
+            <span>検索</span>
+            <div>
+              <strong>{"\u6761\u4ef6\u306b\u5408\u3046\u5546\u54c1\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093"}</strong>
+              <p>{"\u6761\u4ef6\u3092\u5e83\u3052\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002"}</p>
+              <div className="app-empty-actions">
+                <button className="motion-cta" onClick={resetFilters} style={{ border: "none", borderRadius: 999, padding: "9px 14px", background: "#150B00", color: "#FBF8F3", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
                 {"\u4eba\u6c17\u9806\u3067\u898b\u308b"}
-              </button>
-              <button className="motion-nav-button" onClick={showDefaultCategory} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#8A5B18", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+                </button>
+                <button className="motion-nav-button" onClick={showDefaultCategory} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#8A5B18", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
                 {"\u30b9\u30ad\u30f3\u30b1\u30a2\u3092\u898b\u308b"}
-              </button>
+                </button>
+              </div>
             </div>
           </div>
         ) : (

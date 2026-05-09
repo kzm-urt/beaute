@@ -169,16 +169,24 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
     if (tags.length > 0) params.set("tags", tags.join(","));
     else params.set("free", "true");
     fetch(`/api/products?${params}`)
-      .then(r => r.json())
-      .then(d => setProducts(d.products ?? []));
+      .then(async (r) => {
+        if (!r.ok) throw new Error("products request failed");
+        return r.json();
+      })
+      .then(d => setProducts(d.products ?? []))
+      .catch(() => setProducts([]));
   }, [profile.skinType, profile.hairType, profile.concerns, profile.currentState, profile.desiredIngredients, profile.goals]);
 
   useEffect(() => {
     const cat = profile.hairType && profile.concerns.some((concern) => concern.includes("毛")) ? "ヘアケア" : profile.skinType ? "スキンケア" : "全体";
     const query = getVideoQuery(profile);
     fetch(`/api/youtube?category=${encodeURIComponent(cat)}&query=${encodeURIComponent(query)}&max=6`)
-      .then(r => r.json())
-      .then(d => setVideos(d.videos ?? []));
+      .then(async (r) => {
+        if (!r.ok) throw new Error("youtube request failed");
+        return r.json();
+      })
+      .then(d => setVideos(d.videos ?? []))
+      .catch(() => setVideos([]));
   }, [profile]);
 
   const habits = HABITS[profile.skinType] ?? HABITS["普通肌"];
@@ -592,16 +600,23 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
         />
 
         {analysisLoading ? (
-          <div style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 16, padding: "24px", textAlign: "center", color: "#8A7A6E", fontSize: 13 }}>
-            解析履歴を読み込み中...
+          <div className="app-empty-state compact">
+            <span>01</span>
+            <div>
+              <strong>解析履歴を読み込み中です</strong>
+              <p>少しだけ待ってください。</p>
+            </div>
           </div>
         ) : analyses.length === 0 ? (
-          <div style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 16, padding: "32px 20px", textAlign: "center" }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>🔬</div>
-            <p style={{ fontSize: 14, color: "#8A7A6E", marginBottom: 16 }}>まだ成分解析をしていません</p>
-            <button onClick={onGoAnalyze} style={{ padding: "10px 24px", background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", border: "none", borderRadius: 20, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-              成分解析をする →
-            </button>
+          <div className="app-empty-state">
+            <span>01</span>
+            <div>
+              <strong>まだ成分解析はありません</strong>
+              <p>気になる商品を1つだけ見ておくと、あとで比べやすくなります。</p>
+              <button className="motion-cta" onClick={onGoAnalyze}>
+                成分解析をする
+              </button>
+            </div>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -616,11 +631,9 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
                       {new Date(latestAnalysis.date).toLocaleDateString("ja-JP")}
                     </div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 28, fontFamily: "'Cormorant Garamond',Georgia,serif", color: "#D4A853", fontWeight: 500 }}>
-                      {latestAnalysis.result.overallScore}
-                    </div>
-                    <div style={{ fontSize: 9, color: "rgba(212,168,83,.6)", letterSpacing: "0.1em" }}>点</div>
+                  <div className="personal-analysis-score">
+                    <strong>{latestAnalysis.result.overallScore}</strong>
+                    <span>点</span>
                   </div>
                 </div>
                 <ScoreBar score={latestAnalysis.result.overallScore} />
@@ -687,8 +700,12 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
       <section style={{ marginBottom: 28 }}>
         <SectionHeader label="02" title="あなたへのおすすめ" sub="プロフィールに合わせて選定" />
         {products.length === 0 ? (
-          <div style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 16, padding: "24px", textAlign: "center", color: "#8A7A6E", fontSize: 13 }}>
-            プロフィールを設定するとおすすめが表示されます
+          <div className="app-empty-state compact">
+            <span>02</span>
+            <div>
+              <strong>おすすめはこれからです</strong>
+              <p>プロフィールを少し足すと、候補が出やすくなります。</p>
+            </div>
           </div>
         ) : (
           <>
@@ -703,7 +720,7 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
                     {topProductInsight ? ` ${topProductInsight.why}。` : ""}
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                <div className="personal-candidate-actions">
                   <button className="motion-cta" onClick={() => onOpenProduct(topProduct)} style={{ border: "none", borderRadius: 999, padding: "10px 14px", background: "#1A0E08", color: "#D4A853", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
                     商品を開く
                   </button>
@@ -1017,11 +1034,11 @@ function BeautyGrowthPanel({ growth, isPro, onEditProfile, onGoAnalyze, onGoLog,
 
 function SectionHeader({ label, title, sub }: { label: string; title: string; sub: string }) {
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: 9, letterSpacing: "0.28em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>━━ {label}</div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, fontWeight: 400, color: "#150B00", margin: 0 }}>{title}</h2>
-        <span style={{ fontSize: 11, color: "#8A7A6E", fontFamily: "ui-monospace,monospace" }}>{sub}</span>
+    <div className="personal-section-header">
+      <span>{label}</span>
+      <div>
+        <h2>{title}</h2>
+        <strong>{sub}</strong>
       </div>
     </div>
   );

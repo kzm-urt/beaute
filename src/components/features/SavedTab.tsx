@@ -31,11 +31,15 @@ export default function SavedTab({ isPro, onUpgrade, onOpenProduct }: Props) {
       return;
     }
 
-    const res = await fetch("/api/product-saves", {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    });
-    const data = await res.json();
-    setSaves(res.ok ? data.saves ?? [] : []);
+    try {
+      const res = await fetch("/api/product-saves", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      setSaves(res.ok ? data.saves ?? [] : []);
+    } catch {
+      setSaves([]);
+    }
     setLoading(false);
   };
 
@@ -88,7 +92,7 @@ export default function SavedTab({ isPro, onUpgrade, onOpenProduct }: Props) {
       </div>
 
       {!isPro && (
-        <div style={{ background: "#fff", border: "1px solid #D4A85366", borderRadius: 16, padding: "14px 16px", marginBottom: 18, display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="saved-plan-note">
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 12, fontWeight: 800, color: "#150B00" }}>無料の保存枠</div>
             <div style={{ fontSize: 11, color: "#8A7A6E", marginTop: 3 }}>
@@ -126,16 +130,20 @@ export default function SavedTab({ isPro, onUpgrade, onOpenProduct }: Props) {
       </div>
 
       {loading ? (
-        <div style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 16, padding: "28px", textAlign: "center", color: "#8A7A6E", fontSize: 13 }}>
-          保存商品を読み込み中...
+        <div className="app-empty-state compact">
+          <span>保存</span>
+          <div>
+            <strong>保存商品を読み込み中です</strong>
+            <p>少しだけ待ってください。</p>
+          </div>
         </div>
       ) : visibleSaves.length === 0 ? (
-        <div style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 16, padding: "38px 20px", textAlign: "center" }}>
-          <div style={{ fontSize: 34, marginBottom: 10 }}>{mode === "favorite" ? "♡" : "⇄"}</div>
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#150B00", marginBottom: 4 }}>
-            {mode === "favorite" ? "お気に入りはまだありません" : "比較リストはまだありません"}
-          </p>
-          <p style={{ fontSize: 12, color: "#8A7A6E" }}>商品詳細から追加。</p>
+        <div className="app-empty-state">
+          <span>{mode === "favorite" ? "保存" : "比較"}</span>
+          <div>
+            <strong>{mode === "favorite" ? "お気に入りはまだありません" : "比較リストはまだありません"}</strong>
+            <p>商品詳細から追加できます。まず気になるものだけでOKです。</p>
+          </div>
         </div>
       ) : mode === "favorite" ? (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: 14 }}>
