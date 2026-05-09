@@ -1028,6 +1028,10 @@ Recent checks:
 - Locked the logo direction around a `beautia` wordmark with a droplet inside the lowercase `b` and a subtle iRise-inspired rising arc.
 - Added the approved generated PNG assets and switched app references to dated asset URLs, including `/images/beautia-logo-20260510.png`, `/icons/beautia-mark-20260510.png`, and dated 192/512 icon fallbacks so old PWA/browser caches do not keep showing the earlier icon.
 
+2026-05-10 Admin auth prompt fix:
+
+- Basic auth is now limited to `/admin/*` pages only. Admin API routes continue to require the logged-in Supabase admin bearer token, which avoids repeated browser Basic-auth prompts when the admin dashboard fetches analytics/status data.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

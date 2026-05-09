@@ -19,9 +19,6 @@ const attemptStore = new Map<string, AttemptState>();
 function isProtectedAdminRequest(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (pathname.startsWith("/admin")) return true;
-  if (pathname === "/api/system-status") return true;
-  if (pathname === "/api/product-events" && (req.method === "GET" || req.method === "HEAD")) return true;
-  if (pathname === "/api/feedback" && (req.method === "GET" || req.method === "HEAD")) return true;
   return false;
 }
 
@@ -116,5 +113,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/system-status", "/api/product-events", "/api/feedback"],
+  matcher: ["/admin/:path*"],
 };
