@@ -1022,6 +1022,12 @@ Recent checks:
 - Replaced the text-only brand in the desktop sidebar, mobile header, loading states, home hero, auth screen, and profile setup.
 - Light backgrounds use a small dark plate so the pale logo remains readable.
 
+2026-05-10 Beautia brand mark redesign:
+
+- Direction changed from the pink/white provided-logo look to a warmer dark coffee, ivory, and champagne-gold identity that matches the current still-life hero.
+- Locked the logo direction around a `beautia` wordmark with a droplet inside the lowercase `b` and a subtle iRise-inspired rising arc.
+- Added the approved generated PNG assets and switched app references to dated asset URLs, including `/images/beautia-logo-20260510.png`, `/icons/beautia-mark-20260510.png`, and dated 192/512 icon fallbacks so old PWA/browser caches do not keep showing the earlier icon.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

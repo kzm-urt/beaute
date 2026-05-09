@@ -1,7 +1,7 @@
 {
-  "name": "beautia — AI美容提案",
+  "name": "beautia — パーソナル美容サーチ",
   "short_name": "beautia",
-  "description": "肌・髪・悩みに合わせたAI美容提案。成分解析、楽天商品検索、ランキング、保存リスト、使用ログまで。",
+  "description": "肌・髪・気になることを見ながら、美容アイテムを探して残せるパーソナル美容サーチ。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -11,13 +11,19 @@
   "lang": "ja",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "/icons/beautia-mark-20260510.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/beautia-icon-192-20260510.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/beautia-icon-512-20260510.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s | beautia",
   },
   description: "肌・髪・悩みを見ながら美容アイテムを探せるパーソナル美容サーチ。成分解析、楽天商品検索、ランキング、保存リスト、使用ログまで。",
-  manifest: "/manifest.json",
+  manifest: "/manifest.json?v=beautia-20260510",
   applicationName: "beautia",
   keywords: ["美容", "コスメ", "スキンケア", "ヘアケア", "成分解析", "楽天", "ランキング", "AI"],
   authors: [{ name: "beautia" }],
@@ -18,8 +18,11 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   icons: {
-    icon: "/icons/icon-192.png",
-    apple: "/icons/icon-192.png",
+    icon: [
+      { url: "/icons/beautia-mark-20260510.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/beautia-icon-192-20260510.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/icons/apple-touch-icon-20260510.png",
   },
   appleWebApp: {
     capable: true,

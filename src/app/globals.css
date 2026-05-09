@@ -3190,7 +3190,7 @@ textarea:focus-visible {
   border: 1px solid rgba(212, 168, 83, 0.24);
   border-radius: 14px;
   background:
-    radial-gradient(circle at 82% 18%, rgba(244, 167, 210, 0.16), transparent 26%),
+    radial-gradient(circle at 82% 18%, rgba(212, 168, 83, 0.18), transparent 28%),
     #080403;
   box-shadow: 0 14px 34px rgba(21, 11, 0, 0.12);
   padding: 8px 12px;

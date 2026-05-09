@@ -120,7 +120,7 @@ export function BrandLogo({ size = "md", plate = false, className, style, alt = 
 }) {
   return (
     <span className={cn("brand-logo", `brand-logo-${size}`, plate && "brand-logo-plate", className)} style={style}>
-      <img src="/images/beautia-logo.svg" alt={alt} />
+      <img src="/images/beautia-logo-20260510.png" alt={alt} />
     </span>
   );
 }
