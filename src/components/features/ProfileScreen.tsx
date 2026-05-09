@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/ui";
 import type { UserProfile } from "@/types";
 
 interface Props {
@@ -214,9 +215,7 @@ export default function ProfileScreen({ profile, onChange, onComplete }: Props) 
       <div className="mx-auto grid gap-5 md:grid-cols-[0.72fr_1.28fr]" style={{ maxWidth: 1180 }}>
         <aside className="flex flex-col justify-between rounded-[18px] p-6" style={{ border: "1px solid rgba(212,168,83,.22)", background: "rgba(21,11,0,.42)" }}>
           <div>
-            <h1 className="text-[36px] italic tracking-[4px] mb-5" style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", color: "#F5EEE4" }}>
-              beautia
-            </h1>
+            <BrandLogo size="lg" style={{ marginBottom: 20 }} />
             <p className="text-[12px] tracking-[.24em] font-bold mb-3" style={{ color: "#D4A853" }}>パーソナル設定</p>
             <h2 className="text-[28px] md:text-[34px] leading-[1.25] font-black mb-4" style={{ color: "#F5EEE4" }}>
               肌・髪・注意点を、<br/>分けて残しましょう。

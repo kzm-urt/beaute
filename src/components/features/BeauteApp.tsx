@@ -12,7 +12,7 @@ import { getProductInsight } from "@/lib/productInsights";
 import { getProductGrowthStats } from "@/lib/beautyGrowth";
 import { trackProductEvent } from "@/lib/productEvents";
 import { supabase } from "@/lib/supabase";
-import { Icon, Stars, FreeBadge, ProBadge, GoldButton, ProductImage } from "@/components/ui";
+import { BrandLogo, Icon, Stars, FreeBadge, ProBadge, GoldButton, ProductImage } from "@/components/ui";
 import type { PersonalPreferences, Product, UserProfile } from "@/types";
 
 const AuthScreen = dynamic(() => import("./AuthScreen"), { loading: () => <TabLoading /> });
@@ -96,8 +96,8 @@ function getDisplayInitial(name: string) {
 
 function TabLoading() {
   return (
-    <div className="motion-fade-scale" style={{ minHeight: "45vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#A8722A", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 26 }}>
-      beautia
+    <div className="motion-fade-scale" style={{ minHeight: "45vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <BrandLogo size="md" plate />
     </div>
   );
 }
@@ -116,9 +116,7 @@ function WelcomeBackLoading({ displayName }: { displayName?: string }) {
       }}
     >
       <div style={{ textAlign: "center", padding: 24 }}>
-        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 36, color: "#A8722A", marginBottom: 12 }}>
-          beautia
-        </div>
+        <BrandLogo size="lg" plate style={{ marginBottom: 12 }} />
         {displayName ? (
           <>
             <div style={{ fontSize: 12, letterSpacing: "0.18em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 10 }}>
@@ -263,7 +261,7 @@ export default function BeauteApp() {
       {/* ── SIDEBAR (desktop) ── */}
       <aside className="hidden md:flex" style={{ width: 220, background: "#1A0E08", color: "#FBF8F3", flexDirection: "column", position: "sticky", top: 0, height: "100vh", flexShrink: 0 }}>
         <div style={{ padding: "28px 28px 24px", borderBottom: "1px solid rgba(212,168,83,.15)" }}>
-          <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 26, fontWeight: 500, color: "#FBF8F3" }}>beautia</div>
+          <BrandLogo size="md" />
           <div style={{ fontSize: 8, letterSpacing: "0.32em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace", marginTop: 5 }}>— EST. MMXXV</div>
         </div>
 
@@ -335,7 +333,7 @@ export default function BeauteApp() {
         {/* Mobile header */}
         <header className="flex md:hidden" style={{ height: 52, padding: "0 16px", alignItems: "center", justifyContent: "space-between", background: "#1A0E08", position: "sticky", top: 0, zIndex: 20 }}>
           <div>
-            <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500, lineHeight: 1 }}>beautia</div>
+            <BrandLogo size="xs" />
             <div style={{ fontSize: 8, letterSpacing: "0.14em", color: "rgba(212,168,83,.72)", fontFamily: "ui-monospace,monospace", marginTop: 3 }}>
               {isGuest ? "ゲスト" : "あなた用"}
             </div>

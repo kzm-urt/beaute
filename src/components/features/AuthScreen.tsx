@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { BrandLogo } from "@/components/ui";
 
 type Mode = "signin" | "signup" | "reset";
 
@@ -59,7 +60,7 @@ export default function AuthScreen({ onSignIn, onSignUp, onSendPasswordReset, on
     <main className="auth-page">
       <section className="auth-hero" aria-label="beautia">
         <div className="auth-brand-block">
-          <div className="auth-logo">beautia</div>
+          <BrandLogo size="lg" plate />
           <div className="auth-kicker">美容アイテム選び</div>
         </div>
 

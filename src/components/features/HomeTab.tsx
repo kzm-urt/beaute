@@ -8,7 +8,7 @@ import { getPersonalMatch } from "@/lib/personalization";
 import { getProductInsight } from "@/lib/productInsights";
 import { getBeautyGrowth } from "@/lib/beautyGrowth";
 import { trackProductEvent } from "@/lib/productEvents";
-import { Icon, Stars, FreeBadge, ProBadge, ProductImage } from "@/components/ui";
+import { BrandLogo, Icon, Stars, FreeBadge, ProBadge, ProductImage } from "@/components/ui";
 import type { PersonalPreferences, UserProfile, Product, Category } from "@/types";
 
 interface Props {
@@ -460,8 +460,8 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px)", backgroundSize: "16.666% 100%", pointerEvents: "none" }}/>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(33,17,13,.98) 0%, rgba(58,33,26,.82) 38%, rgba(33,17,13,.2) 76%, rgba(33,17,13,.08) 100%)", pointerEvents: "none" }}/>
 
-        <div className="motion-reveal" style={{ position: "absolute", top: 22, left: 32, right: 32, display: "flex", justifyContent: "space-between", fontSize: 10, letterSpacing: "0.3em", color: "rgba(251,248,243,.45)", fontFamily: "ui-monospace,monospace" }}>
-          <span>{heroMessage.kicker}</span>
+        <div className="motion-reveal" style={{ position: "absolute", top: 18, left: 32, right: 32, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, fontSize: 10, letterSpacing: "0.3em", color: "rgba(251,248,243,.45)", fontFamily: "ui-monospace,monospace" }}>
+          <BrandLogo size="sm" />
           <span className="hidden md:block">━━ {isGuest ? "まずはお試し" : `${displayName}さんの今日`}</span>
           <span>{now.toLocaleDateString("ja-JP", { year: "numeric", month: "long" })}</span>
         </div>

@@ -1,4 +1,5 @@
 "use client";
+import React, { type CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 
 // ── Icon (SVG stroke-based) ──────────────────────────────────────────
@@ -106,6 +107,21 @@ export function GoldButton({ children, onClick, disabled, className, small }: {
       style={{ background: "linear-gradient(135deg,#D4A853,#A8722A)", boxShadow: "0 4px 16px rgba(168,114,42,.3)" }}>
       {children}
     </button>
+  );
+}
+
+// ── BrandLogo ────────────────────────────────────────────────────────
+export function BrandLogo({ size = "md", plate = false, className, style, alt = "Beautia" }: {
+  size?: "xs" | "sm" | "md" | "lg";
+  plate?: boolean;
+  className?: string;
+  style?: CSSProperties;
+  alt?: string;
+}) {
+  return (
+    <span className={cn("brand-logo", `brand-logo-${size}`, plate && "brand-logo-plate", className)} style={style}>
+      <img src="/images/beautia-logo.svg" alt={alt} />
+    </span>
   );
 }
 
@@ -217,9 +233,6 @@ function resizeRakutenImage(src: string, size: number) {
     return src;
   }
 }
-
-// 必要なReactインポート
-import React from "react";
 
 // ── ScoreBar ─────────────────────────────────────────────────────────
 export function ScoreBar({ score }: { score: number }) {

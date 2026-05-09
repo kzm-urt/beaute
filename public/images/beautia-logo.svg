@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="72 10 780 270" role="img" aria-labelledby="title desc">
+  <title id="title">Beautia</title>
+  <desc id="desc">Beautia wordmark with a soft pink arc and star.</desc>
+  <defs>
+    <linearGradient id="beautiaArc" x1="192" y1="74" x2="792" y2="84" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EF82C2"/>
+      <stop offset="0.5" stop-color="#F7ADD6"/>
+      <stop offset="1" stop-color="#FFE5BC"/>
+    </linearGradient>
+    <linearGradient id="beautiaStar" x1="710" y1="36" x2="802" y2="126" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF9EC"/>
+      <stop offset="1" stop-color="#FFE1B8"/>
+    </linearGradient>
+    <filter id="softGlow" x="-10%" y="-20%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#F25FB0" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="5" stdDeviation="9" flood-color="#000000" flood-opacity="0.24"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softGlow)">
+    <path
+      d="M183 121 C340 43 600 18 781 94"
+      fill="none"
+      stroke="url(#beautiaArc)"
+      stroke-width="27"
+      stroke-linecap="round"
+    />
+    <path
+      d="M192 137 C356 69 589 49 758 106"
+      fill="none"
+      stroke="#FBF6F3"
+      stroke-width="9"
+      stroke-linecap="round"
+      opacity="0.95"
+    />
+    <path
+      d="M740 32 L757 87 L812 104 L757 121 L740 176 L723 121 L668 104 L723 87 Z"
+      fill="url(#beautiaStar)"
+      stroke="#F4A7D2"
+      stroke-width="3"
+      stroke-linejoin="round"
+    />
+    <text
+      x="106"
+      y="252"
+      fill="#FFF9FB"
+      stroke="#E783C2"
+      stroke-width="2"
+      paint-order="stroke fill"
+      font-family="Georgia, 'Times New Roman', serif"
+      font-size="188"
+      font-weight="500"
+      letter-spacing="-8"
+    >Beautia</text>
+  </g>
+</svg>

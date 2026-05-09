@@ -3166,6 +3166,41 @@ textarea:focus-visible {
   color: var(--beaute-gold-deep);
 }
 
+.brand-logo {
+  --brand-logo-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  line-height: 0;
+}
+
+.brand-logo img {
+  display: block;
+  width: auto;
+  height: var(--brand-logo-height);
+  max-width: 100%;
+}
+
+.brand-logo-xs { --brand-logo-height: 30px; }
+.brand-logo-sm { --brand-logo-height: 38px; }
+.brand-logo-md { --brand-logo-height: 46px; }
+.brand-logo-lg { --brand-logo-height: 70px; }
+
+.brand-logo-plate {
+  border: 1px solid rgba(212, 168, 83, 0.24);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(244, 167, 210, 0.16), transparent 26%),
+    #080403;
+  box-shadow: 0 14px 34px rgba(21, 11, 0, 0.12);
+  padding: 8px 12px;
+}
+
+.brand-logo-plate.brand-logo-xs {
+  border-radius: 10px;
+  padding: 5px 8px;
+}
+
 .app-empty-state {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

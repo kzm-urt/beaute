@@ -1015,6 +1015,13 @@ Recent checks:
 - Product candidate actions are left-aligned on desktop and full-width on mobile to avoid random right-aligned CTAs.
 - Search and Personal product/video fetches now fail softly instead of leaving stale or broken UI; stale session category hints are ignored.
 
+2026-05-09 Beautia logo pass:
+
+- Added a `public/images/beautia-logo.svg` wordmark based on the provided pink/white Beautia logo direction.
+- Added a shared `BrandLogo` UI component so headers and auth/profile screens can use the same logo treatment.
+- Replaced the text-only brand in the desktop sidebar, mobile header, loading states, home hero, auth screen, and profile setup.
+- Light backgrounds use a small dark plate so the pale logo remains readable.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:
