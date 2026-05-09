@@ -1001,6 +1001,13 @@ Recent checks:
 - The advisor panel has a stable anchor so the entry card can jump directly to consultation.
 - This keeps added profile detail from feeling like one long form and gives new users a simple mental map.
 
+2026-05-09 Personal advisor usability pass:
+
+- Logged-in Personal now has a cleaner memo organizer for 肌, 髪, その他, and 注意 instead of repeating the same profile facts in multiple card blocks.
+- Advisor starters are generated from current Personal data when possible, including today's state, skin notes, hair notes, caution notes, top product, and recent analysis.
+- Starter buttons now fill the chat input instead of sending immediately, so FREE users do not accidentally spend one of the 3 daily messages.
+- The chat helper copy explicitly tells users they can edit the drafted question before sending.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

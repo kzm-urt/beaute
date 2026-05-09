@@ -1921,6 +1921,146 @@ textarea:focus-visible {
   color: #D4A853;
 }
 
+.personal-organizer-section {
+  margin-bottom: 24px;
+}
+
+.personal-organizer-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.personal-organizer-head span {
+  display: block;
+  margin-bottom: 5px;
+  color: #A8722A;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.personal-organizer-head h2 {
+  margin: 0;
+  color: #150B00;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.personal-organizer-head p {
+  margin: 7px 0 0;
+  color: #6B5B4A;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.personal-organizer-head button {
+  flex-shrink: 0;
+  border: 1px solid #EDE5DC;
+  border-radius: 999px;
+  background: #fff;
+  color: #A8722A;
+  padding: 9px 13px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.personal-organizer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.personal-organizer-card {
+  min-width: 0;
+  min-height: 186px;
+  border: 1px solid #EDE5DC;
+  border-radius: 14px;
+  background: #fff;
+  padding: 14px;
+}
+
+.personal-organizer-card.caution {
+  border-color: rgba(212, 168, 83, 0.5);
+  background: #FFF9EC;
+}
+
+.personal-organizer-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.personal-organizer-card-head span {
+  color: #A8722A;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.personal-organizer-card-head strong {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #F8F4EF;
+  color: #A8722A;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.personal-organizer-card h3 {
+  display: -webkit-box;
+  min-height: 42px;
+  margin: 0 0 10px;
+  overflow: hidden;
+  color: #150B00;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.personal-organizer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.personal-organizer-chips span {
+  max-width: 100%;
+  border: 1px solid #EDE5DC;
+  border-radius: 999px;
+  background: #FBF8F3;
+  color: #6B5B4A;
+  padding: 4px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.personal-organizer-card p {
+  margin: 0;
+  color: #6B5B4A;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
 .karte-personal-snapshot {
   display: grid;
   grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.28fr);
@@ -2109,22 +2249,63 @@ textarea:focus-visible {
   line-height: 1.75;
 }
 
+.karte-chat-helper {
+  margin: 0 0 10px;
+}
+
+.karte-chat-helper span {
+  display: block;
+  margin-bottom: 3px;
+  color: #D4A853;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.karte-chat-helper p {
+  margin: 0;
+  color: rgba(251, 248, 243, 0.58);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
 .karte-chat-starters {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 14px;
 }
 
 .karte-chat-starters button {
   border: 1px solid rgba(212, 168, 83, 0.36);
-  border-radius: 999px;
-  padding: 8px 11px;
+  border-radius: 13px;
+  padding: 10px 11px;
   background: rgba(251, 248, 243, 0.07);
-  color: #D4A853;
-  font-size: 11px;
-  font-weight: 900;
+  color: #FBF8F3;
   cursor: pointer;
+  text-align: left;
+}
+
+.karte-chat-starters button strong,
+.karte-chat-starters button small {
+  display: block;
+}
+
+.karte-chat-starters button strong {
+  color: #D4A853;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.karte-chat-starters button small {
+  margin-top: 3px;
+  color: rgba(251, 248, 243, 0.56);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .karte-chat-starters button:disabled {
@@ -3474,6 +3655,29 @@ textarea:focus-visible {
 
   .personal-entry-card {
     min-height: 142px;
+    padding: 12px;
+  }
+
+  .personal-organizer-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .personal-organizer-head h2 {
+    font-size: 23px;
+  }
+
+  .personal-organizer-head button {
+    width: 100%;
+  }
+
+  .personal-organizer-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .personal-organizer-card {
+    min-height: 0;
     padding: 12px;
   }
 

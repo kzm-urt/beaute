@@ -35,11 +35,17 @@ type KarteChatMessage = {
   content: string;
 };
 
-const KARTE_CHAT_STARTERS = [
-  "今日なに使えばいい？",
-  "朝の順番を組んで",
-  "この候補、私に合いそう？",
-  "刺激が心配なところある？",
+type AdvisorStarter = {
+  label: string;
+  question: string;
+  note: string;
+};
+
+const DEFAULT_CHAT_STARTERS: AdvisorStarter[] = [
+  { label: "今日だけ", question: "今日の状態を見て、朝にやることを3つだけ教えて。", note: "迷った日の入口" },
+  { label: "順番", question: "朝と夜のケアの順番を、重くしすぎない感じで組んで。", note: "手順を短く" },
+  { label: "刺激", question: "刺激が心配なところを先に見たい。気をつける成分や使い方は？", note: "買う前チェック" },
+  { label: "候補", question: "気になっている商品があるとき、先に見るところを教えて。", note: "比較の前に" },
 ];
 
 const HABITS: Record<string, { icon: string; tips: string[] }> = {
@@ -89,6 +95,10 @@ function getVideoQuery(profile: UserProfile) {
 
 function listText(items: string[], fallback = "未登録") {
   return items.length > 0 ? items.slice(0, 4).join("・") : fallback;
+}
+
+function uniqueList(items: Array<string | null | undefined>) {
+  return Array.from(new Set(items.map((item) => item?.trim()).filter((item): item is string => Boolean(item))));
 }
 
 export default function KarteTab({ profile, displayName, isPro, preferences, onOpenProduct, onEditProfile, onGoAnalyze, onGoSearch, onGoLog, onUpgrade }: Props) {
@@ -230,29 +240,98 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
       tone: "log",
     },
   ];
-  const personalSections = [
+  const skinMemoItems = uniqueList([profile.skinType, ...profile.concerns, ...profile.currentState, ...(profile.skinConcerns ?? []), ...(profile.skinNotes ?? [])]);
+  const hairMemoItems = uniqueList([profile.hairType, ...(profile.hairConcerns ?? []), ...(profile.hairNotes ?? [])]);
+  const otherMemoItems = uniqueList([...(profile.otherConcerns ?? []), ...profile.desiredIngredients, ...profile.habits, ...profile.goals, ...(profile.otherNotes ?? [])]);
+  const cautionMemoItems = uniqueList([...(profile.avoidIngredients ?? []), ...(profile.allergies ?? [])]);
+  const personalMemoGroups = [
     {
       label: "肌",
-      body: listText([profile.skinType, ...(profile.skinConcerns ?? []), ...profile.currentState, ...(profile.skinNotes ?? [])].filter(Boolean), "肌メモなし"),
-      caption: "肌タイプ・状態・メモ",
+      title: listText(skinMemoItems, "肌メモなし"),
+      caption: "乾き・毛穴・赤みなどはここに集めます。",
+      empty: "気になる肌の状態を1つ足すだけでOKです。",
+      items: skinMemoItems,
+      tone: "skin",
     },
     {
       label: "髪",
-      body: listText([profile.hairType, ...(profile.hairConcerns ?? []), ...(profile.hairNotes ?? [])].filter(Boolean), "髪メモなし"),
-      caption: "髪質・頭皮・ダメージ",
+      title: listText(hairMemoItems, "髪メモなし"),
+      caption: "髪質・頭皮・カラー履歴を分けて見ます。",
+      empty: "髪の悩みもあとで相談に使えます。",
+      items: hairMemoItems,
+      tone: "hair",
     },
     {
       label: "その他",
-      body: listText([...(profile.otherConcerns ?? []), ...profile.desiredIngredients, ...profile.habits, ...profile.goals, ...(profile.otherNotes ?? [])].filter(Boolean), "その他メモなし"),
-      caption: "成分・習慣・目的",
+      title: listText(otherMemoItems, "その他メモなし"),
+      caption: "成分・習慣・目的は探すときの目印です。",
+      empty: "好きな成分や続け方を足すと比べやすいです。",
+      items: otherMemoItems,
+      tone: "other",
     },
     {
       label: "注意",
-      body: listText([...(profile.avoidIngredients ?? []), ...(profile.allergies ?? [])].filter(Boolean), "注意メモなし"),
-      caption: "避けたいもの・アレルギー",
+      title: listText(cautionMemoItems, "注意メモなし"),
+      caption: "避けたいものは買う前に先に見ます。",
+      empty: "アレルギーや避けたいものがあればここへ。",
+      items: cautionMemoItems,
+      tone: "caution",
     },
   ];
+  const memoFilledCount = personalMemoGroups.filter((group) => group.items.length > 0).length;
   const advisorDailyLimit = isPro ? PLAN_RULES.pro.personalChatDailyLimit : PLAN_RULES.free.personalChatDailyLimit;
+  const starterPool: Array<AdvisorStarter | null> = [
+    {
+      label: "今日だけ",
+      question: `今の状態は「${currentMoodText}」です。今日やることを3つだけ教えて。`,
+      note: "今日の状態から",
+    },
+    skinMemoItems.length > 0
+      ? {
+          label: "肌メモ",
+          question: `肌メモは「${listText(skinMemoItems)}」です。今週気をつけることを短く教えて。`,
+          note: "肌の整理",
+        }
+      : null,
+    hairMemoItems.length > 0
+      ? {
+          label: "髪メモ",
+          question: `髪メモは「${listText(hairMemoItems)}」です。今日のケアで重くしないコツは？`,
+          note: "髪・頭皮",
+        }
+      : null,
+    cautionMemoItems.length > 0
+      ? {
+          label: "注意",
+          question: `避けたいものは「${listText(cautionMemoItems)}」です。商品を見るとき先に確認することは？`,
+          note: "刺激・アレルギー",
+        }
+      : null,
+    topProduct
+      ? {
+          label: "候補",
+          question: `気になっている候補は「${topProduct.brand} ${topProduct.name}」です。買う前に見るところを教えて。`,
+          note: "商品チェック",
+        }
+      : null,
+    latestAnalysis
+      ? {
+          label: "解析",
+          question: `直近の成分解析をふまえて、次に選ぶとき気をつけることを教えて。`,
+          note: "履歴から",
+        }
+      : null,
+    ...DEFAULT_CHAT_STARTERS,
+  ];
+  const seenStarterQuestions = new Set<string>();
+  const advisorStarters = starterPool
+    .filter((starter): starter is AdvisorStarter => Boolean(starter))
+    .filter((starter) => {
+      if (seenStarterQuestions.has(starter.question)) return false;
+      seenStarterQuestions.add(starter.question);
+      return true;
+    })
+    .slice(0, 6);
   const personalEntryCards = [
     {
       label: "今日",
@@ -376,28 +455,44 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
         </div>
       </section>
 
-      <section className="motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: 18, marginBottom: 24, boxShadow: "0 8px 30px rgba(21,11,0,.05)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
+      <section className="personal-organizer-section motion-reveal">
+        <div className="personal-organizer-head">
           <div>
-            <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 5 }}>整理したメモ</div>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 24, fontWeight: 400, margin: 0, color: "#150B00" }}>肌・髪・その他・注意で分けています。</h2>
+            <span>メモの置き場</span>
+            <h2>増えても、ここで分けて見ます。</h2>
+            <p>肌・髪・その他・注意。今は{memoFilledCount}/4つ埋まっています。</p>
           </div>
-          <button onClick={onEditProfile} className="motion-nav-button" style={{ border: "1px solid #EDE5DC", borderRadius: 999, background: "#FBF8F3", color: "#A8722A", padding: "8px 12px", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
-            追加する
+          <button className="motion-nav-button" onClick={onEditProfile}>
+            メモを整理する
           </button>
         </div>
-        <div className="grid-cols-1-mobile motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10 }}>
-          {personalSections.map((item) => (
-            <div key={item.label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 14, padding: 13, background: item.label === "注意" ? "#FFF9EC" : "#FBF8F3", minHeight: 124 }}>
-              <div style={{ fontSize: 10, letterSpacing: ".16em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 8 }}>{item.label}</div>
-              <div style={{ fontSize: 13, fontWeight: 900, color: "#150B00", lineHeight: 1.5 }}>{item.body}</div>
-              <div style={{ fontSize: 10, color: "#8A7A6E", lineHeight: 1.5, marginTop: 7 }}>{item.caption}</div>
-            </div>
+        <div className="personal-organizer-grid motion-stagger">
+          {personalMemoGroups.map((group) => (
+            <article key={group.label} className={`personal-organizer-card ${group.tone} motion-card`}>
+              <div className="personal-organizer-card-head">
+                <span>{group.label}</span>
+                <strong>{group.items.length}</strong>
+              </div>
+              <h3>{group.title}</h3>
+              <div className="personal-organizer-chips">
+                {group.items.length > 0 ? (
+                  <>
+                    {group.items.slice(0, 6).map((item) => (
+                      <span key={item}>{item}</span>
+                    ))}
+                    {group.items.length > 6 && <span>+{group.items.length - 6}</span>}
+                  </>
+                ) : (
+                  <span>未登録</span>
+                )}
+              </div>
+              <p>{group.items.length > 0 ? group.caption : group.empty}</p>
+            </article>
           ))}
         </div>
       </section>
 
-      <KarteChatPanel isPro={isPro} displayName={displayName} onUpgrade={onUpgrade} />
+      <KarteChatPanel isPro={isPro} displayName={displayName} starters={advisorStarters} onUpgrade={onUpgrade} />
 
       <section className="lift-card motion-card motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 20, overflow: "hidden", marginBottom: 24, boxShadow: "0 10px 34px rgba(21,11,0,.06)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "minmax(220px,.86fr) minmax(0,1.14fr)", gap: 0 }} className="grid-cols-1-mobile">
@@ -461,74 +556,6 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
               </button>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── プロフィールカード ── */}
-      <section className="motion-reveal" style={{ background: "linear-gradient(135deg,#1A0E08,#2C1A0E)", borderRadius: 20, padding: "24px 28px", marginBottom: 24, border: "1px solid rgba(212,168,83,.2)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-          <div>
-            <div style={{ fontSize: 9, letterSpacing: "0.3em", color: "rgba(212,168,83,.6)", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>プロフィール</div>
-            <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 22, color: "#FBF8F3", fontWeight: 500 }}>
-              {profile.skinType || "未設定"} {profile.age ? `· ${profile.age}` : ""} {profile.gender ? `· ${profile.gender}` : ""}
-            </div>
-          </div>
-          <button onClick={onEditProfile} style={{ fontSize: 11, padding: "7px 14px", background: "rgba(212,168,83,.15)", color: "#D4A853", border: "1px solid rgba(212,168,83,.3)", borderRadius: 20, cursor: "pointer", fontWeight: 600 }}>
-            編集
-          </button>
-        </div>
-
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 24 }}>
-          <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>性別</div>
-            <div style={{ fontSize: 13, color: "#FBF8F3" }}>{profile.gender || "—"}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>肌</div>
-            <div style={{ fontSize: 13, color: "#FBF8F3" }}>{profile.skinType || "—"}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>髪</div>
-            <div style={{ fontSize: 13, color: "#FBF8F3" }}>{profile.hairType || "—"}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>悩み</div>
-            <div style={{ fontSize: 13, color: "#FBF8F3" }}>
-              {profile.concerns.length > 0 ? profile.concerns.join("・") : "—"}
-            </div>
-          </div>
-          <div>
-            <div style={{ fontSize: 9, color: "rgba(251,248,243,.4)", letterSpacing: "0.2em", fontFamily: "ui-monospace,monospace", marginBottom: 6 }}>プラン</div>
-            <div style={{ fontSize: 13, color: isPro ? "#D4A853" : "rgba(251,248,243,.6)", fontWeight: isPro ? 700 : 400 }}>
-              {isPro ? "PRO" : "無料"}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="motion-reveal" style={{ background: "#fff", border: "1px solid #EDE5DC", borderRadius: 18, padding: 18, marginBottom: 24, boxShadow: "0 8px 30px rgba(21,11,0,.05)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
-          <div>
-            <div style={{ fontSize: 10, letterSpacing: ".2em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 5 }}>今の条件</div>
-            <h2 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 24, fontWeight: 400, margin: 0, color: "#150B00" }}>今の状態から、次に見るところへ。</h2>
-          </div>
-          <button onClick={onEditProfile} className="motion-nav-button" style={{ border: "1px solid #EDE5DC", borderRadius: 999, background: "#FBF8F3", color: "#A8722A", padding: "8px 12px", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>
-            追加する
-          </button>
-        </div>
-        <div className="grid-cols-1-mobile motion-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10 }}>
-          {[
-            ["使用中", listText(profile.currentProducts), "基準"],
-            ["今の状態", listText(profile.currentState, listText(profile.concerns)), "今日"],
-            ["欲しい成分", listText(profile.desiredIngredients), "探す目印"],
-            ["習慣", listText(profile.habits), "続け方"],
-          ].map(([label, value, caption]) => (
-            <div key={label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 14, padding: 13, background: "#FBF8F3", minHeight: 116 }}>
-              <div style={{ fontSize: 10, letterSpacing: ".16em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 8 }}>{label}</div>
-              <div style={{ fontSize: 13, fontWeight: 900, color: "#150B00", lineHeight: 1.5 }}>{value}</div>
-              <div style={{ fontSize: 10, color: "#8A7A6E", lineHeight: 1.5, marginTop: 7 }}>{caption}</div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -776,7 +803,7 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
   );
 }
 
-function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; displayName: string; onUpgrade: () => void }) {
+function KarteChatPanel({ isPro, displayName, starters, onUpgrade }: { isPro: boolean; displayName: string; starters: AdvisorStarter[]; onUpgrade: () => void }) {
   const dailyLimit = isPro ? PLAN_RULES.pro.personalChatDailyLimit : PLAN_RULES.free.personalChatDailyLimit;
   const [messages, setMessages] = useState<KarteChatMessage[]>([
     {
@@ -792,6 +819,11 @@ function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; dis
   useEffect(() => {
     setRemaining(dailyLimit);
   }, [dailyLimit]);
+
+  const prepareQuestion = (question: string) => {
+    setInput(question);
+    setError("");
+  };
 
   const askKarte = async (rawQuestion?: string) => {
     const question = (rawQuestion ?? input).trim();
@@ -864,10 +896,15 @@ function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; dis
                 : `今日はあと${remaining}回聞けます。PROなら1日20回、保存やログまで見て深く相談できます。`}
             </p>
           </div>
+          <div className="karte-chat-helper">
+            <span>そのまま聞けること</span>
+            <p>押すと入力欄に入ります。送る前に、言い方は変えて大丈夫です。</p>
+          </div>
           <div className="karte-chat-starters">
-            {KARTE_CHAT_STARTERS.map((starter) => (
-              <button key={starter} type="button" onClick={() => askKarte(starter)} disabled={loading || remaining <= 0}>
-                {starter}
+            {starters.map((starter) => (
+              <button key={starter.question} type="button" onClick={() => prepareQuestion(starter.question)} disabled={loading || remaining <= 0}>
+                <strong>{starter.label}</strong>
+                <small>{starter.note}</small>
               </button>
             ))}
           </div>
