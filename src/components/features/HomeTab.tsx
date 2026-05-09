@@ -4,9 +4,9 @@ import { CAT_META } from "@/lib/constants";
 import type { YoutubeVideo } from "@/app/api/youtube/route";
 import { formatPrice } from "@/lib/utils";
 import { PLAN_RULES } from "@/lib/plan";
-import { getPersonalMatch, getProfileSignals } from "@/lib/personalization";
+import { getPersonalMatch } from "@/lib/personalization";
 import { getProductInsight } from "@/lib/productInsights";
-import { getBeautyGrowth, getProductGrowthStats } from "@/lib/beautyGrowth";
+import { getBeautyGrowth } from "@/lib/beautyGrowth";
 import { trackProductEvent } from "@/lib/productEvents";
 import { Icon, Stars, FreeBadge, ProBadge, ProductImage } from "@/components/ui";
 import type { PersonalPreferences, UserProfile, Product, Category } from "@/types";
@@ -326,26 +326,6 @@ function selectHeroMessage(context: HeroMessageContext) {
   return { ...message, body };
 }
 
-function softenMissionLabel(label: string) {
-  if (label.includes("今の状態")) return "今の状態をメモ";
-  if (label.includes("使用中")) return "使ってるものをメモ";
-  if (label.includes("成分")) return "成分を1つ見る";
-  if (label.includes("使用感") || label.includes("ログ")) return "使った感じをメモ";
-  if (label.includes("保存") || label.includes("候補")) return "気になるものを保存";
-  if (label.includes("予測") || label.includes("解放")) return "先の変化を見る";
-  return label;
-}
-
-function softenMissionBody(label: string, body: string) {
-  if (label.includes("今の状態")) return "肌・髪の今をひとことだけ。あとで比べやすくなります。";
-  if (label.includes("使用中")) return "使ってるものを書いておくと、買い替えで迷いにくくなります。";
-  if (label.includes("成分")) return "迷ったら成分だけ見ればOKです。合うかどうかの目安になります。";
-  if (label.includes("使用感") || label.includes("ログ")) return "短くて大丈夫。次に選ぶとき、ちゃんと役に立ちます。";
-  if (label.includes("保存") || label.includes("候補")) return "あとで比べたいものを一つだけ残しておきましょう。";
-  if (label.includes("予測") || label.includes("解放")) return "今の流れをもう少し先まで見られます。";
-  return body;
-}
-
 function BeautyBuddyBubble({ body, conditionText, isGuest }: { body: string; conditionText: string; isGuest: boolean }) {
   return (
     <div className="home-buddy-bubble">
@@ -367,7 +347,6 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
   const [activeVideoCategory, setActiveVideoCategory] = useState("全体");
   const [aiPicks, setAiPicks] = useState<Product[]>([]);
   const [editorsPicks, setEditorsPicks] = useState<Product[]>([]);
-  const profileSignals = getProfileSignals(profile, isPro ? preferences : null);
 
   useEffect(() => {
     setVideosLoading(true);
@@ -428,11 +407,8 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
   });
   const concernText = profile.concerns.slice(0, 3).join("・") || "今日の悩み";
   const conditionText = profile.currentState.slice(0, 2).join("・") || concernText;
-  const heroGrowthStats = heroProduct ? getProductGrowthStats(heroProduct, profile).slice(0, 2) : [];
   const primaryMission = growth.missions[0];
   const primaryMissionLabel = primaryMission?.label ?? "ログで変化を比較";
-  const primaryMissionBody = primaryMission?.body ?? "今日の使用感を残して、次の候補を選びやすくする";
-  const primaryMissionReward = primaryMission?.reward ?? 24;
   const now = new Date();
   const heroMessage = selectHeroMessage({
     displayName,
@@ -450,8 +426,6 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
     hasProduct: Boolean(heroProduct),
     profile,
   });
-  const softMissionLabel = softenMissionLabel(primaryMissionLabel);
-  const softMissionBody = softenMissionBody(primaryMissionLabel, primaryMissionBody);
   const handlePrimaryMission = () => {
     switch (primaryMission?.tone) {
       case "analyze":
@@ -476,7 +450,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
   return (
     <div className="motion-fade-scale" style={{ background: "linear-gradient(180deg,#FCF7F0 0%,#F7F0E8 42%,#EEF4EF 100%)" }}>
       {/* ── HERO ── */}
-      <section className="home-hero" style={{ position: "relative", minHeight: 620, overflow: "hidden", background: "#21110D" }}>
+      <section className="home-hero" style={{ position: "relative", minHeight: 560, overflow: "hidden", background: "#21110D" }}>
         <div className="home-hero-art" aria-hidden="true">
           <picture>
             <source media="(max-width: 640px)" srcSet={HOME_HERO_IMAGE.mobile} />
@@ -492,45 +466,21 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
           <span>{now.toLocaleDateString("ja-JP", { year: "numeric", month: "long" })}</span>
         </div>
 
-        <div className="home-hero-content motion-reveal-slow" style={{ position: "absolute", bottom: 34, left: 32, right: 32, maxWidth: 660 }}>
+        <div className="home-hero-content motion-reveal-slow" style={{ position: "absolute", bottom: 34, left: 32, right: 32, maxWidth: 560 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.2em", color: "#D4A853", fontFamily: "ui-monospace,monospace", marginBottom: 14 }}>
             {heroMessage.kicker} · {isPro && preferences?.confidence ? "記録も見ました" : "カルテを見ながら"}
           </div>
-          <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: "clamp(32px,5vw,54px)", lineHeight: 1.04, margin: 0, fontWeight: 400, color: "#FBF8F3", letterSpacing: "0.02em" }}>
+          <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: "clamp(30px,4vw,46px)", lineHeight: 1.04, margin: 0, fontWeight: 400, color: "#FBF8F3", letterSpacing: "0.02em" }}>
             {heroMessage.line1}<br/>
             <span style={{ color: "#D4A853", fontStyle: "italic" }}>{heroMessage.accent}</span>
           </h1>
           <BeautyBuddyBubble body={heroMessage.body} conditionText={conditionText} isGuest={isGuest} />
-          <div className="home-hero-growth-preview">
-            <div>
-              <span>今日の調子</span>
-              <strong>{growth.score}</strong>
-              <small>{growth.delta > 0 ? `今月 +${growth.delta}` : growth.levelName}</small>
-            </div>
-            <div>
-              <span>積み上げ</span>
-              <strong>{growth.level}</strong>
-              <small>{growth.levelName}</small>
-            </div>
-            <div>
-              <span>まずこれだけ</span>
-              <p>{softMissionLabel}</p>
-              {heroGrowthStats.length > 0 && (
-                <small>{heroGrowthStats.join(" / ")}</small>
-              )}
-            </div>
-          </div>
-          <div className="home-hero-mission-card">
-            <div>
-              <span>まずこれだけ</span>
-              <strong>{softMissionLabel}</strong>
-              <p>{softMissionBody}</p>
-            </div>
-            <b>+{primaryMissionReward} XP</b>
+          <div className="home-hero-helper">
+            {isGuest ? "はじめてなら、使い方からでもOKです。" : "迷ったら、まずここだけでOKです。"}
           </div>
           <div className="home-hero-actions">
             <button className="motion-cta" onClick={handlePrimaryMission}>
-              これをやる
+              今日これだけ
             </button>
             {heroProduct && (
               <button className="motion-nav-button" onClick={() => onOpenProduct(heroProduct)}>
@@ -544,18 +494,24 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
         </div>
       </section>
 
-      {/* ── PROFILE STRIP ── */}
-      <div style={{ background: "#F1EADE", borderBottom: "1px solid #EDE5DC" }}>
-        <div className="section-shell mobile-tight motion-reveal-slow" style={{ padding: "14px 32px", display: "flex", gap: 20, alignItems: "center", overflowX: "auto", fontSize: 11, letterSpacing: "0.12em", color: "#8A7A6E", fontFamily: "ui-monospace,monospace", whiteSpace: "nowrap" }}>
-          <span style={{ color: "#D4A853", fontWeight: 600, flexShrink: 0 }}>{isPro && preferences?.confidence ? "記録も見ました" : "カルテ見ました"}</span>
-          <span>━━ {isGuest ? "ゲストカルテ" : `${displayName}さんのカルテ`}</span>
-          <span>{profile.skinType || "肌質未設定"}</span>
-          {isPro && preferences?.positiveSignals.slice(0, 2).map(signal => <span key={signal}>/ {signal}</span>)}
-          {profile.hairType && <span>{profile.hairType}</span>}
-          {profile.concerns.slice(0, 3).map(c => <span key={c}>/ {c}</span>)}
-          <span style={{ marginLeft: "auto", color: "#150B00", flexShrink: 0 }}>更新 {new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</span>
+      <section className="home-guide-prompt mobile-tight">
+        <div className="section-shell">
+          <div>
+            <span>{isGuest ? "はじめての方へ" : "迷ったらここ"}</span>
+            <p>
+              使い方とQ&AはGuideにまとめました。最初は商品を見るだけでも大丈夫です。
+            </p>
+          </div>
+          <div className="home-guide-prompt-actions">
+            <button className="motion-nav-button" onClick={onGoGuide}>
+              使い方を見る
+            </button>
+            <button className="motion-nav-button" onClick={() => onGoSearch()}>
+              商品を探す
+            </button>
+          </div>
         </div>
-      </div>
+      </section>
 
       {!isGuest && (
         <section className="mobile-tight motion-reveal" style={{ padding: "20px 32px", borderBottom: "1px solid #EDE5DC", background: "#FBF8F3" }}>
@@ -600,49 +556,6 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
         </section>
       )}
 
-      <TutorialGuide
-        isPro={isPro}
-        onGoKarte={onGoKarte}
-        onGoAnalyze={onGoAnalyze}
-        onGoSearch={() => onGoSearch()}
-        onGoSaved={onGoSaved}
-        onGoLog={onGoLog}
-        onGoGuide={onGoGuide}
-        onUpgrade={() => onUpgrade("home_tutorial")}
-      />
-
-      {!isPro && profileSignals.length > 0 && (
-        <section className="mobile-tight motion-reveal" style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff" }}>
-          <div className="section-shell" style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>PROで詳しく</div>
-            <p style={{ fontSize: 13, lineHeight: 1.7, color: "#4A3728", margin: 0 }}>
-              {profileSignals.slice(0, 3).join("・")}の相性をもう少し見られます。
-            </p>
-          </div>
-          <button className="motion-cta" onClick={() => onUpgrade("home_personal_fit_teaser")} style={{ padding: "10px 16px", border: "none", borderRadius: 999, background: "linear-gradient(135deg,#D4A853,#A8722A)", color: "#1A0E08", fontSize: 12, fontWeight: 800, cursor: "pointer", flexShrink: 0 }}>
-            詳しく見る
-          </button>
-          </div>
-        </section>
-      )}
-
-      {isPro && preferences && preferences.confidence > 0 && (
-        <section className="mobile-tight motion-reveal" style={{ padding: "18px 32px", borderBottom: "1px solid #EDE5DC", background: "#fff" }}>
-          <div className="section-shell" style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "#A8722A", fontFamily: "ui-monospace,monospace", marginBottom: 4 }}>記録も見ました</div>
-            <p style={{ fontSize: 13, lineHeight: 1.7, color: "#4A3728", margin: 0 }}>
-              {preferences.summary}。ログ{preferences.logCount}件 / 保存{preferences.savedCount}件。
-            </p>
-          </div>
-          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#1A0E08", color: "#D4A853", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 20, fontWeight: 700 }}>
-            {preferences.confidence}
-          </div>
-          </div>
-        </section>
-      )}
-
       {/* ── CATEGORY GRID ── */}
       <section className="editorial-section mobile-tight" style={{ padding: "44px 32px 38px", borderBottom: "1px solid #EDE5DC" }}>
         <div className="section-shell">
@@ -654,8 +567,8 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
               悩み、質感、使う場面で選ぶ。
             </p>
           </div>
-          <button className="motion-nav-button" onClick={() => onUpgrade("home_category_precision")} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#A8722A", fontSize: 11, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
-            PROで細かく絞る
+          <button className="motion-nav-button" onClick={() => onGoSearch()} style={{ border: "1px solid #D4A853", borderRadius: 999, padding: "9px 14px", background: "#fff", color: "#A8722A", fontSize: 11, fontWeight: 900, cursor: "pointer", flexShrink: 0 }}>
+            検索を開く
           </button>
         </div>
         <div className="category-couture-grid grid-cols-1-mobile motion-stagger">

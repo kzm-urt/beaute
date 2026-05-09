@@ -51,7 +51,7 @@ const planRows = [
   { label: "商品検索・ランキング", guest: "閲覧OK", free: "閲覧OK", pro: "全商品を深掘り" },
   { label: "保存・比較", guest: "登録が必要", free: "基本枠あり", pro: "候補を多く残せる" },
   { label: "成分解析", guest: "登録が必要", free: "月3回", pro: "無制限" },
-  { label: "カルテ・美容ログ", guest: "サンプル閲覧", free: "記録OK", pro: "おすすめに反映" },
+  { label: "カルテ・美容ログ", guest: "サンプル閲覧", free: "記録OK", pro: "おすすめが少し合いやすい" },
   { label: "購入リンク", guest: "一部のみ", free: "無料対象中心", pro: "全商品で開放" },
 ] as const;
 
@@ -62,6 +62,64 @@ const routines = [
   { label: "選ぶ前", body: "商品詳細で相性、注意点、レビュー量、動画を軽く確認。" },
   { label: "週1回", body: "美容ログに使用感を残して、また使いたい理由・やめたい理由をメモ。" },
   { label: "月1回", body: "成分解析と保存リストを見直して、次に買う候補を整理。" },
+] as const;
+
+const quickRoutes = [
+  {
+    label: "まず触ってみたい",
+    title: "ランキングを眺める",
+    body: "気になる商品をひとつ見るだけで大丈夫です。保存はあとからでOK。",
+    cta: "ランキングへ",
+    action: "ranking",
+  },
+  {
+    label: "自分に合うか見たい",
+    title: "カルテを少し入れる",
+    body: "肌タイプ、髪タイプ、悩みを1つずつ。最初はそれだけで十分です。",
+    cta: "カルテへ",
+    action: "karte",
+  },
+  {
+    label: "買う前に迷う",
+    title: "成分だけ確認する",
+    body: "全部比べなくて大丈夫です。迷ったら成分チェックだけでOK。",
+    cta: "成分解析へ",
+    action: "analyze",
+  },
+  {
+    label: "ちゃんと相談したい",
+    title: "カルテ相談室で聞く",
+    body: "PROなら、カルテやログを見ながら質問できます。",
+    cta: "相談する",
+    action: "consult",
+  },
+] as const;
+
+const faqs = [
+  {
+    q: "最初は何をすればいい？",
+    a: "まずランキングか検索で、気になる商品をひとつ見るだけでOKです。カルテや保存は、使いながら少しずつで大丈夫です。",
+  },
+  {
+    q: "ゲストでも使えますか？",
+    a: "商品検索とランキングはすぐ見られます。保存、ログ、カルテを残したい時は無料登録すると使いやすくなります。",
+  },
+  {
+    q: "カルテはたくさん入力しないとだめ？",
+    a: "だめじゃないです。肌タイプ、髪タイプ、悩みを1つずつ入れるだけでも十分。あとで気づいたことを足せます。",
+  },
+  {
+    q: "商品が多くて迷う時は？",
+    a: "目的から探すか、成分チェックだけ見ましょう。全部を完璧に比べなくても、次の候補は絞れます。",
+  },
+  {
+    q: "記録は毎日必要？",
+    a: "毎日じゃなくてOKです。使ってみて変化があった日だけでも、あとで比べやすくなります。",
+  },
+  {
+    q: "PROの相談は何が違う？",
+    a: "カルテ、保存、ログを見ながら聞けます。買う前の迷いを短くしたい時に使う場所です。",
+  },
 ] as const;
 
 export default function GuideTab({
@@ -81,6 +139,17 @@ export default function GuideTab({
     if (action === "saved") isGuest ? onAuth() : onGoSaved();
     if (action === "karte") isGuest ? onAuth() : onGoKarte();
     if (action === "analyze") isGuest ? onAuth() : onGoAnalyze();
+  };
+
+  const runQuickAction = (action: (typeof quickRoutes)[number]["action"]) => {
+    if (action === "ranking") onGoRanking();
+    if (action === "karte") isGuest ? onAuth() : onGoKarte();
+    if (action === "analyze") isGuest ? onAuth() : onGoAnalyze();
+    if (action === "consult") {
+      if (isGuest) onAuth();
+      else if (isPro) onGoKarte();
+      else onUpgrade("guide_karte_chat");
+    }
   };
 
   return (
@@ -134,6 +203,41 @@ export default function GuideTab({
                 <Icon name="arrow" size={15} sw={2} />
               </button>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="guide-section section-shell mobile-tight">
+        <div className="guide-section-head">
+          <p className="guide-eyebrow">迷ったらこれ</p>
+          <h2>今の気分から始める</h2>
+        </div>
+        <div className="guide-quick-grid">
+          {quickRoutes.map((route) => (
+            <article className="guide-quick-card motion-card" key={route.title}>
+              <span>{route.label}</span>
+              <h3>{route.title}</h3>
+              <p>{route.body}</p>
+              <button onClick={() => runQuickAction(route.action)}>
+                {isGuest && route.action !== "ranking" ? "無料登録して使う" : !isPro && route.action === "consult" ? "PROを見る" : route.cta}
+                <Icon name="arrow" size={15} sw={2} />
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="guide-section section-shell mobile-tight">
+        <div className="guide-section-head">
+          <p className="guide-eyebrow">Q&A</p>
+          <h2>よくある迷いどころ</h2>
+        </div>
+        <div className="guide-faq-list">
+          {faqs.map((faq) => (
+            <details className="guide-faq-item motion-card" key={faq.q}>
+              <summary>{faq.q}</summary>
+              <p>{faq.a}</p>
+            </details>
           ))}
         </div>
       </section>
@@ -206,7 +310,7 @@ export default function GuideTab({
           <div>
             <p className="guide-eyebrow">PROでできること</p>
             <h2>ちゃんと選びたい日は、PROで深く見る。</h2>
-            <p>無制限の成分解析、全商品の購入リンク、保存・ログを反映したおすすめで、候補をもう一段細かく見られます。</p>
+            <p>無制限の成分解析、全商品の購入リンク、保存・ログを見たおすすめで、候補をもう一段細かく見られます。</p>
           </div>
           <button className="guide-primary motion-cta" onClick={() => isGuest ? onAuth() : onUpgrade("guide_bottom_cta")}>
             {isGuest ? "無料登録して7日トライアルへ" : "PROを試す"}

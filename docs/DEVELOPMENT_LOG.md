@@ -978,6 +978,13 @@ Recent checks:
 - Premium and Guide plan surfaces now mention the new Karte consultation value.
 - Verified with `npm run typecheck`, `npm run build`, API auth checks on `http://localhost:3010/api/karte-chat`, and local Premium/Karte screenshots.
 
+2026-05-09 Home declutter and Guide Q&A pass:
+
+- Direction locked: Home stays as the light "today's entrance" with one buddy note and a small number of actions.
+- New-user care stays present, but moves into Guide as a "迷ったらこれ" route section and a compact Q&A page flow.
+- Home no longer renders the dense hero stat cards, mission card, profile strip, or full tutorial guide block above the first product sections.
+- Keep this split going forward: Home should help returning users start quickly; Guide should explain how to use beautia without making the first screen heavy.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

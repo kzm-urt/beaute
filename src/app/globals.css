@@ -1348,6 +1348,62 @@ textarea:focus-visible {
   white-space: nowrap;
 }
 
+.home-hero-helper {
+  margin: -2px 0 15px;
+  color: rgba(251, 248, 243, 0.68);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.home-guide-prompt {
+  border-bottom: 1px solid #EDE5DC;
+  background: #FBF8F3;
+  padding: 16px 32px;
+}
+
+.home-guide-prompt .section-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.home-guide-prompt span {
+  display: block;
+  margin-bottom: 4px;
+  color: #A8722A;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.home-guide-prompt p {
+  margin: 0;
+  color: #5F4A3D;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.home-guide-prompt-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.home-guide-prompt-actions button {
+  border: 1px solid rgba(168, 114, 42, 0.32);
+  border-radius: 8px;
+  background: #FFFDF9;
+  color: #A8722A;
+  padding: 10px 13px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
 .home-hero-growth-preview {
   display: grid;
   grid-template-columns: 92px 82px minmax(140px, 1fr);
@@ -2281,7 +2337,14 @@ textarea:focus-visible {
   gap: 12px;
 }
 
+.guide-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .guide-step,
+.guide-quick-card,
 .guide-routine-card {
   border: 1px solid #EDE5DC;
   border-radius: 14px;
@@ -2289,7 +2352,8 @@ textarea:focus-visible {
   padding: 18px;
 }
 
-.guide-step h3 {
+.guide-step h3,
+.guide-quick-card h3 {
   margin: 18px 0 0;
   color: #150B00;
   font-size: 17px;
@@ -2297,6 +2361,7 @@ textarea:focus-visible {
 }
 
 .guide-step p,
+.guide-quick-card p,
 .guide-routine-card p,
 .guide-personal-copy p,
 .guide-pro-cta p {
@@ -2305,7 +2370,8 @@ textarea:focus-visible {
   line-height: 1.78;
 }
 
-.guide-step button {
+.guide-step button,
+.guide-quick-card button {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -2316,6 +2382,64 @@ textarea:focus-visible {
   font-size: 12px;
   font-weight: 900;
   cursor: pointer;
+}
+
+.guide-quick-card span {
+  display: block;
+  color: #A8722A;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.guide-faq-list {
+  display: grid;
+  gap: 10px;
+}
+
+.guide-faq-item {
+  border: 1px solid #EDE5DC;
+  border-radius: 14px;
+  background: #FFFDF9;
+  padding: 0;
+}
+
+.guide-faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  color: #150B00;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  list-style: none;
+}
+
+.guide-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.guide-faq-item summary::after {
+  content: "+";
+  flex-shrink: 0;
+  color: #A8722A;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 16px;
+}
+
+.guide-faq-item[open] summary::after {
+  content: "-";
+}
+
+.guide-faq-item p {
+  margin: 0;
+  padding: 0 18px 16px;
+  color: #6B5B4A;
+  font-size: 13px;
+  line-height: 1.78;
 }
 
 .guide-personal-section {
@@ -3462,6 +3586,7 @@ textarea:focus-visible {
   }
 
   .guide-step-grid,
+  .guide-quick-grid,
   .guide-routine-grid {
     grid-template-columns: 1fr;
   }
@@ -3701,6 +3826,27 @@ textarea:focus-visible {
 
   .home-hero-actions .ghost {
     grid-column: 1 / -1;
+  }
+
+  .home-guide-prompt {
+    padding: 14px 14px;
+  }
+
+  .home-guide-prompt .section-shell {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .home-guide-prompt-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .home-guide-prompt-actions button {
+    min-height: 40px;
+    padding: 9px 10px;
   }
 
   .legal-page {
