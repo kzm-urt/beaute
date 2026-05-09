@@ -1823,6 +1823,104 @@ textarea:focus-visible {
   box-shadow: 0 12px 32px rgba(21, 11, 0, 0.16);
 }
 
+.personal-entry-section {
+  margin-bottom: 24px;
+}
+
+.personal-entry-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.personal-entry-head span {
+  display: block;
+  margin-bottom: 5px;
+  color: #A8722A;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.personal-entry-head h2 {
+  margin: 0;
+  color: #150B00;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.personal-entry-head button {
+  flex-shrink: 0;
+  border: 1px solid #EDE5DC;
+  border-radius: 999px;
+  background: #fff;
+  color: #A8722A;
+  padding: 9px 13px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.personal-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.personal-entry-card {
+  min-width: 0;
+  min-height: 154px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #EDE5DC;
+  border-radius: 14px;
+  background: #fff;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.personal-entry-card span,
+.personal-entry-card small {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.personal-entry-card span {
+  color: #A8722A;
+}
+
+.personal-entry-card strong {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #150B00;
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.personal-entry-card p {
+  flex: 1;
+  margin: 0;
+  color: #6B5B4A;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.personal-entry-card small {
+  color: #D4A853;
+}
+
 .karte-personal-snapshot {
   display: grid;
   grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1.28fr);
@@ -3354,6 +3452,29 @@ textarea:focus-visible {
 
   .beauty-log-growth-card {
     align-items: flex-start;
+  }
+
+  .personal-entry-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .personal-entry-head h2 {
+    font-size: 23px;
+  }
+
+  .personal-entry-head button {
+    width: 100%;
+  }
+
+  .personal-entry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .personal-entry-card {
+    min-height: 142px;
+    padding: 12px;
   }
 
   .karte-personal-snapshot {

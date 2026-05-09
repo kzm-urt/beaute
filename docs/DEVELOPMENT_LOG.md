@@ -994,6 +994,13 @@ Recent checks:
 - `/api/karte-chat` now behaves as the Personal advisor: FREE users can ask 3 times/day and PRO users 20 times/day, enforced server-side via `api_usage_events`.
 - Guest Personal gate explains that registration unlocks the saved personal notes and 3 free daily advisor messages.
 
+2026-05-09 Personal polish pass:
+
+- `?tab=personal` is now the canonical public query param for the Personal tab; the older internal `karte` value still resolves for compatibility.
+- Personal now opens with five compact entry points: 今日, 肌, 髪, 注意, and 相談.
+- The advisor panel has a stable anchor so the entry card can jump directly to consultation.
+- This keeps added profile detail from feeling like one long form and gives new users a simple mental map.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

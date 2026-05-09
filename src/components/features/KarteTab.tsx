@@ -252,6 +252,44 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
       caption: "避けたいもの・アレルギー",
     },
   ];
+  const advisorDailyLimit = isPro ? PLAN_RULES.pro.personalChatDailyLimit : PLAN_RULES.free.personalChatDailyLimit;
+  const personalEntryCards = [
+    {
+      label: "今日",
+      title: currentMoodText,
+      body: "今の状態だけ見て、まず何をするか決めます。",
+      action: "今日を足す",
+      onClick: onEditProfile,
+    },
+    {
+      label: "肌",
+      title: listText([profile.skinType, ...(profile.skinConcerns ?? [])].filter(Boolean), "肌メモなし"),
+      body: "乾き、毛穴、赤みなどはここに集めます。",
+      action: "肌を足す",
+      onClick: onEditProfile,
+    },
+    {
+      label: "髪",
+      title: listText([profile.hairType, ...(profile.hairConcerns ?? [])].filter(Boolean), "髪メモなし"),
+      body: "髪質、頭皮、カラー履歴を分けて見ます。",
+      action: "髪を足す",
+      onClick: onEditProfile,
+    },
+    {
+      label: "注意",
+      title: listText([...(profile.avoidIngredients ?? []), ...(profile.allergies ?? [])].filter(Boolean), "未登録"),
+      body: "避けたいものは買う前に先に見ます。",
+      action: "注意を足す",
+      onClick: onEditProfile,
+    },
+    {
+      label: "相談",
+      title: `${isPro ? "PRO" : "無料"} ${advisorDailyLimit}回/日`,
+      body: "迷っていることをそのまま聞けます。",
+      action: "下で聞く",
+      onClick: () => document.getElementById("personal-advisor")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    },
+  ];
 
   return (
     <div className="mobile-tight motion-fade-scale" style={{ padding: "28px 24px 64px", maxWidth: 1120, margin: "0 auto" }}>
@@ -284,6 +322,28 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
           </div>
         </div>
       </div>
+
+      <section className="personal-entry-section motion-reveal">
+        <div className="personal-entry-head">
+          <div>
+            <span>ここから見る</span>
+            <h2>今日・肌・髪・注意・相談を分けました。</h2>
+          </div>
+          <button className="motion-nav-button" onClick={onEditProfile}>
+            メモを足す
+          </button>
+        </div>
+        <div className="personal-entry-grid motion-stagger">
+          {personalEntryCards.map((card) => (
+            <button key={card.label} className="personal-entry-card motion-card" onClick={card.onClick}>
+              <span>{card.label}</span>
+              <strong>{card.title}</strong>
+              <p>{card.body}</p>
+              <small>{card.action}</small>
+            </button>
+          ))}
+        </div>
+      </section>
 
       <BeautyGrowthPanel
         growth={growth}
@@ -779,7 +839,7 @@ function KarteChatPanel({ isPro, displayName, onUpgrade }: { isPro: boolean; dis
   };
 
   return (
-    <section className="karte-chat-panel motion-reveal is-live">
+    <section id="personal-advisor" className="karte-chat-panel motion-reveal is-live">
       <div className="karte-chat-head">
         <div>
           <div className="micro-label">{isPro ? "PROアドバイザー" : "無料相談"}</div>

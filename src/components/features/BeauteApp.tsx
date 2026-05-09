@@ -52,6 +52,7 @@ const MOBILE_NAV = NAV.filter(({ key }) => MOBILE_NAV_KEYS.has(key));
 function getInitialTab(): Tab {
   if (typeof window === "undefined") return "home";
   const value = new URLSearchParams(window.location.search).get("tab");
+  if (value === "personal") return "karte";
   return TAB_KEYS.includes(value as Tab) ? value as Tab : "home";
 }
 
@@ -203,7 +204,8 @@ export default function BeauteApp() {
   }, [user]);
 
   useEffect(() => {
-    const path = tab === "home" ? "/" : `/?tab=${tab}`;
+    const tabParam = tab === "karte" ? "personal" : tab;
+    const path = tab === "home" ? "/" : `/?tab=${tabParam}`;
     if (`${window.location.pathname}${window.location.search}` !== path) {
       window.history.replaceState({}, "", path);
     }
