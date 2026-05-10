@@ -29,8 +29,21 @@ Verification:
 
 - `npm run typecheck` passes.
 - `npm run build` passes.
+- Vercel Production env now has `NEXT_PUBLIC_SUPPORT_EMAIL=computerschool.irise@gmail.com`.
+- `npm run build` passes.
 - Browser QA on `http://localhost:3010` confirms `/`, `/guide`, `/pricing`, and `/?tab=search&q=化粧水` render with the expected titles and visible content.
 - `NEXT_PUBLIC_APP_URL=https://beaute-xi.vercel.app npm run preflight` confirms public pages, `/robots.txt`, and `/sitemap.xml` return 200. Existing non-SEO checks still fail for the missing `beta_feedback` table and admin pages returning 401 under Basic auth.
+
+## 2026-05-11 Public Support Email
+
+Scope:
+
+- Changed the public support/contact email used by legal pages and structured data to `computerschool.irise@gmail.com`.
+- Kept admin authorization emails separate from the public support address.
+
+Verification:
+
+- `npm run typecheck` passes.
 
 ## 2026-05-08 Brand Rename Pass
 

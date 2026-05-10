@@ -1,14 +1,12 @@
 import { PLAN_RULES } from "@/lib/plan";
 
+export const DEFAULT_SUPPORT_EMAIL = "computerschool.irise@gmail.com";
+
 function firstConfiguredEmail() {
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim();
   if (supportEmail) return supportEmail;
 
-  return (
-    process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(",")
-      .map((email) => email.trim())
-      .find(Boolean) ?? "uratyokaityo@icloud.com"
-  );
+  return DEFAULT_SUPPORT_EMAIL;
 }
 
 export const PUBLIC_SITE_URL =
