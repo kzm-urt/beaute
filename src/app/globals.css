@@ -3801,6 +3801,12 @@ textarea:focus-visible {
   text-decoration: none;
 }
 
+.legal-link-grid a span {
+  color: var(--beaute-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .public-compliance-strip {
   align-items: center;
   background: #fff;

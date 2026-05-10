@@ -1,12 +1,36 @@
 # beautia Development Log
 
-Last updated: 2026-05-08
+Last updated: 2026-05-11
 
 ## Current Direction
 
 beautia is a beauty product discovery app with auth, profile-based recommendations, ingredient analysis, usage logs, Rakuten product search/ranking, and a FREE/PRO plan split.
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
+
+## 2026-05-11 SEO Foundation Pass
+
+Scope:
+
+- Strengthened public SEO for the current `beautia` brand while keeping the production URL on `https://beaute-xi.vercel.app`.
+- Added crawlable public guide and pricing pages so new visitors and search engines can understand the service without relying only on the client-side app tabs.
+- Centralized title, description, Open Graph/Twitter image, canonical URL, keywords, robots, and structured data in `src/lib/seo.ts`.
+
+Changes:
+
+- Root metadata now uses large social preview images, Googlebot preview directives, optional Search Console verification env support, and JSON-LD for Organization, WebSite, WebApplication, and FAQPage.
+- `/sitemap.xml` now includes `/`, `/guide`, `/about`, `/pricing`, `/terms`, `/privacy`, and `/commercial`; beta feedback was removed from the indexable sitemap.
+- `/robots.txt` keeps `/admin`, `/api`, and `/reset-password` out of crawl paths.
+- `/feedback` and `/reset-password` now have noindex metadata.
+- PWA manifest now includes an app id and shortcuts for search, ranking, and personal.
+- Search URLs with `?tab=search&q=...` hydrate the search field so the WebSite SearchAction target works.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `npm run build` passes.
+- Browser QA on `http://localhost:3010` confirms `/`, `/guide`, `/pricing`, and `/?tab=search&q=化粧水` render with the expected titles and visible content.
+- `NEXT_PUBLIC_APP_URL=https://beaute-xi.vercel.app npm run preflight` confirms public pages, `/robots.txt`, and `/sitemap.xml` return 200. Existing non-SEO checks still fail for the missing `beta_feedback` table and admin pages returning 401 under Basic auth.
 
 ## 2026-05-08 Brand Rename Pass
 

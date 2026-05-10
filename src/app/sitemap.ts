@@ -1,45 +1,51 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://beaute.vercel.app";
   const now = new Date();
 
   return [
     {
-      url: appUrl,
+      url: SITE_URL,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: `${appUrl}/about`,
+      url: `${SITE_URL}/guide`,
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.6,
+      priority: 0.75,
     },
     {
-      url: `${appUrl}/feedback`,
+      url: `${SITE_URL}/about`,
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.4,
+      priority: 0.7,
     },
     {
-      url: `${appUrl}/terms`,
+      url: `${SITE_URL}/pricing`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.65,
+    },
+    {
+      url: `${SITE_URL}/terms`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.3,
     },
     {
-      url: `${appUrl}/privacy`,
+      url: `${SITE_URL}/privacy`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.3,
     },
     {
-      url: `${appUrl}/commercial`,
+      url: `${SITE_URL}/commercial`,
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.3,
+      priority: 0.35,
     },
   ];
 }

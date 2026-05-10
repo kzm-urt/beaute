@@ -15,6 +15,7 @@ interface Props {
   onAuth?: () => void;
   onOpenProduct?: (p: Product) => void;
   initialMode?: BrowseMode;
+  initialQuery?: string;
   profile?: UserProfile;
   preferences?: PersonalPreferences | null;
 }
@@ -26,8 +27,8 @@ const ALL_CATEGORY = "\u3059\u3079\u3066";
 const DEFAULT_CATEGORY = Object.keys(CAT_META)[0] as Category;
 const RESULTS_PAGE_SIZE = 18;
 
-export default function SearchTab({ isPro, isGuest = false, preferences, onUpgrade, onAuth, onOpenProduct, initialMode = "search", profile }: Props) {
-  const [query, setQuery] = useState("");
+export default function SearchTab({ isPro, isGuest = false, preferences, onUpgrade, onAuth, onOpenProduct, initialMode = "search", initialQuery = "", profile }: Props) {
+  const [query, setQuery] = useState(initialQuery);
   const [activeCat, setActiveCat] = useState<string>(ALL_CATEGORY);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortKey>(isPro ? "personal" : "rating");
@@ -51,6 +52,10 @@ export default function SearchTab({ isPro, isGuest = false, preferences, onUpgra
     setMode(initialMode);
     setPage(1);
   }, [initialMode]);
+
+  useEffect(() => {
+    if (initialQuery) setQuery(initialQuery);
+  }, [initialQuery]);
 
   useEffect(() => {
     if (isPro && sortBy === "rating" && preferences?.confidence) {

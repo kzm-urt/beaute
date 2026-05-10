@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LEGAL_INFO } from "@/lib/legalInfo";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "beautiaについて",
-  description: "beautia は、iRiseが提供するパーソナル美容サーチです。サービス内容、料金、運営者情報を掲載しています。",
-};
+  description: "beautiaは、iRiseが提供するパーソナル美容サーチです。サービス内容、料金、運営者情報を掲載しています。",
+  path: "/about",
+});
 
 const features = [
   ["商品検索・ランキング", "楽天市場の商品情報をもとに、美容カテゴリごとの商品を探せます。"],
@@ -53,6 +55,8 @@ export default function AboutPage() {
           </p>
 
           <div className="legal-link-grid">
+            <Link href="/guide">使い方</Link>
+            <Link href="/pricing">料金</Link>
             <Link href="/commercial">特定商取引法に基づく表記</Link>
             <Link href="/terms">利用規約</Link>
             <Link href="/privacy">プライバシーポリシー</Link>

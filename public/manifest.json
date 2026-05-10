@@ -2,6 +2,7 @@
   "name": "beautia — パーソナル美容サーチ",
   "short_name": "beautia",
   "description": "美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談をひとつにまとめるWebサービスです。",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -30,5 +31,28 @@
     }
   ],
   "screenshots": [],
-  "categories": ["lifestyle", "beauty", "health", "shopping"]
+  "categories": ["lifestyle", "beauty", "health", "shopping"],
+  "shortcuts": [
+    {
+      "name": "商品検索",
+      "short_name": "検索",
+      "description": "美容商品を探す",
+      "url": "/?tab=search",
+      "icons": [{ "src": "/icons/beautia-icon-192-20260510.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "ランキング",
+      "short_name": "ランキング",
+      "description": "人気の美容商品を見る",
+      "url": "/?tab=ranking",
+      "icons": [{ "src": "/icons/beautia-icon-192-20260510.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "パーソナル",
+      "short_name": "パーソナル",
+      "description": "肌・髪メモと相談を開く",
+      "url": "/?tab=personal",
+      "icons": [{ "src": "/icons/beautia-icon-192-20260510.png", "sizes": "192x192" }]
+    }
+  ]
 }

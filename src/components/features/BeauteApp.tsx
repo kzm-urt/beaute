@@ -56,6 +56,11 @@ function getInitialTab(): Tab {
   return TAB_KEYS.includes(value as Tab) ? value as Tab : "home";
 }
 
+function getInitialSearchQuery() {
+  if (typeof window === "undefined") return "";
+  return new URLSearchParams(window.location.search).get("q")?.trim().slice(0, 80) ?? "";
+}
+
 const GUEST_PROFILE: UserProfile = {
   nickname: "ゲスト",
   age: "",
@@ -142,6 +147,8 @@ function PublicComplianceStrip() {
         <span>美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談を提供します。PROは月額¥500（税込）です。</span>
       </div>
       <nav aria-label="公開情報">
+        <a href="/guide">使い方</a>
+        <a href="/pricing">料金</a>
         <a href="/about">サービス内容</a>
         <a href="/commercial">特商法表記</a>
         <a href="/terms">利用規約</a>
@@ -156,6 +163,7 @@ export default function BeauteApp() {
   const { profile, updateProfile, profileDone, setProfileDone, completeProfile, profileLoading, isPro, setIsPro, refreshProfile } = useProfile(user);
   const { preferences } = usePersonalPreferences(Boolean(user && profileDone && isPro));
   const [tab, setTab] = useState<Tab>(getInitialTab);
+  const [initialSearchQuery] = useState(getInitialSearchQuery);
   const [drawer, setDrawer] = useState<Product | null>(null);
   const [toast, setToast] = useState<{ type: "success" | "cancel"; message: string } | null>(null);
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -387,7 +395,7 @@ export default function BeauteApp() {
         <main style={{ flex: 1, overflowY: "auto" }} className="app-main">
           {tab === "home"    && <HomeTab    profile={effectiveProfile} displayName={displayName} isGuest={isGuest} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")} onGoGuide={() => setTab("guide")}/>}
           {tab === "guide"   && <GuideTab   isGuest={isGuest} isPro={effectiveIsPro} onAuth={() => setShowAuth(true)} onUpgrade={upgrade} onGoSearch={() => setTab("search")} onGoRanking={() => setTab("ranking")} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
-          {tab === "search"  && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="search" profile={effectiveProfile}/>}
+          {tab === "search"  && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="search" initialQuery={initialSearchQuery} profile={effectiveProfile}/>}
           {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}
           {tab === "analyze" && (isGuest ? <GuestGate title={"\u6210\u5206\u89e3\u6790\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6210\u5206\u306e\u8981\u70b9\u3068\u6ce8\u610f\u70b9\u3092\u6b8b\u305b\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
           {tab === "karte"   && (isGuest ? <GuestGate title={"パーソナルはあなた専用"} body={"肌・髪・注意メモを分けて残せます。無料登録すると相談も1日3回使えます。"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} displayName={displayName} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}

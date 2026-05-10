@@ -11,7 +11,8 @@ function firstConfiguredEmail() {
   );
 }
 
-export const PUBLIC_SITE_URL = "https://beaute-xi.vercel.app";
+export const PUBLIC_SITE_URL =
+  process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/+$/, "") || "https://beaute-xi.vercel.app";
 
 export const LEGAL_INFO = {
   serviceName: "beautia",

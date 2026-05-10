@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LEGAL_INFO } from "@/lib/legalInfo";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "プライバシーポリシー",
-  description: "beautia のプライバシーポリシーです。",
-};
+  description: "beautiaのプライバシーポリシーです。取得する情報、利用目的、外部サービス、問い合わせ先を掲載しています。",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

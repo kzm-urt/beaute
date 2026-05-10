@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LEGAL_INFO } from "@/lib/legalInfo";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "特定商取引法に基づく表記",
-  description: "beautia の特定商取引法に基づく表記です。",
-};
+  description: "beautiaの特定商取引法に基づく表記です。販売事業者、サービス内容、料金、決済、解約、返金条件を掲載しています。",
+  path: "/commercial",
+});
 
 const rows = [
   ["販売事業者", LEGAL_INFO.operatorName],

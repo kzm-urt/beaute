@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LEGAL_INFO } from "@/lib/legalInfo";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "利用規約",
-  description: "beautia の利用規約です。",
-};
+  description: "beautiaの利用規約です。サービス内容、アカウント、PROプラン、外部商品リンク、禁止事項を掲載しています。",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (
