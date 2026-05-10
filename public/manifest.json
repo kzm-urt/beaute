@@ -1,7 +1,7 @@
 {
   "name": "beautia — パーソナル美容サーチ",
   "short_name": "beautia",
-  "description": "肌・髪・気になることを見ながら、美容アイテムを探して残せるパーソナル美容サーチ。",
+  "description": "美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談をひとつにまとめるWebサービスです。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

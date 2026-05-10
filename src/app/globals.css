@@ -3758,6 +3758,13 @@ textarea:focus-visible {
   margin: 0;
 }
 
+.legal-intro {
+  color: var(--beaute-text);
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 0 0 18px;
+}
+
 .legal-table {
   border-top: 1px solid var(--beaute-border);
 }
@@ -3775,6 +3782,86 @@ textarea:focus-visible {
 .legal-row > div:first-child {
   color: var(--beaute-muted);
   font-weight: 800;
+}
+
+.legal-link-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.legal-link-grid a {
+  border: 1px solid var(--beaute-border);
+  border-radius: 12px;
+  color: var(--beaute-gold-deep);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 12px 14px;
+  text-decoration: none;
+}
+
+.public-compliance-strip {
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid var(--beaute-border);
+  color: var(--beaute-text);
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 10px 40px;
+}
+
+.public-compliance-strip div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.public-compliance-strip strong {
+  color: var(--beaute-ink);
+  font-size: 12px;
+}
+
+.public-compliance-strip span {
+  color: var(--beaute-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.public-compliance-strip nav,
+.public-site-footer {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.public-compliance-strip a,
+.public-site-footer a {
+  color: var(--beaute-gold-deep);
+  font-size: 11px;
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.public-site-footer {
+  border-top: 1px solid var(--beaute-border);
+  color: var(--beaute-muted);
+  font-size: 11px;
+  justify-content: center;
+  margin: 32px auto 0;
+  max-width: 1120px;
+  padding: 20px 18px 28px;
+}
+
+.public-site-footer span {
+  color: var(--beaute-ink);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 @media (max-width: 640px) {
@@ -4434,6 +4521,22 @@ textarea:focus-visible {
   .legal-row {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .legal-link-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .public-compliance-strip {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 10px 16px;
+  }
+
+  .public-compliance-strip strong,
+  .public-compliance-strip span {
+    font-size: 10px;
+    line-height: 1.5;
   }
 
   .analytics-metric-grid,

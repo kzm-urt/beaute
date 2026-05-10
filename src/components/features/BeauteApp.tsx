@@ -134,6 +134,23 @@ function WelcomeBackLoading({ displayName }: { displayName?: string }) {
   );
 }
 
+function PublicComplianceStrip() {
+  return (
+    <section className="public-compliance-strip" aria-label="beautiaのサービス情報">
+      <div>
+        <strong>beautiaは、iRiseが運営するパーソナル美容サーチです。</strong>
+        <span>美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談を提供します。PROは月額¥500（税込）です。</span>
+      </div>
+      <nav aria-label="公開情報">
+        <a href="/about">サービス内容</a>
+        <a href="/commercial">特商法表記</a>
+        <a href="/terms">利用規約</a>
+        <a href="/privacy">プライバシー</a>
+      </nav>
+    </section>
+  );
+}
+
 export default function BeauteApp() {
   const { user, loading: authLoading, signIn, signUp, signOut, sendPasswordReset } = useAuth();
   const { profile, updateProfile, profileDone, setProfileDone, completeProfile, profileLoading, isPro, setIsPro, refreshProfile } = useProfile(user);
@@ -365,6 +382,8 @@ export default function BeauteApp() {
           </div>
         )}
 
+        <PublicComplianceStrip />
+
         <main style={{ flex: 1, overflowY: "auto" }} className="app-main">
           {tab === "home"    && <HomeTab    profile={effectiveProfile} displayName={displayName} isGuest={isGuest} isPro={effectiveIsPro} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onGoSearch={goSearch} onOpenProduct={setDrawer} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")} onGoGuide={() => setTab("guide")}/>}
           {tab === "guide"   && <GuideTab   isGuest={isGuest} isPro={effectiveIsPro} onAuth={() => setShowAuth(true)} onUpgrade={upgrade} onGoSearch={() => setTab("search")} onGoRanking={() => setTab("ranking")} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
@@ -375,6 +394,14 @@ export default function BeauteApp() {
           {tab === "saved"   && (isGuest ? <GuestGate title={"\u4fdd\u5b58\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6c17\u306b\u306a\u308b\u5546\u54c1\u3092\u6bd4\u8f03\u3067\u304d\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <SavedTab isPro={effectiveIsPro} onUpgrade={upgrade} onOpenProduct={setDrawer}/>)}
           {tab === "log"     && (isGuest ? <GuestGate title={"\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u4f7f\u3063\u305f\u611f\u60f3\u304c\u6b21\u306e\u63d0\u6848\u3092\u80b2\u3066\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <LogTab userId={user.id} isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
           {tab === "premium" && <PremiumTab isPro={effectiveIsPro} onUpgrade={() => isGuest ? setShowAuth(true) : setIsPro(true)} user={user}/>}
+          <footer className="public-site-footer">
+            <span>beautia / iRise</span>
+            <a href="/about">サービス内容</a>
+            <a href="/commercial">特商法表記</a>
+            <a href="/terms">利用規約</a>
+            <a href="/privacy">プライバシー</a>
+            <a href="/feedback">問い合わせ</a>
+          </footer>
         </main>
       </div>
 

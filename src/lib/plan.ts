@@ -13,7 +13,7 @@ export const PLAN_RULES = {
     searchDetailLimitPerPage: 12,
     rankingDetailLimit: 10,
     trialDays: 0,
-    headline: "まずは美容ログと基本検索を試す",
+    headline: "まずは美容ログと基本検索を試せます",
   },
   pro: {
     label: "PRO",
@@ -27,20 +27,19 @@ export const PLAN_RULES = {
     searchDetailLimitPerPage: null,
     rankingDetailLimit: null,
     trialDays: 7,
-    headline: "解析・記録・商品詳細をすべて解放",
+    headline: "解析、記録、商品詳細をまとめて使えます",
   },
 } as const;
 
 export const PLAN_FEATURE_MATRIX = [
-  { label: "成分解析", free: "月3回まで", pro: "無制限" },
+  { label: "成分解析", free: "月3回まで", pro: "回数制限なし" },
   { label: "解析履歴", free: "直近3件", pro: "最大50件" },
-  { label: "美容ログ", free: "10件まで", pro: "無制限" },
-  { label: "お気に入り", free: "10件まで", pro: "無制限" },
+  { label: "美容ログ", free: "10件まで", pro: "回数制限なし" },
+  { label: "お気に入り保存", free: "10件まで", pro: "回数制限なし" },
   { label: "比較リスト", free: "3件まで", pro: "10件まで" },
-  { label: "楽天商品詳細", free: "検索12件/ランキングTOP10", pro: "全商品" },
-  { label: "パーソナル", free: "基本メモと相談3回/日", pro: "深い相談20回/日" },
-  { label: "購入リンク", free: "無料対象のみ", pro: "全商品の楽天リンク" },
+  { label: "楽天商品詳細", free: "検索12件 / ランキングTOP10", pro: "全商品" },
   { label: "パーソナル相談", free: "1日3回", pro: "1日20回" },
+  { label: "購入リンク", free: "無料対象のみ", pro: "全商品の楽天リンク" },
 ] as const;
 
 export function getPlanType(isPro: boolean): PlanType {

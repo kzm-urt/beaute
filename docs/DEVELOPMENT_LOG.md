@@ -1038,6 +1038,13 @@ Recent checks:
 - `/api/product-events` now reads Stripe charges/subscriptions server-side when `STRIPE_SECRET_KEY` is configured, and folds net Stripe revenue, fees, failed payments, subscription counts, and MRR into admin analytics.
 - `/admin/analytics` now shows Stripe売上, MRR, fees, and daily Stripe revenue next to Rakuten reward estimates and API cost so the business view is not only click-based.
 
+2026-05-10 Stripe website review fix:
+
+- Stripe review feedback required the public site to be accessible without a login/password, show business/product details that match the Stripe account, and include a visible Japanese commerce disclosure page.
+- Added `/about` as a public service/business summary page and linked it from the app shell.
+- Rebuilt `/commercial`, `/terms`, and `/privacy` with readable Japanese copy and Stripe review-friendly details for operator, service, price, payment timing, cancellation, refunds, and external marketplace purchases.
+- Added a public compliance strip and footer links on the home app so `サービス内容`, `特商法表記`, `利用規約`, and `プライバシー` are visible without registration.
+
 Known operational note:
 
 - If Japanese output looks garbled in PowerShell, set UTF-8 output before reading files:

@@ -9,11 +9,12 @@ export const metadata: Metadata = {
     default: "beautia | パーソナル美容サーチ",
     template: "%s | beautia",
   },
-  description: "肌・髪・悩みを見ながら美容アイテムを探せるパーソナル美容サーチ。成分解析、楽天商品検索、ランキング、保存リスト、使用ログまで。",
+  description:
+    "beautiaは、iRiseが提供するパーソナル美容サーチです。美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談をひとつにまとめます。",
   manifest: "/manifest.json?v=beautia-20260510",
   applicationName: "beautia",
   keywords: ["美容", "コスメ", "スキンケア", "ヘアケア", "成分解析", "楽天", "ランキング", "AI"],
-  authors: [{ name: "beautia" }],
+  authors: [{ name: "iRise" }],
   alternates: {
     canonical: "/",
   },
@@ -31,7 +32,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "beautia | パーソナル美容サーチ",
-    description: "肌・髪・悩みを見ながら美容アイテムを探せます。成分解析、楽天商品検索、ランキング、使用ログまで。",
+    description:
+      "美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談をひとつにまとめるWebサービスです。",
     url: appUrl,
     siteName: "beautia",
     locale: "ja_JP",
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "beautia | パーソナル美容サーチ",
-    description: "肌・髪・悩みを見ながら美容アイテムを探せます。",
+    description: "美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談をひとつにまとめるWebサービスです。",
   },
   robots: {
     index: true,
