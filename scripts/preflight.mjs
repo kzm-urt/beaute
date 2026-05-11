@@ -24,7 +24,7 @@ function loadEnvFile(path, { override = false, onlyKeys = null } = {}) {
 function loadLocalEnv() {
   loadEnvFile(".env.local");
   loadEnvFile(".admin-basic-login.txt", {
-    override: true,
+    override: false,
     onlyKeys: ["ADMIN_BASIC_USER", "ADMIN_BASIC_PASSWORD"],
   });
 }
