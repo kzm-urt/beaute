@@ -1357,9 +1357,9 @@ textarea:focus-visible {
 }
 
 .home-guide-prompt {
-  border-bottom: 1px solid #EDE5DC;
+  border-top: 1px solid #EDE5DC;
   background: #FBF8F3;
-  padding: 16px 32px;
+  padding: 18px 32px 20px;
 }
 
 .home-guide-prompt .section-shell {

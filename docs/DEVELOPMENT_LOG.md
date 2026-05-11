@@ -21,6 +21,7 @@ Changes:
 - `scripts/preflight.mjs` now supports authenticated admin page checks when local Basic auth credentials are available, and still verifies the auth guard when they are not.
 - Feedback storage now passes when the current `api_usage_events` fallback is healthy, while still noting that the optional `beta_feedback` table is pending.
 - Home now explains the core funnel in three compact cues: search without signup, save after free signup, and chat limits for FREE/PRO.
+- The compact guide prompt now sits at the bottom of Home so the first view can focus on the product experience.
 - Added `docs/STRIPE_REVIEW_READY.md` and `docs/GOOGLE_SEARCH_CONSOLE.md` for the remaining external dashboard steps.
 
 Verification:

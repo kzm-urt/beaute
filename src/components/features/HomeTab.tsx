@@ -494,33 +494,6 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
         </div>
       </section>
 
-      <section className="home-guide-prompt mobile-tight">
-        <div className="section-shell">
-          <div>
-            <span>{isGuest ? "はじめての方へ" : "迷ったらここ"}</span>
-            <p>
-              最初は商品を見るだけで大丈夫です。気になったものだけ、少しずつ残していきましょう。
-            </p>
-            <div className="home-cv-rail" aria-label="beautiaでできること">
-              <b>検索は登録なしOK</b>
-              <b>保存は無料登録から</b>
-              <b>相談は無料3回、PROで20回</b>
-            </div>
-          </div>
-          <div className="home-guide-prompt-actions">
-            <button className="motion-nav-button" onClick={onGoGuide}>
-              使い方を見る
-            </button>
-            <button className="motion-nav-button" onClick={() => onGoSearch()}>
-              商品を探す
-            </button>
-            <button className="motion-nav-button" onClick={onGoKarte}>
-              パーソナル
-            </button>
-          </div>
-        </div>
-      </section>
-
       {!isGuest && (
         <section className="mobile-tight motion-reveal" style={{ padding: "20px 32px", borderBottom: "1px solid #EDE5DC", background: "#FBF8F3" }}>
           <div
@@ -759,6 +732,33 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
           </div>
         </section>
       )}
+
+      <section className="home-guide-prompt mobile-tight">
+        <div className="section-shell">
+          <div>
+            <span>{isGuest ? "はじめての方へ" : "迷ったらここ"}</span>
+            <p>
+              最初は商品を見るだけで大丈夫です。気になったものだけ、少しずつ残していきましょう。
+            </p>
+            <div className="home-cv-rail" aria-label="beautiaでできること">
+              <b>検索は登録なしOK</b>
+              <b>保存は無料登録から</b>
+              <b>相談は無料3回、PROで20回</b>
+            </div>
+          </div>
+          <div className="home-guide-prompt-actions">
+            <button className="motion-nav-button" onClick={onGoGuide}>
+              使い方を見る
+            </button>
+            <button className="motion-nav-button" onClick={() => onGoSearch()}>
+              商品を探す
+            </button>
+            <button className="motion-nav-button" onClick={onGoKarte}>
+              パーソナル
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
