@@ -31,7 +31,7 @@ const FAQ = [
 
 const VALUE_CARDS = [
   { title: "パーソナル相談", body: "肌・髪・注意メモを見ながら、1日20回まで相談できます。" },
-  { title: "成分解析", body: "気になる成分表示を整理し、見どころや注意点を残せます。" },
+  { title: "写真分析", body: "顔・メイク診断、成分表示、おすすめコスメまで一気に整理できます。" },
   { title: "保存・比較", body: "気になる商品をあとで比べやすく、候補を整理できます。" },
   { title: "美容ログ", body: "使った感想を残して、次の商品選びに活かせます。" },
 ];
@@ -227,7 +227,7 @@ export default function PremiumTab({ isPro, onUpgrade, user }: Props) {
             PROで使えること
           </h3>
           <p className="text-[12px] mt-1 leading-[1.7]" style={{ color: "#8A7A6E" }}>
-            商品選び、成分チェック、記録、相談をひとつの流れで使えます。
+            商品選び、顔・メイク診断、成分チェック、記録、相談をひとつの流れで使えます。
           </p>
         </div>
         <div className="grid gap-2 md:grid-cols-4 motion-stagger">

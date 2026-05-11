@@ -4,7 +4,9 @@ export const PLAN_RULES = {
   free: {
     label: "無料",
     priceLabel: "¥0",
-    monthlyAnalyzeLimit: 3,
+    analyzeLimit: 1,
+    analyzeUsageWindow: "week",
+    analyzeUsageLabel: "週1回まで",
     logLimit: 10,
     savedAnalysisLimit: 3,
     favoriteLimit: 10,
@@ -18,7 +20,9 @@ export const PLAN_RULES = {
   pro: {
     label: "PRO",
     priceLabel: "¥500",
-    monthlyAnalyzeLimit: null,
+    analyzeLimit: null,
+    analyzeUsageWindow: "unlimited",
+    analyzeUsageLabel: "回数制限なし",
     logLimit: null,
     savedAnalysisLimit: 50,
     favoriteLimit: null,
@@ -32,7 +36,7 @@ export const PLAN_RULES = {
 } as const;
 
 export const PLAN_FEATURE_MATRIX = [
-  { label: "成分解析", free: "月3回まで", pro: "回数制限なし" },
+  { label: "写真分析", free: "週1回まで", pro: "回数制限なし" },
   { label: "解析履歴", free: "直近3件", pro: "最大50件" },
   { label: "美容ログ", free: "10件まで", pro: "回数制限なし" },
   { label: "お気に入り保存", free: "10件まで", pro: "回数制限なし" },

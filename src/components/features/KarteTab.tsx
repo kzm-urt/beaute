@@ -23,6 +23,7 @@ interface Props {
   isPro: boolean;
   preferences?: PersonalPreferences | null;
   onOpenProduct: (p: Product) => void;
+  onUpdateProfile: (profile: UserProfile) => Promise<void> | void;
   onEditProfile: () => void;
   onGoAnalyze: () => void;
   onGoSearch: () => void;
@@ -40,6 +41,16 @@ type AdvisorStarter = {
   question: string;
   note: string;
 };
+
+type QuickMemoKey = "currentState" | "skinNotes" | "hairNotes" | "otherNotes" | "avoidIngredients";
+
+const QUICK_MEMO_OPTIONS: Array<{ key: QuickMemoKey; label: string; placeholder: string }> = [
+  { key: "currentState", label: "今日", placeholder: "例）頬だけ乾く / 夕方テカる / メイクが浮く" },
+  { key: "skinNotes", label: "肌", placeholder: "例）春は赤みが出やすい / 朝は軽めが好き" },
+  { key: "hairNotes", label: "髪", placeholder: "例）湿気で広がる / 重いオイルは苦手" },
+  { key: "otherNotes", label: "その他", placeholder: "例）3,000円以内がうれしい / 強い香りは苦手" },
+  { key: "avoidIngredients", label: "注意", placeholder: "例）アルコール感が強いものは避けたい" },
+];
 
 const DEFAULT_CHAT_STARTERS: AdvisorStarter[] = [
   { label: "今日だけ", question: "今日の状態を見て、朝にやることを3つだけ教えて。", note: "迷った日の入口" },
@@ -101,7 +112,17 @@ function uniqueList(items: Array<string | null | undefined>) {
   return Array.from(new Set(items.map((item) => item?.trim()).filter((item): item is string => Boolean(item))));
 }
 
-export default function KarteTab({ profile, displayName, isPro, preferences, onOpenProduct, onEditProfile, onGoAnalyze, onGoSearch, onGoLog, onUpgrade }: Props) {
+function appendProfileMemo(profile: UserProfile, key: QuickMemoKey, value: string): UserProfile {
+  const nextValue = value.trim();
+  if (!nextValue) return profile;
+  const current = (profile[key] ?? []) as string[];
+  return {
+    ...profile,
+    [key]: uniqueList([...current, nextValue]),
+  };
+}
+
+export default function KarteTab({ profile, displayName, isPro, preferences, onOpenProduct, onUpdateProfile, onEditProfile, onGoAnalyze, onGoSearch, onGoLog, onUpgrade }: Props) {
   const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [hiddenAnalysisCount, setHiddenAnalysisCount] = useState(0);
@@ -109,6 +130,10 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
   const [products, setProducts] = useState<Product[]>([]);
   const [videos, setVideos] = useState<YoutubeVideo[]>([]);
   const [openAnalysis, setOpenAnalysis] = useState<string | null>(null);
+  const [quickMemoKey, setQuickMemoKey] = useState<QuickMemoKey>("currentState");
+  const [quickMemoText, setQuickMemoText] = useState("");
+  const [quickMemoSaving, setQuickMemoSaving] = useState(false);
+  const [quickMemoStatus, setQuickMemoStatus] = useState("");
 
   useEffect(() => {
     let ignore = false;
@@ -227,8 +252,8 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
       tone: "profile",
     },
     {
-      label: latestAnalysis ? "次の商品も成分チェック" : "まず1つ成分分析",
-      body: latestAnalysis ? "合う理由を比べる。" : "見る材料を増やす。",
+      label: latestAnalysis ? "次も写真分析" : "まず1つ写真分析",
+      body: latestAnalysis ? "顔・成分の材料を比べる。" : "見る材料を増やす。",
       action: "分析する",
       onClick: onGoAnalyze,
       tone: "analyze",
@@ -325,7 +350,7 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
     latestAnalysis
       ? {
           label: "解析",
-          question: `直近の成分解析をふまえて、次に選ぶとき気をつけることを教えて。`,
+          question: `直近の写真分析をふまえて、次に選ぶとき気をつけることを教えて。`,
           note: "履歴から",
         }
       : null,
@@ -340,34 +365,60 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
       return true;
     })
     .slice(0, 6);
+  const focusQuickMemo = (key: QuickMemoKey) => {
+    setQuickMemoKey(key);
+    setQuickMemoStatus("");
+    document.getElementById("personal-quick-memo")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => document.getElementById("quick-memo-input")?.focus(), 180);
+  };
+
+  const saveQuickMemo = async () => {
+    const nextText = quickMemoText.trim();
+    if (!nextText || quickMemoSaving) return;
+    const option = QUICK_MEMO_OPTIONS.find((item) => item.key === quickMemoKey);
+    setQuickMemoSaving(true);
+    setQuickMemoStatus("");
+    try {
+      await onUpdateProfile(appendProfileMemo(profile, quickMemoKey, nextText));
+      setQuickMemoText("");
+      setQuickMemoStatus(`${option?.label ?? "メモ"}に追加しました`);
+    } catch {
+      setQuickMemoStatus("保存できませんでした。もう一度お試しください。");
+    } finally {
+      setQuickMemoSaving(false);
+    }
+  };
+
+  const quickMemoOption = QUICK_MEMO_OPTIONS.find((item) => item.key === quickMemoKey) ?? QUICK_MEMO_OPTIONS[0];
+
   const personalEntryCards = [
     {
       label: "今日",
       title: currentMoodText,
       body: "今の状態だけ見て、まず何をするか決めます。",
       action: "今日を足す",
-      onClick: onEditProfile,
+      onClick: () => focusQuickMemo("currentState"),
     },
     {
       label: "肌",
       title: listText([profile.skinType, ...(profile.skinConcerns ?? [])].filter(Boolean), "肌メモなし"),
       body: "乾き、毛穴、赤みなどはここに集めます。",
       action: "肌を足す",
-      onClick: onEditProfile,
+      onClick: () => focusQuickMemo("skinNotes"),
     },
     {
       label: "髪",
       title: listText([profile.hairType, ...(profile.hairConcerns ?? [])].filter(Boolean), "髪メモなし"),
       body: "髪質、頭皮、カラー履歴を分けて見ます。",
       action: "髪を足す",
-      onClick: onEditProfile,
+      onClick: () => focusQuickMemo("hairNotes"),
     },
     {
       label: "注意",
       title: listText([...(profile.avoidIngredients ?? []), ...(profile.allergies ?? [])].filter(Boolean), "未登録"),
       body: "避けたいものは買う前に先に見ます。",
       action: "注意を足す",
-      onClick: onEditProfile,
+      onClick: () => focusQuickMemo("avoidIngredients"),
     },
     {
       label: "相談",
@@ -416,7 +467,7 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
             <span>ここから見る</span>
             <h2>今日・肌・髪・注意・相談を分けました。</h2>
           </div>
-          <button className="motion-nav-button" onClick={onEditProfile}>
+          <button className="motion-nav-button" onClick={() => focusQuickMemo("currentState")}>
             メモを足す
           </button>
         </div>
@@ -429,6 +480,50 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
               <small>{card.action}</small>
             </button>
           ))}
+        </div>
+      </section>
+
+      <section id="personal-quick-memo" className="personal-quick-memo motion-reveal">
+        <div className="personal-quick-memo-copy">
+          <span>クイックメモ</span>
+          <h2>見ながら、そのまま足す。</h2>
+          <p>今日気づいたことだけ残せます。細かい整理はあとからで大丈夫です。</p>
+        </div>
+        <div className="personal-quick-memo-panel">
+          <div className="personal-quick-memo-tabs" aria-label="追加先">
+            {QUICK_MEMO_OPTIONS.map((option) => {
+              const active = option.key === quickMemoKey;
+              return (
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => { setQuickMemoKey(option.key); setQuickMemoStatus(""); }}
+                  className={active ? "active" : ""}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="personal-quick-memo-form">
+            <textarea
+              id="quick-memo-input"
+              value={quickMemoText}
+              onChange={(event) => setQuickMemoText(event.target.value)}
+              placeholder={quickMemoOption.placeholder}
+              rows={2}
+              maxLength={160}
+            />
+            <button
+              className="motion-cta"
+              type="button"
+              onClick={saveQuickMemo}
+              disabled={quickMemoSaving || !quickMemoText.trim()}
+            >
+              {quickMemoSaving ? "保存中..." : `${quickMemoOption.label}に追加`}
+            </button>
+          </div>
+          {quickMemoStatus && <p className="personal-quick-memo-status">{quickMemoStatus}</p>}
         </div>
       </section>
 
@@ -595,7 +690,7 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
       <section style={{ marginBottom: 28 }}>
         <SectionHeader
           label="01"
-          title="成分解析の記録"
+          title="写真分析の記録"
           sub={analysisLoading ? "読み込み中" : isPro ? `${analysisTotal}件の解析` : `${visibleAnalyses.length}/${PLAN_RULES.free.savedAnalysisLimit}件表示`}
         />
 
@@ -611,10 +706,10 @@ export default function KarteTab({ profile, displayName, isPro, preferences, onO
           <div className="app-empty-state">
             <span>01</span>
             <div>
-              <strong>まだ成分解析はありません</strong>
+              <strong>まだ写真分析はありません</strong>
               <p>気になる商品を1つだけ見ておくと、あとで比べやすくなります。</p>
               <button className="motion-cta" onClick={onGoAnalyze}>
-                成分解析をする
+                写真分析をする
               </button>
             </div>
           </div>

@@ -5,7 +5,7 @@ import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
   title: "プライバシーポリシー",
-  description: "beautiaのプライバシーポリシーです。取得する情報、利用目的、外部サービス、問い合わせ先を掲載しています。",
+  description: "beautiaのプライバシーポリシーです。顔・メイク写真分析を含む取得情報、利用目的、外部サービス、問い合わせ先を掲載しています。",
   path: "/privacy",
 });
 
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
 
       <h2>2. 利用目的</h2>
       <p>
-        アカウント認証、パーソナル表示、成分解析、商品検索、保存・比較、PROプラン管理、
+        アカウント認証、パーソナル表示、顔・メイク写真分析、成分解析、商品検索、保存・比較、PROプラン管理、
         不正利用防止、サービス改善、問い合わせ対応、分析レポート作成のために利用します。
       </p>
 

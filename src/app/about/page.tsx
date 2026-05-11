@@ -5,14 +5,16 @@ import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
   title: "beautiaについて",
-  description: "beautiaは、iRiseが提供するパーソナル美容サーチです。サービス内容、料金、運営者情報を掲載しています。",
+  description: "beautiaは、AI顔診断・メイク診断、成分解析、診断後のおすすめコスメ提案まで使えるパーソナル美容サーチです。",
   path: "/about",
 });
 
 const features = [
   ["商品検索・ランキング", "楽天市場の商品情報をもとに、美容カテゴリごとの商品を探せます。"],
   ["保存・比較", "気になる商品を保存し、価格、レビュー、特徴をあとで比較できます。"],
+  ["AI顔診断・メイク診断", "顔写真から印象、黄金比バランス、似合うメイク、SNS向け診断タイプを整理します。"],
   ["成分解析", "化粧品や美容商品の成分表示を読み取り、注意点や見どころを整理します。"],
+  ["診断後コスメ提案", "写真分析や成分解析の結果に近いベースメイク、リップ、ヘアケアなどを表示します。"],
   ["美容ログ", "使った商品や肌・髪の状態を記録し、次の商品選びに活かせます。"],
   ["パーソナル相談", "登録した肌・髪・注意メモをもとに、日々の美容相談ができます。"],
 ];
@@ -28,7 +30,7 @@ export default function AboutPage() {
         <div className="legal-body">
           <p>
             beautiaは、{LEGAL_INFO.operatorName} が運営するパーソナル美容サーチです。
-            美容商品を探し、気になる商品を保存し、成分や使用感を少しずつ自分の記録にしていくためのWebサービスです。
+            美容商品を探し、気になる商品を保存し、顔・メイク診断や成分、使用感を少しずつ自分の記録にしていくためのWebサービスです。
           </p>
 
           <h2>提供しているサービス</h2>
@@ -56,6 +58,7 @@ export default function AboutPage() {
 
           <div className="legal-link-grid">
             <Link href="/guide">使い方</Link>
+            <Link href="/face-analysis">AI顔診断・メイク診断</Link>
             <Link href="/pricing">料金</Link>
             <Link href="/commercial">特定商取引法に基づく表記</Link>
             <Link href="/terms">利用規約</Link>

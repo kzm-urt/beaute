@@ -4,7 +4,7 @@ import { LEGAL_INFO, PUBLIC_SITE_URL } from "@/lib/legalInfo";
 export const SITE_NAME = "beautia";
 export const SITE_TITLE = "beautia | パーソナル美容サーチ";
 export const SITE_DESCRIPTION =
-  "beautiaは、美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談をひとつにまとめるパーソナル美容サーチです。";
+  "beautiaは、顔・メイク写真分析、成分解析、診断後のおすすめコスメ、商品検索、保存、比較、美容ログをひとつにまとめるパーソナル美容サーチです。";
 export const SITE_URL = PUBLIC_SITE_URL;
 export const OG_IMAGE = "/images/beautia-hero-still-life-wide.png";
 export const OG_IMAGE_ALT = "beautiaの美容商品とスキンケアを想起させる上質なビジュアル";
@@ -16,6 +16,15 @@ export const SEO_KEYWORDS = [
   "スキンケア",
   "ヘアケア",
   "美容アプリ",
+  "顔診断",
+  "顔面診断",
+  "AI顔診断",
+  "メイク診断",
+  "パーソナルカラー診断",
+  "黄金比診断",
+  "おすすめコスメ",
+  "コスメ診断",
+  "SNS診断",
   "美容商品検索",
   "成分解析",
   "コスメ比較",
@@ -104,9 +113,14 @@ export const FAQ_ITEMS = [
       "美容商品の検索、ランキング確認、保存・比較、成分解析、美容ログ、登録内容をもとにしたパーソナル相談ができます。",
   },
   {
+    question: "顔・メイク写真分析では何が分かりますか？",
+    answer:
+      "顔写真から、写真上の印象、黄金比バランスの見え方、似合いやすいメイク方向、SNSで共有しやすい診断タイプ、診断後のおすすめコスメ候補を整理します。",
+  },
+  {
     question: "無料でも使えますか？",
     answer:
-      "無料でも商品検索、ランキング、基本的な保存やパーソナル相談を利用できます。PROでは相談回数やパーソナル機能が広がります。",
+      "無料でも商品検索、ランキング、基本的な保存、パーソナル相談、週1回の写真分析を利用できます。PROでは写真分析や相談回数、パーソナル機能が広がります。",
   },
   {
     question: "PROプランはいくらですか？",
@@ -162,6 +176,15 @@ export function getBaseStructuredData() {
       name: SITE_NAME,
       url: SITE_URL,
       applicationCategory: "LifestyleApplication",
+      featureList: [
+        "AI顔・メイク写真分析",
+        "黄金比バランスの見え方",
+        "SNS向け診断レポート",
+        "診断後のおすすめコスメ提案",
+        "美容商品の検索・保存・比較",
+        "成分解析",
+        "美容ログ",
+      ],
       operatingSystem: "Web",
       inLanguage: "ja-JP",
       description: SITE_DESCRIPTION,

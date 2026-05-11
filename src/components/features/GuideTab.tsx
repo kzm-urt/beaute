@@ -40,8 +40,8 @@ const steps = [
   {
     no: "04",
     title: "最後に、納得して選ぶ",
-    body: "成分、レビュー、価格、動画、あなたとの相性を並べて、今買うか・あとで見るかを決めます。",
-    cta: "成分解析へ",
+    body: "顔・メイク診断、成分、レビュー、価格、動画、あなたとの相性を並べて、今買うか・あとで見るかを決めます。",
+    cta: "写真分析へ",
     action: "analyze",
   },
 ] as const;
@@ -50,7 +50,7 @@ const planRows = [
   { label: "パーソナル相談", guest: "登録が必要", free: "1日3回", pro: "1日20回" },
   { label: "商品検索・ランキング", guest: "閲覧OK", free: "閲覧OK", pro: "全商品を深掘り" },
   { label: "保存・比較", guest: "登録が必要", free: "基本枠あり", pro: "候補を多く残せる" },
-  { label: "成分解析", guest: "登録が必要", free: "月3回", pro: "無制限" },
+  { label: "写真分析", guest: "登録が必要", free: "週1回", pro: "無制限" },
   { label: "パーソナル・美容ログ", guest: "サンプル閲覧", free: "記録OK", pro: "おすすめが少し合いやすい" },
   { label: "購入リンク", guest: "一部のみ", free: "無料対象中心", pro: "全商品で開放" },
 ] as const;
@@ -61,7 +61,7 @@ const routines = [
   { label: "初日", body: "ランキングを見て、気になる商品を保存。パーソナルに肌・髪・注意メモを少しだけ。" },
   { label: "選ぶ前", body: "商品詳細で相性、注意点、レビュー量、動画を軽く確認。" },
   { label: "週1回", body: "美容ログに使用感を残して、また使いたい理由・やめたい理由をメモ。" },
-  { label: "月1回", body: "成分解析と保存リストを見直して、次に買う候補を整理。" },
+  { label: "週1回", body: "顔・メイク診断や成分分析をして、次に買う候補を整理。" },
 ] as const;
 
 const quickRoutes = [
@@ -81,9 +81,9 @@ const quickRoutes = [
   },
   {
     label: "買う前に迷う",
-    title: "成分だけ確認する",
-    body: "全部比べなくて大丈夫です。迷ったら成分チェックだけでOK。",
-    cta: "成分解析へ",
+    title: "写真で診断する",
+    body: "顔・メイクの方向性や成分チェックから、似合うコスメ候補まで一気に見ます。",
+    cta: "写真分析へ",
     action: "analyze",
   },
   {
@@ -158,7 +158,7 @@ export default function GuideTab({
           <p className="guide-eyebrow">はじめ方</p>
           <h1>まずは、beautiaの歩き方から。</h1>
           <p className="guide-lead">
-            beautiaは、楽天の商品を探しながら、気になるものを保存し、成分や使用感を少しずつ自分の記録にしていく美容サーチです。最初に流れを見ておくと、どこから触ればいいか迷いにくくなります。
+            beautiaは、楽天の商品を探しながら、気になるものを保存し、顔・メイク診断や成分、使用感を少しずつ自分の記録にしていく美容サーチです。最初に流れを見ておくと、どこから触ればいいか迷いにくくなります。
           </p>
           <div className="guide-hero-actions">
             <button className="guide-primary motion-cta" onClick={isGuest ? onAuth : onGoKarte}>
@@ -309,7 +309,7 @@ export default function GuideTab({
           <div>
             <p className="guide-eyebrow">PROでできること</p>
             <h2>ちゃんと選びたい日は、PROで深く見る。</h2>
-            <p>無制限の成分解析、全商品の購入リンク、保存・ログを見たおすすめで、候補をもう一段細かく見られます。</p>
+            <p>無制限の写真分析、診断後のおすすめコスメ、全商品の購入リンク、保存・ログを見たおすすめで、候補をもう一段細かく見られます。</p>
           </div>
           <button className="guide-primary motion-cta" onClick={() => isGuest ? onAuth() : onUpgrade("guide_bottom_cta")}>
             {isGuest ? "無料登録して7日トライアルへ" : "PROを試す"}

@@ -5,7 +5,7 @@ import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
   title: "利用規約",
-  description: "beautiaの利用規約です。サービス内容、アカウント、PROプラン、外部商品リンク、禁止事項を掲載しています。",
+  description: "beautiaの利用規約です。AI顔診断・メイク診断、写真分析、PROプラン、外部商品リンク、禁止事項を掲載しています。",
   path: "/terms",
 });
 
@@ -14,13 +14,13 @@ export default function TermsPage() {
     <LegalPage title="利用規約" eyebrow="TERMS" updatedAt={LEGAL_INFO.lastUpdated}>
       <p>
         本規約は、{LEGAL_INFO.operatorName} が提供する「beautia」の利用条件を定めるものです。
-        beautiaは、美容商品の検索、保存、比較、成分解析、使用ログ、パーソナル相談などを提供するデジタルサービスです。
+        beautiaは、美容商品の検索、保存、比較、顔・メイク写真分析、成分解析、使用ログ、パーソナル相談などを提供するデジタルサービスです。
       </p>
 
       <h2>1. サービス内容</h2>
       <p>
         beautiaは、ユーザーが入力したプロフィール、保存商品、使用ログ、画像解析結果などをもとに、美容商品に関する参考情報を表示します。
-        表示内容は参考情報であり、効果、適合性、医療的効能を保証するものではありません。
+        表示内容は参考情報であり、本人識別、医療診断、効果、適合性、医療的効能を保証するものではありません。
       </p>
 
       <h2>2. アカウント</h2>

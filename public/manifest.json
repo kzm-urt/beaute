@@ -1,7 +1,7 @@
 {
   "name": "beautia — パーソナル美容サーチ",
   "short_name": "beautia",
-  "description": "美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談をひとつにまとめるWebサービスです。",
+  "description": "AI顔診断・メイク診断、成分解析、診断後のおすすめコスメ、商品検索、保存、比較、美容ログをひとつにまとめるWebサービスです。",
   "id": "/",
   "start_url": "/",
   "scope": "/",
@@ -45,6 +45,13 @@
       "short_name": "ランキング",
       "description": "人気の美容商品を見る",
       "url": "/?tab=ranking",
+      "icons": [{ "src": "/icons/beautia-icon-192-20260510.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "写真分析",
+      "short_name": "写真分析",
+      "description": "顔・メイク診断や成分解析を開く",
+      "url": "/?tab=analyze",
       "icons": [{ "src": "/icons/beautia-icon-192-20260510.png", "sizes": "192x192" }]
     },
     {

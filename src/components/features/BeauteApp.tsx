@@ -39,14 +39,14 @@ const NAV: { key: Tab; icon: Parameters<typeof Icon>[0]["name"]; jp: string; en:
   { key: "guide",   icon: "guide",   jp: "使い方",   en: "Guide"   },
   { key: "search",  icon: "search",  jp: "検索",     en: "Search"  },
   { key: "ranking", icon: "ranking", jp: "ランキング", en: "Ranking" },
-  { key: "analyze", icon: "sparkle", jp: "成分解析", en: "Analyze" },
+  { key: "analyze", icon: "sparkle", jp: "写真分析", en: "Analyze" },
   { key: "karte",   icon: "karte",   jp: "パーソナル",   en: "Personal"   },
   { key: "saved",   icon: "bookmark", jp: "保存",     en: "Saved"   },
   { key: "log",     icon: "note",    jp: "ログ",     en: "Journal" },
   { key: "premium", icon: "crown",   jp: "プラン",   en: "Pro"     },
 ];
 
-const MOBILE_NAV_KEYS = new Set<Tab>(["home", "guide", "search", "ranking", "karte", "premium"]);
+const MOBILE_NAV_KEYS = new Set<Tab>(["home", "search", "ranking", "analyze", "karte", "premium"]);
 const MOBILE_NAV = NAV.filter(({ key }) => MOBILE_NAV_KEYS.has(key));
 
 function getInitialTab(): Tab {
@@ -144,10 +144,11 @@ function PublicComplianceStrip() {
     <section className="public-compliance-strip" aria-label="beautiaのサービス情報">
       <div>
         <strong>beautiaは、iRiseが運営するパーソナル美容サーチです。</strong>
-        <span>美容商品の検索、保存、比較、成分解析、美容ログ、パーソナル相談を提供します。PROは月額¥500（税込）です。</span>
+        <span>美容商品の検索、保存、比較、顔・メイク/成分の写真分析、美容ログ、パーソナル相談を提供します。PROは月額¥500（税込）です。</span>
       </div>
       <nav aria-label="公開情報">
         <a href="/guide">使い方</a>
+        <a href="/face-analysis">AI顔診断</a>
         <a href="/pricing">料金</a>
         <a href="/about">サービス内容</a>
         <a href="/commercial">特商法表記</a>
@@ -397,8 +398,8 @@ export default function BeauteApp() {
           {tab === "guide"   && <GuideTab   isGuest={isGuest} isPro={effectiveIsPro} onAuth={() => setShowAuth(true)} onUpgrade={upgrade} onGoSearch={() => setTab("search")} onGoRanking={() => setTab("ranking")} onGoKarte={() => setTab("karte")} onGoAnalyze={() => setTab("analyze")} onGoSaved={() => setTab("saved")} onGoLog={() => setTab("log")}/>}
           {tab === "search"  && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="search" initialQuery={initialSearchQuery} profile={effectiveProfile}/>}
           {tab === "ranking" && <SearchTab  isPro={effectiveIsPro} isGuest={isGuest} preferences={isGuest ? null : preferences} onUpgrade={upgrade} onAuth={() => setShowAuth(true)} onOpenProduct={setDrawer} initialMode="ranking" profile={effectiveProfile}/>}
-          {tab === "analyze" && (isGuest ? <GuestGate title={"\u6210\u5206\u89e3\u6790\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6210\u5206\u306e\u8981\u70b9\u3068\u6ce8\u610f\u70b9\u3092\u6b8b\u305b\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
-          {tab === "karte"   && (isGuest ? <GuestGate title={"パーソナルはあなた専用"} body={"肌・髪・注意メモを分けて残せます。無料登録すると相談も1日3回使えます。"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} displayName={displayName} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}
+          {tab === "analyze" && (isGuest ? <GuestGate title={"写真分析は無料登録から"} body={"顔・メイクの診断レポート、成分の要点、おすすめコスメを残せます。"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <AnalyzeTab isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
+          {tab === "karte"   && (isGuest ? <GuestGate title={"パーソナルはあなた専用"} body={"肌・髪・注意メモを分けて残せます。無料登録すると相談も1日3回使えます。"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <KarteTab profile={effectiveProfile} displayName={displayName} isPro={effectiveIsPro} preferences={preferences} onOpenProduct={setDrawer} onUpdateProfile={updateProfile} onEditProfile={editProfile} onGoAnalyze={() => setTab("analyze")} onGoSearch={() => setTab("search")} onGoLog={() => setTab("log")} onUpgrade={upgrade}/>)}
           {tab === "saved"   && (isGuest ? <GuestGate title={"\u4fdd\u5b58\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u6c17\u306b\u306a\u308b\u5546\u54c1\u3092\u6bd4\u8f03\u3067\u304d\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <SavedTab isPro={effectiveIsPro} onUpgrade={upgrade} onOpenProduct={setDrawer}/>)}
           {tab === "log"     && (isGuest ? <GuestGate title={"\u30ed\u30b0\u306f\u7121\u6599\u767b\u9332\u304b\u3089"} body={"\u4f7f\u3063\u305f\u611f\u60f3\u304c\u6b21\u306e\u63d0\u6848\u3092\u80b2\u3066\u307e\u3059\u3002"} onAuth={() => setShowAuth(true)} onGoSearch={() => setTab("search")} /> : <LogTab userId={user.id} isPro={effectiveIsPro} onUpgrade={upgrade}/>)}
           {tab === "premium" && <PremiumTab isPro={effectiveIsPro} onUpgrade={() => isGuest ? setShowAuth(true) : setIsPro(true)} user={user}/>}
@@ -539,8 +540,8 @@ function GuestGate({ title, body, onAuth, onGoSearch }: {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 22 }} className="grid-cols-1-mobile motion-stagger">
           {[
             ["\u30b2\u30b9\u30c8", "\u691c\u7d22\u30fb\u30e9\u30f3\u30ad\u30f3\u30b0"],
-            ["\u7121\u6599\u4f1a\u54e1", "\u4fdd\u5b58\u30fb\u30ed\u30b0\u30fb\u67083\u56de\u89e3\u6790"],
-            ["PRO", "\u7121\u5236\u9650\u89e3\u6790\u30fb\u5168\u5546\u54c1\u3092\u78ba\u8a8d"],
+            ["\u7121\u6599\u4f1a\u54e1", "\u4fdd\u5b58\u30fb\u30ed\u30b0\u30fb\u90311\u56de\u5199\u771f\u5206\u6790"],
+            ["PRO", "\u7121\u5236\u9650\u5206\u6790\u30fb\u8a3a\u65ad\u5f8c\u30b3\u30b9\u30e1\u63d0\u6848"],
           ].map(([label, value]) => (
             <div key={label} className="motion-card" style={{ border: "1px solid #EDE5DC", borderRadius: 12, padding: 12, background: "#F8F4EF" }}>
               <div style={{ fontSize: 11, fontWeight: 900, color: "#150B00", marginBottom: 4 }}>{label}</div>

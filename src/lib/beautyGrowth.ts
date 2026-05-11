@@ -117,7 +117,7 @@ export function getBeautyGrowth({
   const reasons = [
     profile?.currentState?.[0] ? `今の状態「${profile.currentState[0]}」を見ています` : "",
     logCount > 0 ? `ログ${logCount}件を見ています` : "",
-    analysisCount > 0 ? `成分解析${analysisCount}件があります` : "",
+    analysisCount > 0 ? `写真分析${analysisCount}件があります` : "",
     savedCount > 0 ? `保存${savedCount}件から好みを確認` : "",
     confidence > 0 ? `記録メモ${confidence}` : "",
     topProduct ? `${topProduct.cat}候補として比較できます` : "",

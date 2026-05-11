@@ -79,6 +79,7 @@ export interface AnalysisEntry {
 }
 
 export interface AnalyzeResult {
+  mode?: "ingredient" | "face";
   productType: string;
   highlight: string[];
   caution: string[];
@@ -87,6 +88,15 @@ export interface AnalyzeResult {
   overallScore: number;
   verdict: string;
   keyIngredient: string;
+  faceGoldenRatio?: {
+    score: number;
+    summary: string;
+    points: string[];
+  };
+  makeupAdvice?: string[];
+  shareTitle?: string;
+  shareText?: string;
+  memeType?: string;
 }
 
 export interface ProductSave {

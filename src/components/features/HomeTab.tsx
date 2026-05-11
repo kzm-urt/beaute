@@ -215,7 +215,7 @@ const HERO_MESSAGES: HeroMessage[] = [
   { id: "hair-care", tags: ["hair"], kicker: "髪も見る", line1: "髪のまとまりも、", accent: "印象の一部。", body: "肌だけじゃなく、髪のまとまりも今日の印象に出ます。広がりや乾きも見ておきましょう。" },
   { id: "pores-care", tags: ["pores"], kicker: "毛穴の日", line1: "隠す前に、", accent: "落とすところから。", body: "毛穴が気になる日は、隠す前に洗顔と保湿を見たいです。下地はそのあとでOK。" },
   { id: "dull-care", tags: ["dull"], kicker: "くすみの日", line1: "色を足す前に、", accent: "土台から。", body: "くすみが気になる日は、先に保湿とUVを見ましょう。色を足すのはそのあとで大丈夫。" },
-  { id: "mission-analyze", tags: ["missionAnalyze"], kicker: "成分だけ見る", line1: "迷ったら、", accent: "成分だけ。", body: "迷ったら、今日は成分チェックだけでOKです。合うかどうかの目安になります。" },
+  { id: "mission-analyze", tags: ["missionAnalyze"], kicker: "写真で見る", line1: "迷ったら、", accent: "診断から。", body: "顔・メイクの方向性や成分チェックから、似合う候補を絞れます。" },
   { id: "mission-log", tags: ["missionLog"], kicker: "使った感じ", line1: "今日の感じ、", accent: "一言でOK。", body: "よかった、重かった、しみたかも。そのくらいの一言で、次にかなり使えます。" },
 ];
 
@@ -725,7 +725,7 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
             </button>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 180 }} className="hidden md:flex">
-            {["✦ 成分解析 無制限", "✦ 全30製品 フルアクセス", "✦ パーソナル診断", "✦ 優先サポート"].map(f => (
+            {["✦ 写真分析 無制限", "✦ 診断後コスメ提案", "✦ 全30製品 フルアクセス", "✦ パーソナル診断"].map(f => (
               <div key={f} style={{ fontSize: 13, color: "rgba(251,248,243,.8)", letterSpacing: "0.05em" }}>{f}</div>
             ))}
           </div>
@@ -794,9 +794,9 @@ function TutorialGuide({ isPro, onGoKarte, onGoAnalyze, onGoSearch, onGoSaved, o
       no: "03",
       title: "成分を確認",
       body: "合う理由を確認。",
-      action: "成分分析",
+      action: "写真分析",
       onClick: onGoAnalyze,
-      badge: "月3回無料",
+      badge: "週1回無料",
     },
     {
       no: "04",
