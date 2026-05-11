@@ -5,19 +5,28 @@ let baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "http://
 
 const checks = [];
 
-function loadLocalEnv() {
-  if (!existsSync(".env.local")) return;
-  const lines = readFileSync(".env.local", "utf8").split(/\r?\n/);
+function loadEnvFile(path, { override = false, onlyKeys = null } = {}) {
+  if (!existsSync(path)) return;
+  const lines = readFileSync(path, "utf8").replace(/^\uFEFF/, "").split(/\r?\n/);
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) continue;
     const index = trimmed.indexOf("=");
     if (index <= 0) continue;
     const key = trimmed.slice(0, index).trim();
+    if (onlyKeys && !onlyKeys.includes(key)) continue;
     const rawValue = trimmed.slice(index + 1).trim();
-    if (process.env[key]) continue;
+    if (process.env[key] && !override) continue;
     process.env[key] = rawValue.replace(/^["']|["']$/g, "");
   }
+}
+
+function loadLocalEnv() {
+  loadEnvFile(".env.local");
+  loadEnvFile(".admin-basic-login.txt", {
+    override: true,
+    onlyKeys: ["ADMIN_BASIC_USER", "ADMIN_BASIC_PASSWORD"],
+  });
 }
 
 function addCheck(name, ok, detail, required = true) {
@@ -44,19 +53,46 @@ function getBasicAuthHeaders() {
   return { Authorization: `Basic ${token}` };
 }
 
+function hasBasicAuthCredentials() {
+  return Boolean(process.env.ADMIN_BASIC_USER && process.env.ADMIN_BASIC_PASSWORD);
+}
+
 async function fetchText(path, options = {}) {
   const res = await fetch(new URL(path, baseUrl), options);
   const text = await res.text();
   return { res, text };
 }
 
+async function checkAdminPage(path, label, needle, options) {
+  try {
+    const { res, text } = await fetchText(path, options);
+    const hasCredentials = hasBasicAuthCredentials();
+    const ok = hasCredentials ? res.ok && text.includes(needle) : res.status === 401;
+    const mode = hasCredentials ? "authenticated" : "auth guard";
+    const expected = hasCredentials ? needle : "401 Basic auth";
+    addCheck(label, ok, `${mode} / status=${res.status} / bytes=${text.length} / expected=${expected}`);
+  } catch (error) {
+    addCheck(label, false, error.message);
+  }
+}
+
 async function checkSupabaseTable(table, select, required = true) {
+  const result = await probeSupabaseTable(table, select);
+  addCheck(
+    `Supabase ${table} schema`,
+    result.ok,
+    result.detail,
+    required
+  );
+  return result;
+}
+
+async function probeSupabaseTable(table, select) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceKey) {
-    addCheck(`Supabase ${table} schema`, false, "Supabase env vars missing", required);
-    return;
+    return { ok: false, detail: "Supabase env vars missing" };
   }
 
   const supabase = createClient(supabaseUrl, serviceKey);
@@ -65,11 +101,33 @@ async function checkSupabaseTable(table, select, required = true) {
     .select(select, { count: "exact" })
     .limit(1);
 
+  return {
+    ok: !error,
+    detail: error ? error.message : "table/columns OK",
+  };
+}
+
+async function checkFeedbackStorage() {
+  const feedback = await probeSupabaseTable(
+    "beta_feedback",
+    "id,tester_name,contact,relation,device,overall_rating,clarity_rating,recommendation_rating,design_rating,paid_value_rating,liked_features,confusing_parts,would_pay,expected_price,most_valuable,missing_feature,mobile_issue,referral_idea,free_comment,permission_to_quote,metadata,created_at"
+  );
+
+  if (feedback.ok) {
+    addCheck("Feedback storage", true, "beta_feedback table/columns OK");
+    return;
+  }
+
+  const fallback = await probeSupabaseTable(
+    "api_usage_events",
+    "id,provider,endpoint,operation,request_count,input_tokens,output_tokens,cost_usd,cost_jpy,metadata,created_at"
+  );
   addCheck(
-    `Supabase ${table} schema`,
-    !error,
-    error ? error.message : "table/columns OK",
-    required
+    "Feedback storage",
+    fallback.ok,
+    fallback.ok
+      ? `api_usage_events fallback active / beta_feedback pending: ${feedback.detail}`
+      : `beta_feedback missing and fallback unavailable: ${feedback.detail} / ${fallback.detail}`
   );
 }
 
@@ -131,32 +189,11 @@ async function run() {
     "id,user_id,provider,endpoint,operation,model,request_count,input_tokens,output_tokens,cost_usd,cost_jpy,metadata,created_at"
   );
 
-  await checkSupabaseTable(
-    "beta_feedback",
-    "id,tester_name,contact,relation,device,overall_rating,clarity_rating,recommendation_rating,design_rating,paid_value_rating,liked_features,confusing_parts,would_pay,expected_price,most_valuable,missing_feature,mobile_issue,referral_idea,free_comment,permission_to_quote,metadata,created_at",
-    false
-  );
+  await checkFeedbackStorage();
 
-  try {
-    const { res, text } = await fetchText("/admin/status", adminRequestOptions);
-    addCheck("Admin status page", res.ok && text.includes("Launch Status"), `status=${res.status} / bytes=${text.length}`);
-  } catch (error) {
-    addCheck("Admin status page", false, error.message);
-  }
-
-  try {
-    const { res, text } = await fetchText("/admin/analytics", adminRequestOptions);
-    addCheck("Admin analytics page", res.ok && text.includes("Product Analytics"), `status=${res.status} / bytes=${text.length}`);
-  } catch (error) {
-    addCheck("Admin analytics page", false, error.message);
-  }
-
-  try {
-    const { res, text } = await fetchText("/admin/feedback", adminRequestOptions);
-    addCheck("Admin feedback page", res.ok && text.includes("Feedback Inbox"), `status=${res.status} / bytes=${text.length}`);
-  } catch (error) {
-    addCheck("Admin feedback page", false, error.message);
-  }
+  await checkAdminPage("/admin/status", "Admin status page", "Launch Status", adminRequestOptions);
+  await checkAdminPage("/admin/analytics", "Admin analytics page", "Product Analytics", adminRequestOptions);
+  await checkAdminPage("/admin/feedback", "Admin feedback page", "Feedback Inbox", adminRequestOptions);
 
   for (const [path, needle] of [
     ["/feedback", "BETA TEST FEEDBACK"],
@@ -176,7 +213,7 @@ async function run() {
 
   const failures = checks.filter((check) => check.required && !check.ok);
   for (const check of checks) {
-    const icon = check.ok ? "OK " : "ERR";
+    const icon = check.ok ? "OK " : check.required ? "ERR" : "WARN";
     console.log(`${icon} ${check.name}: ${check.detail}`);
   }
 

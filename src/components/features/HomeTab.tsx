@@ -499,8 +499,13 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
           <div>
             <span>{isGuest ? "はじめての方へ" : "迷ったらここ"}</span>
             <p>
-              使い方とQ&AはGuideにまとめました。最初は商品を見るだけでも大丈夫です。
+              最初は商品を見るだけで大丈夫です。気になったものだけ、少しずつ残していきましょう。
             </p>
+            <div className="home-cv-rail" aria-label="beautiaでできること">
+              <b>検索は登録なしOK</b>
+              <b>保存は無料登録から</b>
+              <b>相談は無料3回、PROで20回</b>
+            </div>
           </div>
           <div className="home-guide-prompt-actions">
             <button className="motion-nav-button" onClick={onGoGuide}>
@@ -508,6 +513,9 @@ export default function HomeTab({ profile, displayName, isGuest, isPro, preferen
             </button>
             <button className="motion-nav-button" onClick={() => onGoSearch()}>
               商品を探す
+            </button>
+            <button className="motion-nav-button" onClick={onGoKarte}>
+              パーソナル
             </button>
           </div>
         </div>

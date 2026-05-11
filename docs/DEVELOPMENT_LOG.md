@@ -8,6 +8,26 @@ beautia is a beauty product discovery app with auth, profile-based recommendatio
 
 The product experience should feel personal rather than like a generic catalog. Rakuten supplies real product images, product URLs, search results, and ranking results. The app adds beauty-specific categories, tags, plan gates, and profile match scoring on top.
 
+## 2026-05-11 Launch Readiness Pass
+
+Scope:
+
+- Hardened the production preflight so Stripe review readiness can be checked from one command.
+- Kept the Home page conversion prompt calmer and easier for first-time visitors to understand.
+- Added concise handoff docs for Stripe re-review and Google Search Console setup.
+
+Changes:
+
+- `scripts/preflight.mjs` now supports authenticated admin page checks when local Basic auth credentials are available, and still verifies the auth guard when they are not.
+- Feedback storage now passes when the current `api_usage_events` fallback is healthy, while still noting that the optional `beta_feedback` table is pending.
+- Home now explains the core funnel in three compact cues: search without signup, save after free signup, and chat limits for FREE/PRO.
+- Added `docs/STRIPE_REVIEW_READY.md` and `docs/GOOGLE_SEARCH_CONSOLE.md` for the remaining external dashboard steps.
+
+Verification:
+
+- `npm run typecheck` passes.
+- `NEXT_PUBLIC_APP_URL=https://beaute-xi.vercel.app npm run preflight` passes.
+
 ## 2026-05-11 SEO Foundation Pass
 
 Scope:
